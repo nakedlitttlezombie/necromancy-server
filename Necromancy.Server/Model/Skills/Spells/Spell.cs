@@ -83,6 +83,15 @@ namespace Necromancy.Server.Model.Skills
             float perHp = 0;
             int damage = Util.GetRandomNumber(70, 90);
 
+            if (!_server.settingRepository.skillBase.TryGetValue(_skillId, out SkillBaseSetting skillBaseSetting))
+            {
+                _Logger.Error($"Could not get SkillBaseSetting for skillId : {_skillId}");
+                return;
+            }
+
+            _Logger.Error($"type = {skillBaseSetting.characteristicEffectType}");
+            if (skillBaseSetting.characteristicEffectType == "HEAL"){ damage = Util.GetRandomNumber(-50, -10); }
+
             IInstance target = _server.instances.GetInstance(_targetInstanceId);
             switch (target)
             {
@@ -116,6 +125,13 @@ namespace Necromancy.Server.Model.Skills
                     trgCoord.X = character.x;
                     trgCoord.Y = character.y;
                     trgCoord.Z = character.z;
+                    NecClient targetClient = _server.clients.GetByCharacterInstanceId(_targetInstanceId);
+                    targetClient.character.hp.Modify(-damage, target.instanceId);
+                    perHp = (float)targetClient.character.hp.current / targetClient.character.hp.max * 100;
+                    _Logger.Debug($"CurrentHp [{targetClient.character.hp.current}] MaxHp[{targetClient.character.hp.max}] perHp[{perHp}]");
+                    RecvCharaUpdateHp cHpUpdate = new RecvCharaUpdateHp(targetClient.character.hp.current);
+                    _server.router.Send(targetClient, cHpUpdate.ToPacket());
+
                     break;
                 default:
                     _Logger.Error(
@@ -123,14 +139,7 @@ namespace Necromancy.Server.Model.Skills
                     break;
             }
 
-            if (!_server.settingRepository.skillBase.TryGetValue(_skillId, out SkillBaseSetting skillBaseSetting))
-            {
-                _Logger.Error($"Could not get SkillBaseSetting for skillId : {_skillId}");
-                return;
-            }
-            _Logger.Error($"type = {skillBaseSetting.characteristicEffectType}");
-            if (skillBaseSetting.characteristicEffectType == "HEAL")
-            { damage = Util.GetRandomNumber(-50, -10); }
+
 
             List<PacketResponse> brList = new List<PacketResponse>();
             RecvBattleReportStartNotify brStart = new RecvBattleReportStartNotify(_client.character.instanceId);
@@ -171,12 +180,7 @@ namespace Necromancy.Server.Model.Skills
             brList.Add(oHpUpdate);
             _server.router.Send(_client.map, brList);
 
-            NecClient targetClient = _server.clients.GetByCharacterInstanceId(_targetInstanceId);
-            targetClient.character.hp.Modify(-damage, target.instanceId);
-            perHp = (float)targetClient.character.hp.current / targetClient.character.hp.max * 100;
-            _Logger.Debug($"CurrentHp [{targetClient.character.hp.current}] MaxHp[{targetClient.character.hp.max}] perHp[{perHp}]");
-            RecvCharaUpdateHp cHpUpdate = new RecvCharaUpdateHp(targetClient.character.hp.current);
-            _server.router.Send(targetClient, cHpUpdate.ToPacket());
+
         }
     }
 }
