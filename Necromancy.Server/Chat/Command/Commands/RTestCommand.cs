@@ -379,6 +379,13 @@ namespace Necromancy.Server.Chat.Command.Commands
                     router.Send(client.map, recvTradeNotifyInterfaceStatus);
                     break;
 
+                case "maxhp":
+                    RecvCharaUpdateMaxHp recvCharaUpdateMaxHp1 = new RecvCharaUpdateMaxHp(client.character.hp.max+100);
+                    client.character.hp.SetMax(client.character.hp.max + 100);
+                    router.Send(client, recvCharaUpdateMaxHp1.ToPacket());
+                    break;
+
+
 
                 default: //you don't know what you're doing do you?
                     _Logger.Error($"There is no recv of type : {command[0]} ");
