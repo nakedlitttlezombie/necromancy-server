@@ -47,7 +47,7 @@ namespace Necromancy.Server.Packet.Area
                     if (itemLeft != null)
                     {
                         itemLeft = itemService.Unequip(itemLeft.currentEquipSlot);
-                        itemRight.currentEquipSlot = ItemEquipSlots.None;
+                        itemLeft.currentEquipSlot = ItemEquipSlots.None;
                         RecvItemUpdateEqMask recvItemUpdateEqMaskCurr = new RecvItemUpdateEqMask(client, itemLeft);
                         router.Send(recvItemUpdateEqMaskCurr, client);
                     }
