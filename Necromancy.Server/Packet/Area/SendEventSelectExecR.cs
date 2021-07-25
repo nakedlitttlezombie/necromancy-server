@@ -564,6 +564,7 @@ namespace Necromancy.Server.Packet.Area
                     while (client.character.experienceCurrent > experience.CalculateLevelUp((uint)client.character.level + 1).cumulativeExperience)
                     {
                         client.character.level++;
+                        client.character.skillPoints += 1;
                         client.character.hp.SetMax(client.character.hp.max + 10);
                         client.character.mp.SetMax(client.character.mp.max + 10);
                         client.character.strength += (ushort)Util.GetRandomNumber(0, 2);
@@ -594,6 +595,7 @@ namespace Necromancy.Server.Packet.Area
                         RecvCharaUpdateLvDetail2 recvCharaUpdateLvDetail2 = new RecvCharaUpdateLvDetail2(client.character, experience);
                         RecvCharaUpdateLvDetailEnd recvCharaUpdateLvDetailEnd = new RecvCharaUpdateLvDetailEnd();
 
+                        RecvSelfSkillPointNotify recvSelfSkillPointNotify = new RecvSelfSkillPointNotify(client.character.skillPoints);
                         RecvCharaUpdateMaxHp recvCharaUpdateMaxHp = new RecvCharaUpdateMaxHp(client.character.hp.max);
                         RecvCharaUpdateMaxMp recvCharaUpdateMaxMp = new RecvCharaUpdateMaxMp(client.character.mp.max);
                         RecvCharaUpdateHp recvCharaUpdateHp = new RecvCharaUpdateHp(client.character.hp.max);
@@ -609,6 +611,7 @@ namespace Necromancy.Server.Packet.Area
                         router.Send(recvCharaUpdateLvDetailStart, client);
 
 
+                        router.Send(recvSelfSkillPointNotify, client);
                         router.Send(recvCharaUpdateMaxHp, client);
                         router.Send(recvCharaUpdateMaxMp, client);
                         router.Send(recvCharaUpdateHp, client);
