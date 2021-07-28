@@ -852,7 +852,7 @@ namespace Necromancy.Server.Systems.Item
             if (itemInstance.weight < 0) itemInstance.weight = 0;
             return itemInstance;
         }
-
+        //also exists in itemservice. needs to match
         public ForgeMultiplier LoginLoadMultiplier(int level)
         {
             double factor = 1;
@@ -871,47 +871,47 @@ namespace Necromancy.Server.Systems.Item
                     hardness = 0;
                     break;
                 case 2:
-                    factor = 1.15;
+                    factor = 1.16;
                     durability = 1.2;
                     hardness = 0;
                     break;
                 case 3:
-                    factor = 1.27;
+                    factor = 1.29;
                     durability = 1.3;
                     hardness = 0;
                     break;
                 case 4:
-                    factor = 1.39;
+                    factor = 1.45;
                     durability = 1.4;
                     hardness = 0;
                     break;
                 case 5:
-                    factor = 1.54;
+                    factor = 1.67;
                     durability = 1.5;
                     hardness = 1;
                     break;
                 case 6:
-                    factor = 1.69;
+                    factor = 1.92;
                     durability = 1.6;
                     hardness = 0;
                     break;
                 case 7:
-                    factor = 1.84;
+                    factor = 2.20;
                     durability = 1.7;
                     hardness = 0;
                     break;
                 case 8:
-                    factor = 1.99;
+                    factor = 2.54;
                     durability = 1.8;
                     hardness = 0;
                     break;
                 case 9:
-                    factor = 2.14;
+                    factor = 2.91;
                     durability = 1.9;
                     hardness = 0;
                     break;
                 case 10:
-                    factor = 2.29;
+                    factor = 3.35;
                     durability = 2.0;
                     hardness = 2;
                     break;
