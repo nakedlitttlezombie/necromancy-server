@@ -7,15 +7,17 @@ namespace Necromancy.Server.Packet.Receive.Area
 {
     public class RecvSelfSkillPointNotify : PacketResponse
     {
-        public RecvSelfSkillPointNotify()
+        private uint _skillPoints;
+        public RecvSelfSkillPointNotify(uint skillPoints)
             : base((ushort)AreaPacketId.recv_self_skill_point_notify, ServerType.Area)
         {
+            _skillPoints = skillPoints;
         }
 
         protected override IBuffer ToBuffer()
         {
             IBuffer res = BufferProvider.Provide();
-            res.WriteInt32(0);
+            res.WriteUInt32(_skillPoints);
             return res;
         }
     }

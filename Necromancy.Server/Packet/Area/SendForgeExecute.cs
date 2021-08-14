@@ -46,11 +46,6 @@ namespace Necromancy.Server.Packet.Area
             if ((result == 2) & (forgeItemCount > 2) && Util.GetRandomNumber(0, client.character.luck) < 3) result = 1; // use 3 forge stone, get a 3rd chance
             //if ((result == 2) & (forgeItemCount > 2) && Util.GetRandomNumber(0, client.Character.Luck) < 5) result = 1; // use 3 forge stone, get a 4th chance
 
-            IBuffer res = BufferProvider.Provide();
-            res.WriteInt32(0); // 0 is a pass, anything but 0 is a fail; seems like a check for if you can still upgrade the weapon
-            res.WriteInt32(result); // anything but a 1 here is a fail condition, 1 here is a pass condition.
-            router.Send(client, (ushort)AreaPacketId.recv_forge_execute_r, res, ServerType.Area);
-
 
             RecvForgeNotifyExecuteResult recvForgeNotifyExecuteResult = new RecvForgeNotifyExecuteResult(client.character.instanceId, result);
             router.Send(client, recvForgeNotifyExecuteResult.ToPacket());
@@ -59,6 +54,12 @@ namespace Necromancy.Server.Packet.Area
             ItemInstance itemInstance = client.character.itemLocationVerifier.GetItem(new ItemLocation((ItemZoneType)storageType, bag, slot));
             ForgeMultiplier forgeMultiplier = itemService.ForgeMultiplier(itemInstance.enhancementLevel + 1);
 
+            if (itemInstance.enhancementLevel > 9) result = 0; // no forging beyond 10. sorry.
+
+            IBuffer res = BufferProvider.Provide();
+            res.WriteInt32(0); // 0 is a pass, anything but 0 is a fail; seems like a check for if you can still upgrade the weapon
+            res.WriteInt32(result); // anything but a 1 here is a fail condition, 1 here is a pass condition.
+            router.Send(client, (ushort)AreaPacketId.recv_forge_execute_r, res, ServerType.Area);
 
             itemInstance.enhancementLevel += 1;
             itemInstance.physical = (short)(itemInstance.physical * forgeMultiplier.factor);

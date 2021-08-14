@@ -80,8 +80,11 @@ namespace Necromancy.Server.Packet.Area
                 brList.Add(recvBattleReportNotifyRaise);
                 brList.Add(brEnd);
                 router.Send(client.map, brList);
+                RecvCharaUpdateMaxHp recvCharaUpdateMaxHp1 = new RecvCharaUpdateMaxHp(client.character.hp.max);
+                router.Send(client, recvCharaUpdateMaxHp1.ToPacket());
 
-                Task.Delay(TimeSpan.FromSeconds(5)).ContinueWith
+
+                Task.Delay(TimeSpan.FromSeconds(3)).ContinueWith
                 (t1 =>
                     {
                         RecvCharaUpdateHp cHpUpdate = new RecvCharaUpdateHp(client.character.hp.max);
@@ -163,7 +166,7 @@ namespace Necromancy.Server.Packet.Area
 
             IBuffer res7 = BufferProvider.Provide();
             res7.WriteByte(0);
-            router.Send(client, (ushort)AreaPacketId.recv_event_end, res7, ServerType.Area);
+            //router.Send(client, (ushort)AreaPacketId.recv_event_end, res7, ServerType.Area); //why is this needed? the script play ends the event
         }
     }
 }
