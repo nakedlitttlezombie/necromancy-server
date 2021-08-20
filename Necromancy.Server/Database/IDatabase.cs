@@ -31,6 +31,8 @@ namespace Necromancy.Server.Database
         Soul SelectSoulByName(string soulName);
         List<Soul> SelectSoulsByAccountId(int accountId);
         bool UpdateSoul(Soul soul);
+        bool UpdateSoulGold(Soul soul);
+
         bool DeleteSoul(int soulId);
 
         // Map

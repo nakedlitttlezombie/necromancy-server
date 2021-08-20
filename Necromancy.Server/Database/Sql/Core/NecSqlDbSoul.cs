@@ -25,6 +25,10 @@ namespace Necromancy.Server.Database.Sql.Core
         private const string SQL_UPDATE_SOUL =
             "UPDATE `nec_soul` SET `account_id`=@account_id, `name`=@name, `level`=@level, `created`=@created, `password`=@password WHERE `id`=@id;";
 
+        private const string SQL_UPDATE_SOUL_GOLD =
+            "UPDATE `nec_soul` SET `warehouse_gold`=@warehouse_gold WHERE `id`=@id;";
+
+
         private const string SQL_DELETE_SOUL =
             "DELETE FROM `nec_soul` WHERE `id`=@id;";
 
@@ -113,6 +117,16 @@ namespace Necromancy.Server.Database.Sql.Core
                 AddParameter(command, "@material_reincarnation", soul.materialReincarnation);
                 AddParameter(command, "@material_lawful", soul.materialLawful);
                 AddParameter(command, "@material_chaos", soul.materialChaos);
+            });
+            return rowsAffected > NO_ROWS_AFFECTED;
+        }
+
+        public bool UpdateSoulGold(Soul soul)
+        {
+            int rowsAffected = ExecuteNonQuery(SQL_UPDATE_SOUL_GOLD, command =>
+            {
+                AddParameter(command, "@id", soul.id);
+                AddParameter(command, "@warehouse_gold", soul.warehouseGold);
             });
             return rowsAffected > NO_ROWS_AFFECTED;
         }

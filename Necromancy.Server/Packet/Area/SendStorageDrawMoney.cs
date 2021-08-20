@@ -23,6 +23,9 @@ namespace Necromancy.Server.Packet.Area
 
             client.character.adventureBagGold += withdrawGold; //Updates your Character.AdventureBagGold
             client.soul.warehouseGold -= withdrawGold; //Updates your Soul.warehouseGold
+            server.database.UpdateCharacter(client.character);
+            server.database.UpdateSoulGold(client.soul);
+
 
             IBuffer res2 = BufferProvider.Provide();
             res2.WriteUInt64(client.character.adventureBagGold); // Sets your Adventure Bag Gold
