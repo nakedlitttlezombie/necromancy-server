@@ -23,7 +23,7 @@ namespace Necromancy.Server.Database.Sql.Core
             SELECT * FROM nec_soul WHERE account_id=@account_id";
 
         private const string SQL_UPDATE_SOUL =
-            "UPDATE `nec_soul` SET `account_id`=@account_id, `name`=@name, `level`=@level, `created`=@created, `password`=@password, `experience_current`=@experience_current,`warehouse_gold`=@warehouse_gold, `points_lawful`=@points_lawful, `points_neutral`=@points_neutral, `points_chaos`=@points_chaos, `criminal_level`=@criminal_level, `points_current`=@points_current, `material_life`=@material_life, `material_reincarnation`=@material_reincarnation, `material_lawful`=@material_lawful, `material_chaos`=@material_chaos,  WHERE `id`=@id;";
+            "UPDATE `nec_soul` SET `account_id`=@account_id, `name`=@name, `level`=@level, `created`=@created, `password`=@password, `experience_current`=@experience_current,`warehouse_gold`=@warehouse_gold, `points_lawful`=@points_lawful, `points_neutral`=@points_neutral, `points_chaos`=@points_chaos, `criminal_level`=@criminal_level, `points_current`=@points_current, `material_life`=@material_life, `material_reincarnation`=@material_reincarnation, `material_lawful`=@material_lawful, `material_chaos`=@material_chaos WHERE `id`=@id;";
 
         private const string SQL_UPDATE_SOUL_GOLD =
             "UPDATE `nec_soul` SET `warehouse_gold`=@warehouse_gold WHERE `id`=@id;";
