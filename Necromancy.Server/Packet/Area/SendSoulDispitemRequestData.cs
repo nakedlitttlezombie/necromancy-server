@@ -32,7 +32,7 @@ namespace Necromancy.Server.Packet.Area
 
             //ToDo  find a better home for these functionalities . This send is the last stop before initial map entry.
             LoadInventory(client, _server);
-            //LoadCloakRoom(client);
+            LoadCloakRoom(client, _server);
             //LoadBattleStats(client);
             LoadHonor(client);
             //LoadSoulDispItem(client);
@@ -96,7 +96,7 @@ namespace Necromancy.Server.Packet.Area
                 }
         }
 
-        public void LoadCloakRoom(NecClient client)
+        public void LoadCloakRoom(NecClient client, NecServer server)
         {
             ItemService itemService = new ItemService(client.character);
             List<ItemInstance> ownedItems = itemService.LoadCloakRoomItemInstances(server);

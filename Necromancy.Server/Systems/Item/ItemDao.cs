@@ -50,13 +50,17 @@ namespace Necromancy.Server.Systems.Item
 
         private const string SQL_SELECT_CLOAKROOM_ITEMS = @"
             SELECT
-                *
+                item_instance.*, nec_character.id, nec_character.soul_id
             FROM
-                item_instance INNER JOIN nec_character ON nec_character.id = item_instance.owner_id
+                item_instance
+            INNER JOIN
+                nec_character
+            ON
+                nec_character.id = item_instance.owner_id
             WHERE
                nec_character.soul_id = @soul_id
             AND
-                zone IN (3)"; //adventure bag, equipped bags,royal bag, bag slot, avatar inventory
+                zone = 3"; //Cloakroom
 
         private const string SQL_SELECT_LOOTABLE_INVENTORY_ITEMS = @"
             SELECT
