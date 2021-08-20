@@ -24,6 +24,12 @@ namespace Necromancy.Server.Systems.Item
         /// <param name="ownerId">Owner of items.</param>
         /// <returns>A list of all the items in the character's inventory.</returns>
         public List<ItemInstance> SelectOwnedInventoryItems(int ownerId);
+        /// <summary>
+        /// Gets the cloakroom items by joining your soul ID over your character ID and grabbing any items owned by any of your character IDs in zone 3 (cloakroom)
+        /// </summary>
+        /// <param name="soulId"></param>
+        /// <returns></returns>
+        public List<ItemInstance> SelectCloakRoomItems(int soulId);
 
         /// <summary>
         ///     This selects only the items in the character's inventory that are lootable: Adventure bag, Equipped bags, and Royal

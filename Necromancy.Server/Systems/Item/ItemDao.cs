@@ -48,6 +48,16 @@ namespace Necromancy.Server.Systems.Item
             AND
                 zone IN (0,1,2,8,12)"; //adventure bag, equipped bags,royal bag, bag slot, avatar inventory
 
+        private const string SQL_SELECT_CLOAKROOM_ITEMS = @"
+            SELECT
+                *
+            FROM
+                item_instance INNER JOIN nec_character ON nec_character.id = item_instance.owner_id
+            WHERE
+               nec_character.soul_id = @soul_id
+            AND
+                zone IN (3)"; //adventure bag, equipped bags,royal bag, bag slot, avatar inventory
+
         private const string SQL_SELECT_LOOTABLE_INVENTORY_ITEMS = @"
             SELECT
                 *
@@ -396,6 +406,17 @@ namespace Necromancy.Server.Systems.Item
             List<ItemInstance> ownedItemInstances = new List<ItemInstance>();
             ExecuteReader(SQL_SELECT_OWNED_INVENTORY_ITEMS,
                 command => { AddParameter(command, "@owner_id", ownerId); }, reader =>
+                {
+                    while (reader.Read()) ownedItemInstances.Add(MakeItemInstance(reader));
+                });
+            return ownedItemInstances;
+        }
+
+        public List<ItemInstance> SelectCloakRoomItems(int soulId)
+        {
+            List<ItemInstance> ownedItemInstances = new List<ItemInstance>();
+            ExecuteReader(SQL_SELECT_CLOAKROOM_ITEMS,
+                command => { AddParameter(command, "@soul_id", soulId); }, reader =>
                 {
                     while (reader.Read()) ownedItemInstances.Add(MakeItemInstance(reader));
                 });

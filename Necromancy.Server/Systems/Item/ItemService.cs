@@ -164,6 +164,43 @@ namespace Necromancy.Server.Systems.Item
             return ownedItems;
         }
 
+        /// <summary>
+        /// </summary>
+        /// <returns>A list of items in your cloakroom</returns>
+        public List<ItemInstance> LoadCloakRoomItemInstances(NecServer server)
+        {
+            List<ItemInstance> ownedItems = _itemDao.SelectCloakRoomItems(_character.soulId);
+            //load bags first
+            foreach (ItemInstance item in ownedItems)
+                if (item.location.zoneType == ItemZoneType.BagSlot)
+                {
+                    ItemLocation location = item.location; //only needed on load inventory because item's location is already populated and it is not in the manager
+                    item.location = ItemLocation.InvalidLocation; //only needed on load inventory because item's location is already populated and it is not in the manager
+                    _character.itemLocationVerifier.PutItem(location, item);
+                }
+
+            foreach (ItemInstance itemInstance in ownedItems)
+            {
+                if (itemInstance.location.slot < 0) //remove invalid db rows on login.
+                {
+                    _itemDao.DeleteItemInstance(itemInstance.instanceId);
+                    continue;
+                }
+
+                if (itemInstance.location.zoneType != ItemZoneType.BagSlot)
+                {
+                    ItemLocation location = itemInstance.location; //only needed on load inventory because item's location is already populated and it is not in the manager
+                    itemInstance.location = ItemLocation.InvalidLocation; //only needed on load inventory because item's location is already populated and it is not in the manager
+
+                    _character.itemLocationVerifier.PutItem(location, itemInstance);
+                }
+
+                //if (itemInstance.currentEquipSlot != ItemEquipSlots.None) _character.equippedItems.Add(itemInstance.currentEquipSlot, itemInstance);
+            }
+
+            return ownedItems;
+        }
+
         public void LoadEquipmentModels()
         {
             _character.equippedItems.Clear();
