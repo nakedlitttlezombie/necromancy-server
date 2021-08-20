@@ -48,6 +48,7 @@ namespace Necromancy.Server.Systems.Item
         {
             ItemInstance item = _character.itemLocationVerifier.GetItem(location);
             if (item.statuses.HasFlag(ItemStatuses.Unidentified)) item.statuses &= ~ItemStatuses.Unidentified;
+            _itemDao.UpdateItemOwnerAndStatus(item.instanceId, _character.id, (int)item.statuses);
             return item;
         }
 
