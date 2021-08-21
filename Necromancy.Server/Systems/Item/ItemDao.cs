@@ -669,6 +669,7 @@ namespace Necromancy.Server.Systems.Item
 
             itemInstance.currentDurability = reader.GetInt32("current_durability");
             itemInstance.maximumDurability = reader.GetInt32("plus_maximum_durability");
+            if (itemInstance.maximumDurability == 0) itemInstance.maximumDurability = 10; //toDo  update item library.  items shouldnt have 0 for core stats
 
             itemInstance.enhancementLevel = reader.GetByte("enhancement_level");
 
