@@ -33,23 +33,9 @@ namespace Necromancy.Server.Packet.Area
                 RecvItemInstance recvItemInstance = new RecvItemInstance(client, identifiedItem);
                 router.Send(recvItemInstance);
 
-
-                identifiedItem.currentDurability = 100;
-                identifiedItem.maximumDurability = 101;
+                identifiedItem.currentDurability = identifiedItem.maximumDurability;
                 RecvItemUpdateDurability recvItemUpdateDurability = new RecvItemUpdateDurability(client, identifiedItem);
                 router.Send(recvItemUpdateDurability);
-
-
-                IBuffer res = BufferProvider.Provide();
-                res.WriteUInt64(identifiedItem.instanceId);
-                res.WriteInt32(100); // MaxDura points
-                router.Send(client, (ushort)AreaPacketId.recv_item_update_maxdur, res, ServerType.Area);
-
-                res = BufferProvider.Provide();
-                res.WriteUInt64(identifiedItem.instanceId);
-                res.WriteInt32(105); // Durability points
-                router.Send(client, (ushort)AreaPacketId.recv_item_update_durability, res, ServerType.Area);
-
             }
             catch (ItemException e)
             {
