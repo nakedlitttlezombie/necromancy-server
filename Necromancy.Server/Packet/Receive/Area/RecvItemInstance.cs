@@ -30,7 +30,7 @@ namespace Necromancy.Server.Packet.Receive.Area
             res.WriteByte((byte)_itemInstance.location.zoneType); //STORAGE ZONE
             res.WriteByte(_itemInstance.location.container); //BAG
             res.WriteInt16(_itemInstance.location.slot); //SLOT
-            res.WriteInt32(Util.GetRandomNumber(1,20)); //UNKNOWN
+            res.WriteInt32(0); //UNKNOWN
             res.WriteInt32((int)_itemInstance.currentEquipSlot); //CURRENT EQUIP SLOT
             res.WriteInt32(_itemInstance.currentDurability); //CURRENT DURABILITY
             res.WriteByte(_itemInstance.enhancementLevel); //ENHANCEMENT LEVEL?
