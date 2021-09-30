@@ -32,7 +32,7 @@ namespace Necromancy.Server.Packet.Area
 
             //ToDo  find a better home for these functionalities . This send is the last stop before initial map entry.
             LoadInventory(client, _server);
-            //LoadCloakRoom(client);
+            LoadCloakRoom(client, _server);
             //LoadBattleStats(client);
             LoadHonor(client);
             //LoadSoulDispItem(client);
@@ -96,9 +96,22 @@ namespace Necromancy.Server.Packet.Area
                 }
         }
 
-        public void LoadCloakRoom(NecClient client)
+        public void LoadCloakRoom(NecClient client, NecServer server)
         {
-            //populate soul inventory from database.
+            ItemService itemService = new ItemService(client.character);
+            List<ItemInstance> ownedItems = itemService.LoadCloakRoomItemInstances(server);
+            foreach (ItemInstance itemInstance in ownedItems)
+                if (itemInstance.statuses.HasFlag(ItemStatuses.Unidentified))
+                {
+                    RecvItemInstanceUnidentified recvItemInstanceUnidentified = new RecvItemInstanceUnidentified(client, itemInstance);
+                    router.Send(client, recvItemInstanceUnidentified.ToPacket());
+                    _Logger.Debug($" Unidentified item : {itemInstance.location.zoneType}");
+                }
+                else
+                {
+                    RecvItemInstance recvItemInstance = new RecvItemInstance(client, itemInstance);
+                    router.Send(client, recvItemInstance.ToPacket());
+                }
         }
     }
 }

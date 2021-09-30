@@ -23,7 +23,11 @@ namespace Necromancy.Server.Database.Sql.Core
             SELECT * FROM nec_soul WHERE account_id=@account_id";
 
         private const string SQL_UPDATE_SOUL =
-            "UPDATE `nec_soul` SET `account_id`=@account_id, `name`=@name, `level`=@level, `created`=@created, `password`=@password WHERE `id`=@id;";
+            "UPDATE `nec_soul` SET `account_id`=@account_id, `name`=@name, `level`=@level, `created`=@created, `password`=@password, `experience_current`=@experience_current,`warehouse_gold`=@warehouse_gold, `points_lawful`=@points_lawful, `points_neutral`=@points_neutral, `points_chaos`=@points_chaos, `criminal_level`=@criminal_level, `points_current`=@points_current, `material_life`=@material_life, `material_reincarnation`=@material_reincarnation, `material_lawful`=@material_lawful, `material_chaos`=@material_chaos WHERE `id`=@id;";
+
+        private const string SQL_UPDATE_SOUL_GOLD =
+            "UPDATE `nec_soul` SET `warehouse_gold`=@warehouse_gold WHERE `id`=@id;";
+
 
         private const string SQL_DELETE_SOUL =
             "DELETE FROM `nec_soul` WHERE `id`=@id;";
@@ -113,6 +117,16 @@ namespace Necromancy.Server.Database.Sql.Core
                 AddParameter(command, "@material_reincarnation", soul.materialReincarnation);
                 AddParameter(command, "@material_lawful", soul.materialLawful);
                 AddParameter(command, "@material_chaos", soul.materialChaos);
+            });
+            return rowsAffected > NO_ROWS_AFFECTED;
+        }
+
+        public bool UpdateSoulGold(Soul soul)
+        {
+            int rowsAffected = ExecuteNonQuery(SQL_UPDATE_SOUL_GOLD, command =>
+            {
+                AddParameter(command, "@id", soul.id);
+                AddParameter(command, "@warehouse_gold", soul.warehouseGold);
             });
             return rowsAffected > NO_ROWS_AFFECTED;
         }

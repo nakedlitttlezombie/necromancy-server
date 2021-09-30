@@ -1,3 +1,5 @@
+using Arrowgene.Buffers;
+using Necromancy.Server.Common;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
 using Necromancy.Server.Packet.Receive.Area;
@@ -30,6 +32,10 @@ namespace Necromancy.Server.Packet.Area
                 identifiedItem = itemService.GetIdentifiedItem(location);
                 RecvItemInstance recvItemInstance = new RecvItemInstance(client, identifiedItem);
                 router.Send(recvItemInstance);
+
+                identifiedItem.currentDurability = identifiedItem.maximumDurability;
+                RecvItemUpdateDurability recvItemUpdateDurability = new RecvItemUpdateDurability(client, identifiedItem);
+                router.Send(recvItemUpdateDurability);
             }
             catch (ItemException e)
             {

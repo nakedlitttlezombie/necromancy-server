@@ -553,6 +553,7 @@ namespace Necromancy.Server.Packet.Area
             client.character.eventSelectExecCode = 0;
             client.character.eventSelectReadyCode = 0;
             client.character.secondInnAccess = false;
+            server.database.UpdateCharacter(client.character);
         }
 
         private void LevelUpCheck(NecClient client)

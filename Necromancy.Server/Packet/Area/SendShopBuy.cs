@@ -22,6 +22,7 @@ namespace Necromancy.Server.Packet.Area
             byte count = packet.data.ReadByte();
 
             client.character.adventureBagGold -= count * price;
+            server.database.UpdateCharacter(client.character);
 
             RecvSelfMoneyNotify recvSelfMoneyNotify = new RecvSelfMoneyNotify(client, client.character.adventureBagGold);
             router.Send(recvSelfMoneyNotify, client);
