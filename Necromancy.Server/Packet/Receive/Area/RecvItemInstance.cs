@@ -98,7 +98,7 @@ namespace Necromancy.Server.Packet.Receive.Area
             res.WriteInt32(0); //V|EFFECT4 VALUE - IF ENABLED MUST BE GREATER THAN ZERO OR DISPLAY ERROR
             res.WriteInt32(0); //V|EFFECT5 VALUE - IF ENABLED MUST BE GREATER THAN ZERO OR DISPLAY ERROR
 
-            //UNKNOWN
+            //RecvItemUpdateEquipSkill
             for (int j = 0; j < numEntries; j++)
             {
                 res.WriteInt32(j); //UNKNOWN
@@ -113,7 +113,7 @@ namespace Necromancy.Server.Packet.Receive.Area
             res.WriteByte(_itemInstance.numOfLoads); //Number of loads - need better translation
             res.WriteByte(_itemInstance.spCardColor); //Soul Partner card type color, pulled from str_table 100,1197,add 1 to sent value to find match
 
-            res.WriteInt64(0); //UNKNOWN
+            res.WriteInt64(99999999); //UNKNOWN
 
             //base enchant display on bottom
             res.WriteInt16(0); //Base Enchant Scroll ID

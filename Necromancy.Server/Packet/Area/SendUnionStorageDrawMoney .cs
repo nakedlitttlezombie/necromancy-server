@@ -26,6 +26,7 @@ namespace Necromancy.Server.Packet.Area
             //To-Do,  make a variable to track union gold
             client.character.adventureBagGold += withdrawGold; //Updates your Character.AdventureBagGold
             client.soul.warehouseGold -= withdrawGold; //Updates your Soul.warehouseGold
+            server.database.UpdateCharacter(client.character);
 
             res = BufferProvider.Provide();
             res.WriteUInt64(client.character.adventureBagGold); // Sets your Adventure Bag Gold

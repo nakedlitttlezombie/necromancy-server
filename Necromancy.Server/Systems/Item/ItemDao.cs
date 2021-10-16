@@ -48,6 +48,20 @@ namespace Necromancy.Server.Systems.Item
             AND
                 zone IN (0,1,2,8,12)"; //adventure bag, equipped bags,royal bag, bag slot, avatar inventory
 
+        private const string SQL_SELECT_CLOAKROOM_ITEMS = @"
+            SELECT
+                item_instance.*, nec_character.id, nec_character.soul_id
+            FROM
+                item_instance
+            INNER JOIN
+                nec_character
+            ON
+                nec_character.id = item_instance.owner_id
+            WHERE
+               nec_character.soul_id = @soul_id
+            AND
+                zone = 3"; //Cloakroom
+
         private const string SQL_SELECT_LOOTABLE_INVENTORY_ITEMS = @"
             SELECT
                 *
@@ -402,6 +416,17 @@ namespace Necromancy.Server.Systems.Item
             return ownedItemInstances;
         }
 
+        public List<ItemInstance> SelectCloakRoomItems(int soulId)
+        {
+            List<ItemInstance> ownedItemInstances = new List<ItemInstance>();
+            ExecuteReader(SQL_SELECT_CLOAKROOM_ITEMS,
+                command => { AddParameter(command, "@soul_id", soulId); }, reader =>
+                {
+                    while (reader.Read()) ownedItemInstances.Add(MakeItemInstance(reader));
+                });
+            return ownedItemInstances;
+        }
+
         public List<ItemInstance> InsertItemInstances(int ownerId, ItemLocation[] locs, int[] baseId, ItemSpawnParams[] spawnParams)
         {
             int size = locs.Length;
@@ -644,6 +669,7 @@ namespace Necromancy.Server.Systems.Item
 
             itemInstance.currentDurability = reader.GetInt32("current_durability");
             itemInstance.maximumDurability = reader.GetInt32("plus_maximum_durability");
+            if (itemInstance.maximumDurability == 0) itemInstance.maximumDurability = 10; //toDo  update item library.  items shouldnt have 0 for core stats
 
             itemInstance.enhancementLevel = reader.GetByte("enhancement_level");
 
