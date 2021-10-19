@@ -76,10 +76,8 @@ namespace Necromancy.Server.Tasks
         }
 
         private void CriminalRepent()
-        {
-            _client.soul.criminalLevel--;
-            if (_client.soul.criminalLevel <= 0) _client.soul.criminalLevel = 0;
-
+        {            
+            if (_client.soul.criminalLevel > 0) _client.soul.criminalLevel--;
             _client.character.criminalState = _client.soul.criminalLevel;
         }
 
