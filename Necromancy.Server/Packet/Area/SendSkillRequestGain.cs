@@ -4,6 +4,7 @@ using Necromancy.Server.Common;
 using Necromancy.Server.Logging;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
+using Necromancy.Server.Packet.Receive.Area;
 
 namespace Necromancy.Server.Packet.Area
 {
@@ -41,6 +42,9 @@ namespace Necromancy.Server.Packet.Area
             }
 
             SendSkillTreeGain(client, skillId, skillLevel);
+            client.character.skillPoints -= 1; //remove 1 skillpoint.  ToDo - ensure character has skill points 
+            RecvSelfSkillPointNotify recvSelfSkillPointNotify = new RecvSelfSkillPointNotify(client.character.skillPoints);
+            router.Send(recvSelfSkillPointNotify, client);
 
             IBuffer res = BufferProvider.Provide();
             res.WriteInt32(0); //1 = failed to aquire skill, 0 = success? but no skill aquired
