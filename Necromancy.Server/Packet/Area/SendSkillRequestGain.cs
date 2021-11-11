@@ -53,8 +53,8 @@ namespace Necromancy.Server.Packet.Area
 
             res.WriteInt32(skillId);
             res.WriteInt32(skillLevel); //Level of skill (1-7)
-            res.WriteByte(1); //Bool
-            res.WriteByte(1); //Bool
+            res.WriteByte(0); //Bool  Transferred skill. 1 = yes
+            res.WriteByte(0); //Bool
 
             router.Send(client, (ushort)AreaPacketId.recv_skill_tree_gain, res, ServerType.Area);
         }
