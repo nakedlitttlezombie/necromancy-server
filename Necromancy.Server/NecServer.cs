@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Arrowgene.Logging;
 using Arrowgene.Networking.Tcp.Server.AsyncEvent;
@@ -161,6 +162,17 @@ namespace Necromancy.Server
             if (!database.UpdateCharacter(client.character)) _Logger.Error("Could not update the database with character details before disconnect");
             if (!database.UpdateSoul(client.soul)) _Logger.Error("Could not update the database with soul details before disconnect");
             clients.Remove(client);
+
+            //Write all your movements to an output log file.  Remove this after maps are meshed
+            using (StreamWriter writer = File.AppendText(@setting.repositoryFolder +"/movements.txt"))
+            {
+                string output = "";
+                foreach (MapMeshCapture mapMeshCapture in client.mapMeshCaptures)
+                {
+                    output += string.Join(Environment.NewLine, $"\r\n{mapMeshCapture.mapId}, {mapMeshCapture.x} , {mapMeshCapture.y} , {mapMeshCapture.z} , {mapMeshCapture.heading} , {mapMeshCapture.created} , {mapMeshCapture.characterInstanceId}");
+                }
+                writer.Write(output);
+            }
 
             //I disconnected while my dead body was being carried around by another player
             if (client.character.hasDied)

@@ -19,6 +19,7 @@ namespace Necromancy.Server.Model
             soul = new Soul();
             character = new Character();
             bodyCollection = new Dictionary<uint, NecClient>();
+            mapMeshCaptures = new List<MapMeshCapture>();
         }
 
         public DateTime creation { get; }
@@ -35,6 +36,7 @@ namespace Necromancy.Server.Model
         public uint heartBeat { get; set; }
 
         public Dictionary<uint, NecClient> bodyCollection { get; set; }
+        public List<MapMeshCapture> mapMeshCaptures;
 
         public void Send(NecPacket packet)
         {

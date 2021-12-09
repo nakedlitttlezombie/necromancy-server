@@ -149,6 +149,22 @@ namespace Necromancy.Server.Packet.Area
             //Logic to see if you are in range of a map transition
             client.character.stepCount++;
             if (client.character.stepCount % 4 == 0) CheckMapChange(client);
+
+            //Capturing player movements so we can build a map mesh.
+            MapMeshCapture(client);
+        }
+
+        private void MapMeshCapture(NecClient client)
+        {
+            MapMeshCapture mapMeshCapture = new MapMeshCapture();
+            mapMeshCapture.characterInstanceId = client.character.instanceId;
+            mapMeshCapture.mapId = client.character.mapId;
+            mapMeshCapture.x = client.character.x;
+            mapMeshCapture.y = client.character.y;
+            mapMeshCapture.z = client.character.z;
+            mapMeshCapture.heading = client.character.heading;
+            
+            client.mapMeshCaptures.Add(mapMeshCapture);
         }
 
         private void CheckMapChange(NecClient client)
