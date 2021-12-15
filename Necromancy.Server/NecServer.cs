@@ -169,7 +169,7 @@ namespace Necromancy.Server
                 string output = "";
                 foreach (MapMeshCapture mapMeshCapture in client.mapMeshCaptures)
                 {
-                    output += string.Join(Environment.NewLine, $"\r\n{mapMeshCapture.mapId}, {mapMeshCapture.x} , {mapMeshCapture.y} , {mapMeshCapture.z} , {mapMeshCapture.heading} , {mapMeshCapture.created} , {mapMeshCapture.characterInstanceId}");
+                    output += string.Join(Environment.NewLine, $"\r\n{mapMeshCapture.mapId}, {mapMeshCapture.x} , {mapMeshCapture.y} , {mapMeshCapture.z} , {mapMeshCapture.heading} , {mapMeshCapture.verticalMovementSpeedMultiplier} , {mapMeshCapture.created} , {mapMeshCapture.characterInstanceId}");
                 }
                 writer.Write(output);
             }

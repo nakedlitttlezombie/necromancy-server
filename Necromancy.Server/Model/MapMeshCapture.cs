@@ -16,6 +16,7 @@ namespace Necromancy.Server.Model
         public float z { get; set; }
         public byte heading { get; set; }
         public DateTime created { get; set; }
+        public float verticalMovementSpeedMultiplier { get; set; }
 
     }
 }

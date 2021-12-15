@@ -151,10 +151,10 @@ namespace Necromancy.Server.Packet.Area
             if (client.character.stepCount % 4 == 0) CheckMapChange(client);
 
             //Capturing player movements so we can build a map mesh.
-            MapMeshCapture(client);
+            MapMeshCapture(client, verticalMovementSpeedMultiplier);
         }
 
-        private void MapMeshCapture(NecClient client)
+        private void MapMeshCapture(NecClient client, float verticalMovementSpeedMultiplier)
         {
             MapMeshCapture mapMeshCapture = new MapMeshCapture();
             mapMeshCapture.characterInstanceId = client.character.instanceId;
@@ -163,7 +163,9 @@ namespace Necromancy.Server.Packet.Area
             mapMeshCapture.y = client.character.y;
             mapMeshCapture.z = client.character.z;
             mapMeshCapture.heading = client.character.heading;
-            
+            mapMeshCapture.verticalMovementSpeedMultiplier = verticalMovementSpeedMultiplier;
+
+
             client.mapMeshCaptures.Add(mapMeshCapture);
         }
 
