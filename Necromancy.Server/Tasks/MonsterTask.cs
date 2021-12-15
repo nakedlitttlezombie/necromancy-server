@@ -344,7 +344,7 @@ namespace Necromancy.Server.Tasks
 
         private void PlayerDamage()
         {
-            int damage = Util.GetRandomNumber(8, 43);
+            int damage = monster.level * Util.GetRandomNumber(1, 5); //ToDo  make a legitimate damage calculation. 
             Character currentTarget = monster.GetCurrentTarget();
             currentTarget.hp.Modify(-damage, monster.instanceId);
 
