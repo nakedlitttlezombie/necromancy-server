@@ -344,7 +344,7 @@ namespace Necromancy.Cli
             StringBuilder sb = new StringBuilder();
             sb.Append(Environment.NewLine);
             sb.Append(Environment.NewLine);
-            sb.Append("Necromancy.Cli Copyright (C) 2019-2020 Necromancy Team");
+            sb.Append("Necromancy.Cli Copyright (C) 2019-2021 Necromancy Team");
             sb.Append(Environment.NewLine);
             sb.Append("This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.");
             sb.Append(Environment.NewLine);
