@@ -81,6 +81,10 @@ namespace Necromancy.Server.Chat.Command.Commands
                     res.WriteInt32(y);
                     character2.hp.SetCurrent(y);
                     router.Send(client, (ushort)AreaPacketId.recv_chara_update_hp, res, ServerType.Area);
+
+                    RecvCharaUpdateMaxHp recvCharaUpdateMaxHp1 = new RecvCharaUpdateMaxHp(y);
+                    if (y > character2.hp.max)
+                    router.Send(client, recvCharaUpdateMaxHp1.ToPacket());
                     break;
 
                 case "dead":
