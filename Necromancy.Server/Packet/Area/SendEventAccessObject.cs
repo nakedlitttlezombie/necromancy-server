@@ -231,7 +231,8 @@ namespace Necromancy.Server.Packet.Area
                             () => PlayerRevive(client, npcSpawn)
                         },
                         {
-                            x => x == 74005001 || x == 74005002 || x == 74005003 || x == 74005004 || x == 74005005 || x == 74005006 || x == 74005007 || x == 74005008 || x == 74005009,
+                            x => x == 74005001 || x == 74005002 || x == 74005003 || x == 74005004 || x == 74005005 || x == 74005006 || x == 74005007 || x == 74005008 || x == 74005009 ||
+                                 x == 74005101 || x == 74005102 || x == 74005103 || x == 74005104 || x == 74005105 || x == 74005106 || x == 74005107 || x == 74005108 || x == 74005109 || x == 74005110,
                             () => TowerToTowerWarp(client, npcSpawn.npcId)
                         },                        
                         {x => x < 10, () => _Logger.Debug($" Event Object switch for NPC ID {npcSpawn.npcId} reached")},
@@ -1220,7 +1221,7 @@ namespace Necromancy.Server.Packet.Area
         {
             IBuffer res = BufferProvider.Provide();
             RecvEventScriptPlay recvEventScriptPlay = new RecvEventScriptPlay("etc/warp_samemap", client.character.instanceId);
-            router.Send(recvEventScriptPlay, client);
+            router.Send(recvEventScriptPlay, client); //todo  fix script event end timing to prevent black screen bug
             Task.Delay(TimeSpan.FromMilliseconds(1500)).ContinueWith
             (t1 =>
                 {
@@ -1272,6 +1273,37 @@ namespace Necromancy.Server.Packet.Area
                 case 74005009:
                     targetX = 8; targetY = -5722; targetZ = 2; targetHeading = 171;
                     break;
+
+                case 74005101:
+                    targetX = 10305; targetY = -10097; targetZ = -1; targetHeading = 87;
+                    break;
+                case 74005102:
+                    targetX = -1166; targetY = 3569; targetZ = 4; targetHeading = 72;
+                    break;
+                case 74005103:
+                    targetX = 2437; targetY = -8783; targetZ = 0; targetHeading = 135;
+                    break;
+                case 74005104:
+                    targetX = 10305; targetY = -10097; targetZ = -1; targetHeading = 87;
+                    break;
+                case 74005105:
+                    targetX = -1166; targetY = 3569; targetZ = 4; targetHeading = 72;
+                    break;
+                case 74005106:
+                    targetX = -709; targetY = 888; targetZ = -20; targetHeading = 135;
+                    break;
+                case 74005107:
+                    targetX = 10305; targetY = -10097; targetZ = -1; targetHeading = 87;
+                    break;
+                case 74005108:
+                    targetX = -1166; targetY = 3569; targetZ = 4; targetHeading = 72;
+                    break;
+                case 74005109:
+                    targetX = 10925; targetY = -9042; targetZ = -5; targetHeading = 177;
+                    break;
+                case 74005110:
+                    targetX = -1166; targetY = 3569; targetZ = 4; targetHeading = 72;
+                    break;
                 default:
                     targetX = client.map.x; targetY = client.map.y; targetZ = client.map.z; targetHeading = client.character.heading;
                     break;
@@ -1280,7 +1312,7 @@ namespace Necromancy.Server.Packet.Area
 
             IBuffer res = BufferProvider.Provide();
             RecvEventScriptPlay recvEventScriptPlay = new RecvEventScriptPlay("etc/warp_samemap", client.character.instanceId);
-            router.Send(recvEventScriptPlay, client);
+            //router.Send(recvEventScriptPlay, client);
 
             Task.Delay(TimeSpan.FromMilliseconds(1100)).ContinueWith
             (t1 =>
