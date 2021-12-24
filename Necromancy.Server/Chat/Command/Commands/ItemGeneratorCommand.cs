@@ -39,6 +39,9 @@ namespace Necromancy.Server.Chat.Command.Commands
                 case "charmed":
                     SpawnCharmedGear(client);
                     break;
+                case "weapons":
+                    SpawnWeapons(client);
+                    break;
                 default:
                     responses.Add(ChatResponse.CommandError(client, $"Invalid Package: {command[0]}"));
                     return;
@@ -88,6 +91,13 @@ namespace Necromancy.Server.Chat.Command.Commands
             itemIds[15] = 90012051;
             itemIds[16] = 90012052;
             itemIds[17] = 90012053;
+            SendItems(client, itemIds);
+        }
+
+        private void SpawnWeapons(NecClient client)
+        {
+            int[] itemIds = new int[1];
+            itemIds[0] = 10500101;
             SendItems(client, itemIds);
         }
 
