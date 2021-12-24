@@ -155,29 +155,6 @@ namespace Necromancy.Server.Systems.Item
                     ItemLocation location = itemInstance.location; //only needed on load inventory because item's location is already populated and it is not in the manager
                     itemInstance.location = ItemLocation.InvalidLocation; //only needed on load inventory because item's location is already populated and it is not in the manager
 
-                    //Temporary ItemLibrary.CSV lookup until Item_decrypted.csv and Table are fully mapped/ populated
-                    server.settingRepository.itemLibrary.TryGetValue(itemInstance.baseId, out ItemLibrarySetting itemLibrarySetting);
-                    if (itemLibrarySetting != null)
-                    {
-                        itemInstance.maximumDurability = itemLibrarySetting.durability; //Temporary until we get durability in itemLibrary
-                        if (itemInstance.currentDurability > itemInstance.maximumDurability) itemInstance.currentDurability = itemInstance.maximumDurability;
-                        if (itemInstance.weight == 0) itemInstance.weight += 1234;
-                        if (itemInstance.type == ItemType.SHIELD_LARGE || itemInstance.type == ItemType.SHIELD_MEDIUM || itemInstance.type == ItemType.SHIELD_SMALL)
-                        {
-                            if (itemInstance.gp == 0) itemInstance.gp += 50;
-                            if (itemInstance.maximumDurability <= 0) itemInstance.maximumDurability = 55;
-                        }
-                    }
-
-                    //update items base stats per enchantment level.
-                    ForgeMultiplier forgeMultiplier = LoginLoadMultiplier(itemInstance.enhancementLevel);
-                    itemInstance.physical = (short)(itemInstance.physical * forgeMultiplier.factor);
-                    itemInstance.magical = (short)(itemInstance.magical * forgeMultiplier.factor);
-                    itemInstance.maximumDurability = (short)(itemInstance.maximumDurability * forgeMultiplier.durability);
-                    itemInstance.hardness = (byte)(itemInstance.hardness + forgeMultiplier.hardness);
-                    itemInstance.weight = (short)(itemInstance.weight - forgeMultiplier.weight);
-                    if (itemInstance.weight < 0) itemInstance.weight = 0;
-
                     _character.itemLocationVerifier.PutItem(location, itemInstance);
                 }
 
@@ -499,16 +476,16 @@ namespace Necromancy.Server.Systems.Item
             return responses;
         }
 
-        public List<ItemInstance> GetLootableItems(uint characterId)
+        public List<ItemInstance> GetLootableItems(uint characterInstanceId)
         {
+            uint characterId = characterInstanceId - 200000000; //todo replace 200000000 with server.setting.NecSetting.poolCharacterIdLowerBound
             //TODO ADD PROTECTIONS TO SQL CALL SO ALL ITEMS CANT BE LOOTED
             List<ItemInstance> lootableItems = _itemDao.SelectLootableInventoryItems(characterId);
-            foreach (ItemInstance itemInstance in lootableItems) itemInstance.statuses &= ItemStatuses.Unidentified;
+            foreach (ItemInstance itemInstance in lootableItems) itemInstance.statuses = ItemStatuses.Unidentified;
             return lootableItems;
         }
 
-
-        //TODO What is this for?
+        //also exists in itemDAO. needs to match.
         public ForgeMultiplier LoginLoadMultiplier(int level)
         {
             double factor = 1;
@@ -527,47 +504,47 @@ namespace Necromancy.Server.Systems.Item
                     hardness = 0;
                     break;
                 case 2:
-                    factor = 1.15;
+                    factor = 1.16;
                     durability = 1.2;
                     hardness = 0;
                     break;
                 case 3:
-                    factor = 1.27;
+                    factor = 1.29;
                     durability = 1.3;
                     hardness = 0;
                     break;
                 case 4:
-                    factor = 1.39;
+                    factor = 1.45;
                     durability = 1.4;
                     hardness = 0;
                     break;
                 case 5:
-                    factor = 1.54;
+                    factor = 1.67;
                     durability = 1.5;
                     hardness = 1;
                     break;
                 case 6:
-                    factor = 1.69;
+                    factor = 1.92;
                     durability = 1.6;
                     hardness = 0;
                     break;
                 case 7:
-                    factor = 1.84;
+                    factor = 2.20;
                     durability = 1.7;
                     hardness = 0;
                     break;
                 case 8:
-                    factor = 1.99;
+                    factor = 2.54;
                     durability = 1.8;
                     hardness = 0;
                     break;
                 case 9:
-                    factor = 2.14;
+                    factor = 2.91;
                     durability = 1.9;
                     hardness = 0;
                     break;
                 case 10:
-                    factor = 2.29;
+                    factor = 3.35;
                     durability = 2.0;
                     hardness = 2;
                     break;
@@ -581,7 +558,6 @@ namespace Necromancy.Server.Systems.Item
             return forgeMultiplier;
         }
 
-        //TODO What is this for?
         public ForgeMultiplier ForgeMultiplier(int level)
         {
             double factor = 1;
