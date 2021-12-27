@@ -700,3 +700,27 @@ CREATE VIEW IF NOT EXISTS item_instance
     FOREIGN KEY(`bidder_soul_id`) REFERENCES `nec_soul`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 )
 
+CREATE TABLE IF NOT EXISTS "nec_auction_es_templ" (
+	"id"	INTEGER NOT NULL UNIQUE,
+	"character_id"	INTEGER NOT NULL,
+	"index"	INTEGER NOT NULL,
+	"search_text"	TEXT,
+	"soul_rank_min"	INTEGER NOT NULL,
+	"soul_rank_max"	INTEGER NOT NULL,
+	"forge_price_min"	INTEGER NOT NULL,
+	"force_price_max"	INTEGER NOT NULL,
+	"qualities"	INTEGER NOT NULL,
+	"class_index"	INTEGER NOT NULL,
+	"race_index"	INTEGER NOT NULL,
+	"gold_cost"	INTEGER NOT NULL,
+	"is_less_than_gold_cost"	INTEGER NOT NULL,
+	"has_gem_slot"	INTEGER NOT NULL,
+	"gem_slot_1"	INTEGER NOT NULL,
+	"gem_slot_2"	INTEGER NOT NULL,
+	"gem_slot_3"	INTEGER NOT NULL,
+	"item_type_search_mask"	INTEGER NOT NULL,
+	"description"	TEXT,
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("character_id") REFERENCES "nec_character"("id")
+)
+

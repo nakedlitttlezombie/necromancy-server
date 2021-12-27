@@ -1,9 +1,10 @@
 using System;
 using Necromancy.Server.Model;
+using Necromancy.Server.Systems.Item;
 
 namespace Necromancy.Server.Systems.Auction
 {
-    public class AuctionDao : DatabaseAccessObject
+    public class AuctionDao : DatabaseAccessObject, IAuctionDao
     {
         private const string SQL_CREATE_ITEMS_UP_FOR_AUCTION_VIEW = @"
             DROP VIEW IF EXISTS items_up_for_auction;
@@ -244,6 +245,11 @@ namespace Necromancy.Server.Systems.Auction
         }
 
         public void SubtractGold(Character character, int amount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void InsertAuctionEquipSearchConditions(int characterId, int index, AuctionEquipmentSearchConditions auctionEquipmentSearchConditions)
         {
             throw new NotImplementedException();
         }

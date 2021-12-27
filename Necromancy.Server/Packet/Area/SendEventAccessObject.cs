@@ -832,7 +832,7 @@ namespace Necromancy.Server.Packet.Area
             res.WriteInt32(equipSearch.Count); //Less than or equal to 0x8
             foreach (AuctionEquipmentSearchConditions equipCond in equipSearch)
             {
-                res.WriteFixedString(equipCond.text, AuctionEquipmentSearchConditions.MAX_TEXT_LENGTH); //V| Search Text
+                res.WriteFixedString(equipCond.searchText, AuctionEquipmentSearchConditions.MAX_TEXT_LENGTH); //V| Search Text
                 res.WriteByte(equipCond.forgePriceMin);         //V| Grade min
                 res.WriteByte(equipCond.forgePriceMax);         //V| Grade max
                 res.WriteByte(equipCond.soulRankMin);           //V| Level min

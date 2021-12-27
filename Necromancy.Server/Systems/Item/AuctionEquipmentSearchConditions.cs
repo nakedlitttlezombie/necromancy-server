@@ -9,7 +9,7 @@ namespace Necromancy.Server.Systems.Item
         private const int MIN_FORGE_PRICE = 0;
         private const int MAX_FORGE_PRICE = 99;
 
-        public string text { get; set; }
+        public string searchText { get; set; }
         public byte soulRankMin { get; set; }
         public byte soulRankMax { get; set; }
         public byte forgePriceMin { get; set; }
@@ -27,34 +27,33 @@ namespace Necromancy.Server.Systems.Item
         public ulong unused0 { get; set; }
         public string description { get; set; }
 
-        public bool HasValidText()
+        private bool HasValidText()
         {
-            return text.Length <= MAX_TEXT_LENGTH;
+            return searchText.Length <= MAX_TEXT_LENGTH;
         }
-
-        public bool HasValidQuality()
+        private bool HasValidQuality()
         {
             return (qualities & ItemQualities.All) == qualities;
         }
-
-        public bool HasValidSoulRankMin()
+        private bool HasValidSoulRankMin()
         {
             return soulRankMin >= MIN_SOUL_RANK && soulRankMin <= MAX_SOUL_RANK;
         }
-
-        public bool HasValidSoulRankMax()
+        private bool HasValidSoulRankMax()
         {
             return soulRankMax >= MIN_SOUL_RANK && soulRankMax <= MAX_SOUL_RANK;
         }
-
-        public bool HasValidForgePriceMin()
+        private bool HasValidForgePriceMin()
         {
             return forgePriceMin >= MIN_FORGE_PRICE && forgePriceMin <= MIN_FORGE_PRICE;
         }
-
-        public bool HasValidForgePriceMax()
+        private bool HasValidForgePriceMax()
         {
             return forgePriceMax >= MAX_FORGE_PRICE && forgePriceMax <= MAX_FORGE_PRICE;
+        }
+        public bool IsValid()
+        {
+            return HasValidText() && HasValidQuality() && HasValidSoulRankMin() && HasValidSoulRankMax() && HasValidForgePriceMin() && HasValidForgePriceMax();
         }
     }
 }

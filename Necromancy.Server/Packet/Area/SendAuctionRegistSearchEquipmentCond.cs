@@ -20,7 +20,7 @@ namespace Necromancy.Server.Packet.Area
             
             byte index = packet.data.ReadByte();
 
-            equipCond.text                  = packet.data.ReadFixedString(AuctionEquipmentSearchConditions.MAX_TEXT_LENGTH);
+            equipCond.searchText            = packet.data.ReadFixedString(AuctionEquipmentSearchConditions.MAX_TEXT_LENGTH);
             equipCond.forgePriceMin         = packet.data.ReadByte();
             equipCond.forgePriceMax         = packet.data.ReadByte();
             equipCond.soulRankMin           = packet.data.ReadByte();
@@ -37,10 +37,12 @@ namespace Necromancy.Server.Packet.Area
             equipCond.gemSlotType3          = (GemType) packet.data.ReadByte();
 
             equipCond.itemTypeSearchMask    = packet.data.ReadUInt64();
-            equipCond.unused0               = packet.data.ReadUInt64();
+            equipCond.unused0               = packet.data.ReadUInt64(); //unknown
             equipCond.description           = packet.data.ReadFixedString(AuctionEquipmentSearchConditions.MAX_DESCRIPTION_LENGTH);
-            byte option9 = packet.data.ReadByte();
-            byte option10 = packet.data.ReadByte();
+
+            //TODO who knows
+            byte option9                    = packet.data.ReadByte();
+            byte option10                   = packet.data.ReadByte();
             //TODO missing some stuff here
 
             AuctionService auctionService = new AuctionService();

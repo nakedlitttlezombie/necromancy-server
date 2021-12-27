@@ -16,11 +16,22 @@ namespace Necromancy.Server.Systems.Auction
 
         private const double LISTING_FEE_PERCENT = .05;
 
-        public AuctionService() {  }
+        private readonly IAuctionDao _auctionDao;
+
+        public AuctionService() {
+            _auctionDao = new AuctionDao();
+        }
+
+        public AuctionService(IAuctionDao auctionDao)
+        {
+            _auctionDao = auctionDao;
+        }
 
         public void RegistSearchEquipmentCond(NecClient necClient,  int index, AuctionEquipmentSearchConditions equipCond)
         {
+            if (!equipCond.IsValid()) throw new AuctionException(AuctionExceptionType.Generic);
 
+            _auctionDao.InsertAuctionEquipSearchConditions(necClient.character.id, index, equipCond);
         }
 
         //public void Bid(AuctionLot auctionItem, int bid)
