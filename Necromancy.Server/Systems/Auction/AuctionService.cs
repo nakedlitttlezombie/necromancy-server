@@ -1,4 +1,5 @@
 using Necromancy.Server.Model;
+using Necromancy.Server.Systems.Item;
 
 namespace Necromancy.Server.Systems.Auction
 {
@@ -15,19 +16,11 @@ namespace Necromancy.Server.Systems.Auction
 
         private const double LISTING_FEE_PERCENT = .05;
 
-        private readonly NecClient _client;
-        //private readonly IAuctionDao _auctionDao;
+        public AuctionService() {  }
 
-        //public AuctionService(NecClient nClient, IAuctionDao auctionDao)
-        //{
-        //    _client = nClient;
-        //    _auctionDao = auctionDao;
-        //}
-
-        public AuctionService(NecClient nClient)
+        public void RegistSearchEquipmentCond(NecClient necClient, AuctionEquipmentSearchConditions equipCond)
         {
-            _client = nClient;
-            //_auctionDao = new AuctionDao();
+
         }
 
         //public void Bid(AuctionLot auctionItem, int bid)

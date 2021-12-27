@@ -18,15 +18,15 @@ namespace Necromancy.Server.Packet.Area
 
         public override void Handle(NecClient client, NecPacket packet)
         {
-            byte exhibitSlot = packet.data.ReadByte();
-            ItemZoneType zone = (ItemZoneType)packet.data.ReadByte();
-            byte bag = packet.data.ReadByte();
-            short slot = packet.data.ReadInt16();
-            byte quantity = packet.data.ReadByte();
-            int time = packet.data.ReadInt32(); //0:4hours 1:8 hours 2:12 hours 3:24 hours
-            ulong minBid = packet.data.ReadUInt64();
-            ulong buyoutPrice = packet.data.ReadUInt64();
-            string comment = packet.data.ReadCString();
+            byte exhibitSlot    = packet.data.ReadByte();
+            ItemZoneType zone   = (ItemZoneType)packet.data.ReadByte();
+            byte bag            = packet.data.ReadByte();
+            short slot          = packet.data.ReadInt16();
+            byte quantity       = packet.data.ReadByte();
+            int time            = packet.data.ReadInt32(); //0:4hours 1:8 hours 2:12 hours 3:24 hours
+            ulong minBid        = packet.data.ReadUInt64();
+            ulong buyoutPrice   = packet.data.ReadUInt64();
+            string comment      = packet.data.ReadCString();
 
             ItemLocation fromLoc = new ItemLocation(zone, bag, slot);
             ItemService itemService = new ItemService(client.character);

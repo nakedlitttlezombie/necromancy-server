@@ -15,24 +15,21 @@ namespace Necromancy.Server.Systems.Item
         public byte forgePriceMin { get; set; }
         public byte forgePriceMax { get; set; }
         public ItemQualities qualities { get; set; }
-        public Classes @class { get; set; }
-        public Races race { get; set; }
+        public int classIndex { get; set; }
+        public short raceIndex { get; set; }
         public ulong goldCost { get; set; }
         public bool isLessThanGoldCost { get; set; }
         public bool hasGemSlot { get; set; }
         public GemType gemSlotType1 { get; set; }
         public GemType gemSlotType2 { get; set; }
         public GemType gemSlotType3 { get; set; }
+        public ulong itemTypeSearchMask { get; set; }
+        public ulong unused0 { get; set; }
         public string description { get; set; }
 
         public bool HasValidText()
         {
             return text.Length <= MAX_TEXT_LENGTH;
-        }
-
-        public bool HasValidClass()
-        {
-            return (@class & Classes.All) == @class;
         }
 
         public bool HasValidQuality()

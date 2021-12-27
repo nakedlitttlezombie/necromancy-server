@@ -833,23 +833,23 @@ namespace Necromancy.Server.Packet.Area
             foreach (AuctionEquipmentSearchConditions equipCond in equipSearch)
             {
                 res.WriteFixedString(equipCond.text, AuctionEquipmentSearchConditions.MAX_TEXT_LENGTH); //V| Search Text
-                res.WriteByte(equipCond.forgePriceMin); //V| Grade min
-                res.WriteByte(equipCond.forgePriceMax); //V| Grade max
-                res.WriteByte(equipCond.soulRankMin); //V| Level min
-                res.WriteByte(equipCond.soulRankMax); //V| Level max
-                res.WriteInt32((int)equipCond.@class); // class?
-                res.WriteInt16((short)equipCond.race); // race?
-                res.WriteInt16((short)equipCond.qualities); //V| Qualities
-                res.WriteUInt64(equipCond.goldCost); //V| Gold
+                res.WriteByte(equipCond.forgePriceMin);         //V| Grade min
+                res.WriteByte(equipCond.forgePriceMax);         //V| Grade max
+                res.WriteByte(equipCond.soulRankMin);           //V| Level min
+                res.WriteByte(equipCond.soulRankMax);           //V| Level max
+                res.WriteInt32(equipCond.classIndex);           //V| Index for Class 
+                res.WriteInt16(equipCond.raceIndex);            //V| Index for Race
+                res.WriteInt16((short)equipCond.qualities);     //V| Qualities
+                res.WriteUInt64(equipCond.goldCost);            //V| Gold
                 res.WriteByte(Convert.ToByte(equipCond.isLessThanGoldCost));
 
-                res.WriteByte(Convert.ToByte(equipCond.hasGemSlot)); //V| Effectiveness
-                res.WriteByte((byte)equipCond.gemSlotType1); //V| Gem slot 1
-                res.WriteByte((byte)equipCond.gemSlotType2); //V| Gem slot 2
-                res.WriteByte((byte)equipCond.gemSlotType3); //V| Gem slot 3
+                res.WriteByte(Convert.ToByte(equipCond.hasGemSlot));    //V| Effectiveness
+                res.WriteByte((byte)equipCond.gemSlotType1);            //V| Gem slot 1
+                res.WriteByte((byte)equipCond.gemSlotType2);            //V| Gem slot 2
+                res.WriteByte((byte)equipCond.gemSlotType3);            //V| Gem slot 3
 
-                res.WriteInt64(0); //TODO UNKNOWN
-                res.WriteInt64(0);
+                res.WriteUInt64(equipCond.itemTypeSearchMask); //V| Item type mask
+                res.WriteUInt64(equipCond.unused0);
                 res.WriteFixedString(equipCond.description, AuctionEquipmentSearchConditions.MAX_DESCRIPTION_LENGTH); //v| Saved Search Description
                 res.WriteByte(0); //TODO UNKNOWN
                 res.WriteByte(0); //TODO UNKNOWN
