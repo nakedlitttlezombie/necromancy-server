@@ -9,7 +9,7 @@ namespace Necromancy.Server.Systems.Item
         private const int MIN_FORGE_PRICE = 0;
         private const int MAX_FORGE_PRICE = 99;
 
-        public string searchText { get; set; }
+        public string searchText { get; set; } = "";
         public byte soulRankMin { get; set; }
         public byte soulRankMax { get; set; }
         public byte forgePriceMin { get; set; }
@@ -25,7 +25,7 @@ namespace Necromancy.Server.Systems.Item
         public GemType gemSlotType3 { get; set; }
         public ulong itemTypeSearchMask { get; set; }
         public ulong unused0 { get; set; }
-        public string description { get; set; }
+        public string description { get; set; } = "";
 
         private bool HasValidText()
         {
@@ -45,11 +45,11 @@ namespace Necromancy.Server.Systems.Item
         }
         private bool HasValidForgePriceMin()
         {
-            return forgePriceMin >= MIN_FORGE_PRICE && forgePriceMin <= MIN_FORGE_PRICE;
+            return forgePriceMin >= MIN_FORGE_PRICE && forgePriceMin <= MAX_FORGE_PRICE;
         }
         private bool HasValidForgePriceMax()
         {
-            return forgePriceMax >= MAX_FORGE_PRICE && forgePriceMax <= MAX_FORGE_PRICE;
+            return forgePriceMax >= MIN_FORGE_PRICE && forgePriceMax <= MAX_FORGE_PRICE;
         }
         public bool IsValid()
         {

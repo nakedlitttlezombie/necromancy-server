@@ -105,7 +105,51 @@ namespace Necromancy.Server.Systems.Auction
             WHERE
                 id = @id";
 
-        private const string SQL_SELECT_ITEMS_BY_CRITERIA = @"";
+        private const string SQL_INSERT_ES_CONDS = @"
+            INSERT INTO
+                nec_auction_es_conds
+                (
+	                character_id,
+	                es_index,
+	                search_text,
+	                soul_rank_min,
+	                soul_rank_max,
+	                forge_price_min,
+	                forge_price_max,
+	                qualities,
+	                class_index,
+	                race_index,
+	                gold_cost,
+	                is_less_than_gold_cost,
+	                has_gem_slot,
+	                gem_slot_1,
+	                gem_slot_2,
+	                gem_slot_3,
+	                item_type_search_mask,
+	                description
+                )
+            VALUES
+                (
+                    @character_id,
+	                @es_index,
+	                @search_text,
+	                @soul_rank_min,
+	                @soul_rank_max,
+	                @forge_price_min,
+	                @forge_price_max,
+	                @qualities,
+	                @class_index,
+	                @race_index,
+	                @gold_cost,
+	                @is_less_than_gold_cost,
+	                @has_gem_slot,
+	                @gem_slot_1,
+	                @gem_slot_2,
+	                @gem_slot_3,
+	                @item_type_search_mask,
+	                @description
+                )";
+
 
 
         public AuctionDao()
@@ -249,9 +293,29 @@ namespace Necromancy.Server.Systems.Auction
             throw new NotImplementedException();
         }
 
-        public void InsertAuctionEquipSearchConditions(int characterId, int index, AuctionEquipmentSearchConditions auctionEquipmentSearchConditions)
+        public void InsertAuctionEquipSearchConditions(int characterId, int index, AuctionEquipmentSearchConditions equipCond)
         {
-            throw new NotImplementedException();
+            int rowsAffected = ExecuteNonQuery(SQL_INSERT_ES_CONDS, command =>
+            {
+                AddParameter(command, "@character_id", characterId);
+                AddParameter(command, "@es_index", index);
+                AddParameter(command, "@search_text", equipCond.searchText);
+                AddParameter(command, "@soul_rank_min", equipCond.soulRankMin);
+                AddParameter(command, "@soul_rank_max", equipCond.soulRankMax);
+                AddParameter(command, "@forge_price_min", equipCond.forgePriceMin);
+                AddParameter(command, "@forge_price_max", equipCond.forgePriceMax);
+                AddParameter(command, "@qualities", (int) equipCond.qualities);
+                AddParameter(command, "@class_index", equipCond.classIndex);
+                AddParameter(command, "@race_index", equipCond.raceIndex);
+                AddParameter(command, "@gold_cost", equipCond.goldCost);
+                AddParameter(command, "@is_less_than_gold_cost", equipCond.isLessThanGoldCost);
+                AddParameter(command, "@has_gem_slot", equipCond.hasGemSlot);
+                AddParameter(command, "@gem_slot_1", (int) equipCond.gemSlotType1);
+                AddParameter(command, "@gem_slot_2", (int) equipCond.gemSlotType2);
+                AddParameter(command, "@gem_slot_3", (int) equipCond.gemSlotType3);
+                AddParameter(command, "@item_type_search_mask", equipCond.itemTypeSearchMask);
+                AddParameter(command, "@description", equipCond.description);
+            });
         }
 
         //public AuctionLot[] SelectItemsByCriteria(SearchCriteria searchCriteria)
