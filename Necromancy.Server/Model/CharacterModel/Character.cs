@@ -78,12 +78,13 @@ namespace Necromancy.Server.Model
             stepCount = 0;
             lootNotify = new ItemLocation(0, 0, 0);
             odRecoveryRate = 0;
-            statusEffects = new uint[4]
+            statusEffects = new uint[5]
             {
                 (uint)Statuses.AttackAura405,
                 (uint)Statuses.MosquitoBuzz200,
                 (uint)Statuses.PorkulCakeWhole,
-                (uint)Statuses.ChimeraKillerHotMode
+                (uint)Statuses.ChimeraKillerHotMode,
+                (uint)Statuses.IncreaseGpRecoverySpeed
             };
             tradeWindowSlot = new ulong[20];
         }

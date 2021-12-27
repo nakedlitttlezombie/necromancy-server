@@ -540,6 +540,7 @@ namespace Necromancy.Server.Tasks
 
                     //To-Do,  make a variable to track union gold
                     client.character.adventureBagGold += monster.loot.gold; //Updates your Character.AdventureBagGold
+                    server.database.UpdateCharacter(client.character);
 
                     res = BufferProvider.Provide();
                     res.WriteUInt64(client.character.adventureBagGold); // Sets your Adventure Bag Gold

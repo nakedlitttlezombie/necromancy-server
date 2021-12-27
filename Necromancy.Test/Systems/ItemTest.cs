@@ -97,6 +97,10 @@ namespace Necromancy.Test.Systems
             {
                 throw new NotImplementedException();
             }
+            public List<ItemInstance> SelectCloakRoomItems(int ownerId)
+            {
+                throw new NotImplementedException();
+            }
 
             public void UpdateAuctionExhibit(ItemInstance itemInstance)
             {

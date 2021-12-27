@@ -195,7 +195,7 @@ namespace Necromancy.Server.Packet.Area
                         {x => x == 10000005, () => SendEventSelectMapAndChannel(client, instanceId)},
                         {x => x == 10000012, () => SendEventSelectMapAndChannel(client, instanceId)},
                         {x => x == 10000912, () => SendEventSelectMapAndChannel(client, instanceId)},
-                        {x => x == 80000018, () => AuctionHouse(client, npcSpawn)},
+                        {x => x == 80000017 || x == 80000018 || x == 80000019, () => AuctionHouse(client, npcSpawn)},
                         {x => x == 10000019, () => Abdul(client, npcSpawn)},
                         {
                             x => x == 74000022 || x == 74000024 || x == 74000023,
@@ -766,50 +766,148 @@ namespace Necromancy.Server.Packet.Area
 
         private void AuctionHouse(NecClient client, NpcSpawn npcSpawn)
         {
+            ItemService itemService = new ItemService(client.character);
+            List<ItemInstance> lots = itemService.GetLots();
+            List<ItemInstance> bids = itemService.GetBids();
+            List<AuctionEquipmentSearchConditions> equipSearch = itemService.GetEquipmentSearchConditions();
+            List<AuctionItemSearchConditions> itemSearch = itemService.GetItemSearchConditions();
+            const byte IS_IN_MAINTENANCE_MODE = 0x0;
+            const int MAX_LOTS = 15;
+
             IBuffer res = BufferProvider.Provide();
-            int numEntries = 0x5;
-            res.WriteInt32(numEntries); // must be <= 5    // item information tab
+
+            foreach (ItemInstance lotItem in lots)
+            {
+                RecvItemInstance recvItemInstance = new RecvItemInstance(client, lotItem);
+                router.Send(recvItemInstance);
+            }
+
+            int j = 0;
+            res.WriteInt32(lots.Count); //Less than or equal to 15
+            foreach (ItemInstance lotItem in lots)
+            {
+                res.WriteByte((byte)j); // row number?
+                res.WriteInt32(j); // row number ??
+                res.WriteUInt64(lotItem.instanceId);
+                res.WriteUInt64(lotItem.minimumBid);
+                res.WriteUInt64(lotItem.buyoutPrice);
+                res.WriteFixedString(lotItem.consignerSoulName, 49);
+                res.WriteByte(0); // criminal status of seller?
+                res.WriteFixedString(lotItem.comment, 385);
+                res.WriteInt16((short)lotItem.currentBid); // Bid why convert to short?
+                res.WriteInt32(lotItem.secondsUntilExpiryTime);
+
+                res.WriteInt64(0); //unknown
+                res.WriteInt32(0); //unknown
+                res.WriteInt32(0); //unknown
+                j++;
+            }
+
+            foreach (ItemInstance bidItem in bids)
+            {
+                RecvItemInstance recvItemInstance = new RecvItemInstance(client, bidItem);
+                router.Send(recvItemInstance);
+            }
+
+            j = 0;
+            res.WriteInt32(bids.Count); //Less than or equal to 0xE
+            foreach (ItemInstance bidItem in bids)
+            {
+                res.WriteByte((byte)j); // row number?
+                res.WriteInt32(j); // row number ??
+                res.WriteUInt64(bidItem.instanceId);
+                res.WriteUInt64(bidItem.minimumBid);
+                res.WriteUInt64(bidItem.buyoutPrice);
+                res.WriteFixedString(bidItem.consignerSoulName, 49);
+                res.WriteByte(0); // criminal status of seller?
+                res.WriteFixedString(bidItem.comment, 385);
+                res.WriteInt16((short)bidItem.maxBid); // The current bid, why convert to short?
+                res.WriteInt32(bidItem.secondsUntilExpiryTime);
+
+                res.WriteInt64(bidItem.currentBid); //Your current bid
+                res.WriteInt32(0); //0: you are the highest bidder, 1: you won the item, 2: you were outbid, 3: seller cancelled
+                j++;
+            }
+
+            res.WriteInt32(equipSearch.Count); //Less than or equal to 0x8
+            foreach (AuctionEquipmentSearchConditions equipCond in equipSearch)
+            {
+                res.WriteFixedString(equipCond.text, AuctionEquipmentSearchConditions.MAX_TEXT_LENGTH); //V| Search Text
+                res.WriteByte(equipCond.forgePriceMin); //V| Grade min
+                res.WriteByte(equipCond.forgePriceMax); //V| Grade max
+                res.WriteByte(equipCond.soulRankMin); //V| Level min
+                res.WriteByte(equipCond.soulRankMax); //V| Level max
+                res.WriteInt32((int)equipCond.@class); // class?
+                res.WriteInt16((short)equipCond.race); // race?
+                res.WriteInt16((short)equipCond.qualities); //V| Qualities
+                res.WriteUInt64(equipCond.goldCost); //V| Gold
+                res.WriteByte(Convert.ToByte(equipCond.isLessThanGoldCost));
+
+                res.WriteByte(Convert.ToByte(equipCond.hasGemSlot)); //V| Effectiveness
+                res.WriteByte((byte)equipCond.gemSlotType1); //V| Gem slot 1
+                res.WriteByte((byte)equipCond.gemSlotType2); //V| Gem slot 2
+                res.WriteByte((byte)equipCond.gemSlotType3); //V| Gem slot 3
+
+                res.WriteInt64(0); //TODO UNKNOWN
+                res.WriteInt64(0);
+                res.WriteFixedString(equipCond.description, AuctionEquipmentSearchConditions.MAX_DESCRIPTION_LENGTH); //v| Saved Search Description
+                res.WriteByte(0); //TODO UNKNOWN
+                res.WriteByte(0); //TODO UNKNOWN
+            }
+
+
+            //item search conditions
+            int numEntries = 1;
+            res.WriteInt32(numEntries); //Less than or equal to 0x8
+
             for (int i = 0; i < numEntries; i++)
             {
-                res.WriteByte((byte)i);
-
-                res.WriteInt32(i);
-                res.WriteInt64(10500501);
-                res.WriteInt32(2);
-                res.WriteInt32(3);
-                res.WriteFixedString($"{client.soul.name}", 49);
-                res.WriteByte(1);
-                res.WriteFixedString("Item Description", 385);
-                res.WriteInt16(4);
-                res.WriteInt32(5);
-
-                res.WriteInt32(6);
-                res.WriteInt32(7);
+                res.WriteFixedString("fs0x49V2", 0x49);
+                res.WriteByte(0);
+                res.WriteByte(0);
+                res.WriteByte(0);
+                res.WriteByte(0);
+                res.WriteInt64(0);
+                res.WriteByte(0);
+                res.WriteInt64(0);
+                res.WriteInt64(0);
+                res.WriteFixedString("fs0xC1V2", 0xC1); //Fixed string of 0xC1 or 0xC1 bytes.
+                res.WriteByte(0);
+                res.WriteByte(0);
             }
 
-            int numEntries2 = 0x8;
-            res.WriteInt32(numEntries2); // must be< = 8   //bid info tab
-
-            for (int i = 0; i < numEntries2; i++)
-            {
-                res.WriteByte((byte)i);
-
-                res.WriteInt32(i);
-                res.WriteInt64(10500501);
-                res.WriteInt32(2);
-                res.WriteInt32(3);
-                res.WriteFixedString("soulname", 49);
-                res.WriteByte(1);
-                res.WriteFixedString("ToBeFound", 385);
-                res.WriteInt16(4);
-                res.WriteInt32(5);
-
-                res.WriteInt32(6);
-                res.WriteInt32(7);
-            }
-
-            res.WriteByte(0); // bool
+            res.WriteByte(0); //Bool
+            res.WriteInt32(0);
             router.Send(client, (ushort)AreaPacketId.recv_auction_notify_open, res, ServerType.Area);
+
+            RecvAuctionNotifyOpenItemStart recvAuctionNotifyOpenItemStart = new RecvAuctionNotifyOpenItemStart(client);
+            RecvAuctionNotifyOpenItemEnd recvAuctionNotifyOpenItemEnd = new RecvAuctionNotifyOpenItemEnd(client);
+
+            List<ItemInstance> auctionList = itemService.GetItemsUpForAuction();
+
+            j = 0;
+            client.character.auctionSearchIds = new ulong[auctionList.Count];
+            foreach (ItemInstance auctionItem in auctionList)
+            {
+                client.character.auctionSearchIds[j] = auctionItem.instanceId;
+                RecvItemInstance recvItemInstance = new RecvItemInstance(client, auctionItem);
+                router.Send(recvItemInstance);
+                j++;
+            }
+
+            router.Send(recvAuctionNotifyOpenItemStart);
+            int divideBy100 = auctionList.Count / 100 + (auctionList.Count % 100 == 0 ? 0 : 1); // TOTAL NUMBER OF RECVS TO SEND
+            for (int i = 0; i < divideBy100; i++)
+            {
+                RecvAuctionNotifyOpenItem recvAuctionNotifyOpenItem;
+                if (i == divideBy100 - 1)
+                    recvAuctionNotifyOpenItem = new RecvAuctionNotifyOpenItem(client, auctionList.GetRange(i, auctionList.Count % 100));
+                else
+                    recvAuctionNotifyOpenItem = new RecvAuctionNotifyOpenItem(client, auctionList.GetRange(i, 100));
+                router.Send(recvAuctionNotifyOpenItem);
+            }
+
+            router.Send(recvAuctionNotifyOpenItemEnd);
         }
 
         private void CloakRoomShopClerk(NecClient client, NpcSpawn npcSpawn)
