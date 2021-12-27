@@ -18,7 +18,7 @@ namespace Necromancy.Server.Systems.Auction
 
         public AuctionService() {  }
 
-        public void RegistSearchEquipmentCond(NecClient necClient, AuctionEquipmentSearchConditions equipCond)
+        public void RegistSearchEquipmentCond(NecClient necClient,  int index, AuctionEquipmentSearchConditions equipCond)
         {
 
         }
