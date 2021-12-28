@@ -107,25 +107,28 @@ namespace Necromancy.Server.Systems.Auction
                 items_up_for_auction
             WHERE
                 id = @id";
-        private const string SQL_SELECT_ES_CONDS = @"
+        private const string SQL_SELECT_S_CONDS = @"
             SELECT
                 *
             FROM
-                nec_auction_es_conds
+                nec_auction_s_conds
             WHERE
-                character_id = @character_id";
+                character_id = @character_id
+            AND
+                is_item_search = @is_item_search";
 
-        private const string SQL_INSERT_ES_CONDS = @"
+        private const string SQL_INSERT_S_CONDS = @"
             INSERT INTO
-                nec_auction_es_conds
+                nec_auction_s_conds
                 (
+                    is_item_search,
 	                character_id,
-	                es_index,
+	                s_index,
 	                search_text,
-	                soul_rank_min,
-	                soul_rank_max,
-	                forge_price_min,
-	                forge_price_max,
+	                level_min,
+	                level_max,
+	                grade_min,
+	                grade_max,
 	                qualities,
 	                class_index,
 	                race_index,
@@ -135,21 +138,22 @@ namespace Necromancy.Server.Systems.Auction
 	                gem_slot_1,
 	                gem_slot_2,
 	                gem_slot_3,
-	                item_type_search_mask,
-	                description,
-                    unknown_long_0,
+	                type_search_mask_0,
+                    type_search_mask_1,
+	                description,                    
                     unknown_byte_0,
                     unknown_byte_1
                 )
             VALUES
                 (
+                    @is_item_search,
                     @character_id,
-	                @es_index,
+	                @s_index,
 	                @search_text,
-	                @soul_rank_min,
-	                @soul_rank_max,
-	                @forge_price_min,
-	                @forge_price_max,
+	                @level_min,
+	                @level_max,
+	                @grade_min,
+	                @grade_max,
 	                @qualities,
 	                @class_index,
 	                @race_index,
@@ -159,30 +163,34 @@ namespace Necromancy.Server.Systems.Auction
 	                @gem_slot_1,
 	                @gem_slot_2,
 	                @gem_slot_3,
-	                @item_type_search_mask,
-	                @description,
-                    @unknown_long_0,
+	                @type_search_mask_0,
+                    @type_search_mask_1,
+	                @description,                    
                     @unknown_byte_0,
                     @unknown_byte_1
                 )";
 
-        private const string SQL_DELETE_ES_CONDS = @"
+        private const string SQL_DELETE_S_CONDS = @"
                 DELETE FROM
-                    nec_auction_es_conds
+                    nec_auction_s_conds
                 WHERE
                     character_id = @character_id
                 AND
-                    es_index = @es_index";
+                    is_item_search = @is_item_search
+                AND
+                    s_index = @s_index";
 
-        private const string SQL_UPDATE_ES_CONDS_INDEX = @"
+        private const string SQL_UPDATE_S_CONDS_INDEX = @"
                 UPDATE
-                    nec_auction_es_conds
+                    nec_auctions_s_conds
                 SET
-                    es_index = es_index - 1
+                    s_index = s_index - 1
                 WHERE
                     character_id = @character_id
                 AND
-                    es_index > @es_index";
+                    is_item_search = @is_item_search
+                AND
+                    s_index > @s_index";
 
 
         public AuctionDao()
@@ -325,90 +333,95 @@ namespace Necromancy.Server.Systems.Auction
         {
             throw new NotImplementedException();
         }
-
-        public List<AuctionEquipmentSearchConditions> SelectAuctionEquipSearchConditions(int characterId)
+        public List<AuctionSearchConditions> SelectAuctionSearchConditions(int characterId, bool isItemSearchCond)
         {
-            List<AuctionEquipmentSearchConditions> equipSearch = new List<AuctionEquipmentSearchConditions>();
-            int i = 0;
-            ExecuteReader(SQL_SELECT_ES_CONDS,
-                command => { AddParameter(command, "@character_id", characterId); }, reader =>
+            List<AuctionSearchConditions> equipSearch = new List<AuctionSearchConditions>();
+            ExecuteReader(SQL_SELECT_S_CONDS,
+                command =>
+                {
+                    AddParameter(command, "@is_item_search", isItemSearchCond);
+                    AddParameter(command, "@character_id", characterId);
+                }, reader =>
                 {
                     while (reader.Read())
                     {
-                        AuctionEquipmentSearchConditions equipConds = MakeAuctionEquipmentSearchConditions(reader);
+                        AuctionSearchConditions equipConds = MakeAuctionSearchConditions(reader);
                         equipSearch.Add(equipConds);
                     }
                 });
             return equipSearch;
         }
 
-        public void InsertAuctionEquipSearchConditions(int characterId, int index, AuctionEquipmentSearchConditions equipCond)
+        public void InsertAuctionSearchConditions(int characterId, int index, AuctionSearchConditions searchCond)
         {
-            int rowsAffected = ExecuteNonQuery(SQL_INSERT_ES_CONDS, command =>
+            int rowsAffected = ExecuteNonQuery(SQL_INSERT_S_CONDS, command =>
             {
+                AddParameter(command, "@is_item_search", searchCond.isItemSearch);
                 AddParameter(command, "@character_id", characterId);
-                AddParameter(command, "@es_index", index);
-                AddParameter(command, "@search_text", equipCond.searchText);
-                AddParameter(command, "@soul_rank_min", equipCond.soulRankMin);
-                AddParameter(command, "@soul_rank_max", equipCond.soulRankMax);
-                AddParameter(command, "@forge_price_min", equipCond.forgePriceMin);
-                AddParameter(command, "@forge_price_max", equipCond.forgePriceMax);
-                AddParameter(command, "@qualities", (int) equipCond.qualities);
-                AddParameter(command, "@class_index", equipCond.classIndex);
-                AddParameter(command, "@race_index", equipCond.raceIndex);
-                AddParameter(command, "@gold_cost", equipCond.goldCost);
-                AddParameter(command, "@is_less_than_gold_cost", equipCond.isLessThanGoldCost);
-                AddParameter(command, "@has_gem_slot", equipCond.hasGemSlot);
-                AddParameter(command, "@gem_slot_1", (int) equipCond.gemSlotType1);
-                AddParameter(command, "@gem_slot_2", (int) equipCond.gemSlotType2);
-                AddParameter(command, "@gem_slot_3", (int) equipCond.gemSlotType3);
-                AddParameter(command, "@item_type_search_mask", equipCond.itemTypeSearchMask);
-                AddParameter(command, "@description", equipCond.description);
-                AddParameter(command, "@unknown_long_0", equipCond.unknownLong0);
-                AddParameter(command, "@unknown_byte_0", equipCond.unknownByte0);
-                AddParameter(command, "@unknown_byte_1", equipCond.unknownByte1);
+                AddParameter(command, "@s_index", index);
+                AddParameter(command, "@search_text", searchCond.searchText);
+                AddParameter(command, "@level_min", searchCond.levelMin);
+                AddParameter(command, "@level_max", searchCond.levelMax);
+                AddParameter(command, "@grade_min", searchCond.gradeMin);
+                AddParameter(command, "@grade_max", searchCond.gradeMax);
+                AddParameter(command, "@qualities", (int) searchCond.qualities);
+                AddParameter(command, "@class_index", searchCond.classIndex);
+                AddParameter(command, "@race_index", searchCond.raceIndex);
+                AddParameter(command, "@gold_cost", searchCond.goldCost);
+                AddParameter(command, "@is_less_than_gold_cost", searchCond.isLessThanGoldCost);
+                AddParameter(command, "@has_gem_slot", searchCond.hasGemSlot);
+                AddParameter(command, "@gem_slot_1", (int) searchCond.gemSlotType1);
+                AddParameter(command, "@gem_slot_2", (int) searchCond.gemSlotType2);
+                AddParameter(command, "@gem_slot_3", (int) searchCond.gemSlotType3);
+                AddParameter(command, "@type_search_mask_0", searchCond.typeSearchMask0);
+                AddParameter(command, "@type_search_mask_1", searchCond.typeSearchMask1);
+                AddParameter(command, "@description", searchCond.description);                
+                AddParameter(command, "@unknown_byte_0", searchCond.unknownByte0);
+                AddParameter(command, "@unknown_byte_1", searchCond.unknownByte1);
             });
         }
 
-        public void DeleteAuctionEquipSearchConditions(int characterId, byte index)
+        private AuctionSearchConditions MakeAuctionSearchConditions(DbDataReader reader)
         {
-
-            ExecuteNonQuery(SQL_DELETE_ES_CONDS, command =>
-            {
-                AddParameter(command, "@character_id", characterId);
-                AddParameter(command, "@es_index", index);
-            });
-
-            ExecuteNonQuery(SQL_UPDATE_ES_CONDS_INDEX, command =>
-            {
-                AddParameter(command, "@character_id", characterId);
-                AddParameter(command, "@es_index", index);
-            });
-        }
-
-        private AuctionEquipmentSearchConditions MakeAuctionEquipmentSearchConditions(DbDataReader reader)
-        {
-            AuctionEquipmentSearchConditions equipConds = new AuctionEquipmentSearchConditions();
+            AuctionSearchConditions equipConds = new AuctionSearchConditions();
+            equipConds.isItemSearch         = reader.GetBoolean("is_item_search");
             equipConds.searchText           = reader.GetString("search_text");
-            equipConds.soulRankMin          = reader.GetByte("soul_rank_min");
-            equipConds.soulRankMax          = reader.GetByte("soul_rank_max");
-            equipConds.forgePriceMin        = reader.GetByte("forge_price_min");
-            equipConds.forgePriceMax        = reader.GetByte("forge_price_max");
-            equipConds.qualities            = (ItemQualities) reader.GetInt32("qualities");
+            equipConds.levelMin             = reader.GetByte("level_min");
+            equipConds.levelMax             = reader.GetByte("level_max");
+            equipConds.gradeMin             = reader.GetByte("grade_min");
+            equipConds.gradeMax             = reader.GetByte("grade_max");
+            equipConds.qualities            = reader.GetInt16("qualities");
             equipConds.classIndex           = reader.GetInt32("class_index");
             equipConds.raceIndex            = reader.GetInt16("race_index");
             equipConds.goldCost             = (ulong) reader.GetInt64("gold_cost");
-            equipConds.isLessThanGoldCost   = reader.GetBoolean("is_less_than_gold_cost");
-            equipConds.hasGemSlot           = reader.GetBoolean("has_gem_slot");
-            equipConds.gemSlotType1         = (GemType)reader.GetInt32("gem_slot_1");
-            equipConds.gemSlotType2         = (GemType)reader.GetInt32("gem_slot_2");
-            equipConds.gemSlotType3         = (GemType)reader.GetInt32("gem_slot_3");
-            equipConds.itemTypeSearchMask   = reader.GetInt64("item_type_search_mask");
+            equipConds.isLessThanGoldCost   = reader.GetByte("is_less_than_gold_cost");
+            equipConds.hasGemSlot           = reader.GetByte("has_gem_slot");
+            equipConds.gemSlotType1         = reader.GetByte("gem_slot_1");
+            equipConds.gemSlotType2         = reader.GetByte("gem_slot_2");
+            equipConds.gemSlotType3         = reader.GetByte("gem_slot_3");
+            equipConds.typeSearchMask0      = reader.GetInt64("type_search_mask_0");
+            equipConds.typeSearchMask1      = reader.GetInt64("type_search_mask_1");
             equipConds.description          = reader.GetString("description");
-            equipConds.unknownLong0         = (ulong) reader.GetInt64("unknown_long_0");
             equipConds.unknownByte0         = reader.GetByte("unknown_byte_0");
             equipConds.unknownByte1         = reader.GetByte("unknown_byte_1");
             return equipConds;
+        }
+
+        public void DeleteAuctionSearchConditions(int characterId, byte index, bool isItemSearchCond)
+        {
+            ExecuteNonQuery(SQL_DELETE_S_CONDS, command =>
+            {
+                AddParameter(command, "@character_id", characterId);
+                AddParameter(command, "@is_item_search", isItemSearchCond);
+                AddParameter(command, "@s_index", index);
+            });
+
+            ExecuteNonQuery(SQL_UPDATE_S_CONDS_INDEX, command =>
+            {
+                AddParameter(command, "@character_id", characterId);
+                AddParameter(command, "@is_item_search", isItemSearchCond);
+                AddParameter(command, "@s_index", index);
+            });
         }
     }
 }

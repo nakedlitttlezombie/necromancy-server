@@ -28,21 +28,24 @@ namespace Necromancy.Server.Systems.Auction
         {
             _auctionDao = auctionDao;
         }
-        public List<AuctionEquipmentSearchConditions> GetEquipSearchConditions(NecClient client)
+        public List<AuctionSearchConditions> GetEquipSearchConditions(NecClient client)
         {
-            return _auctionDao.SelectAuctionEquipSearchConditions(client.character.id);
+            return _auctionDao.SelectAuctionSearchConditions(client.character.id, false);
         }
 
-        public void RegistSearchEquipmentCond(NecClient client,  int index, AuctionEquipmentSearchConditions equipCond)
+        public void RegistSearchCond(NecClient client,  int index, AuctionSearchConditions searchCond)
         {
-            if (!equipCond.IsValid()) throw new AuctionException(AuctionExceptionType.Generic);
-
-            _auctionDao.InsertAuctionEquipSearchConditions(client.character.id, index, equipCond);
+            _auctionDao.InsertAuctionSearchConditions(client.character.id, index, searchCond);
         }
 
-        internal void DeregistSearchEquipmentCond(NecClient client, byte index)
+        public void DeregistSearchEquipmentCond(NecClient client, byte index)
         {
-            _auctionDao.DeleteAuctionEquipSearchConditions(client.character.id, index);
+            _auctionDao.DeleteAuctionSearchConditions(client.character.id, index, false);
+        }
+
+        internal List<AuctionSearchConditions> GetItemSearchConditions(NecClient client)
+        {
+            return _auctionDao.SelectAuctionSearchConditions(client.character.id, true);
         }
 
         //public void Bid(AuctionLot auctionItem, int bid)

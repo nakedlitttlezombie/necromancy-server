@@ -832,19 +832,9 @@ namespace Necromancy.Server.Systems.Item
             List<ItemInstance> itemInstances = _itemDao.SelectLots(_character.id);
             foreach (ItemInstance item in itemInstances) _character.itemLocationVerifier.PutItem(item.location, item);
             return _itemDao.SelectLots(_character.soulId);
-        }
+        } 
 
-        public List<AuctionItemSearchConditions> GetItemSearchConditions()
-        {
-            return new List<AuctionItemSearchConditions>(); //TODO
-        }       
-
-        public void PutItemSearchConditions(AuctionItemSearchConditions auctionItemSearchConditions)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void PutEquipmentSearchConditions(AuctionEquipmentSearchConditions auctionEquipmentSearchConditions)
+        public void PutEquipmentSearchConditions(AuctionSearchConditions auctionEquipmentSearchConditions)
         {
             throw new NotImplementedException();
         }

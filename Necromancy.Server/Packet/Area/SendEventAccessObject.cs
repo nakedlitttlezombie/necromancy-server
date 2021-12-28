@@ -771,8 +771,8 @@ namespace Necromancy.Server.Packet.Area
             AuctionService auctionService = new AuctionService();
             List<ItemInstance> lots = itemService.GetLots();
             List<ItemInstance> bids = itemService.GetBids();
-            List<AuctionEquipmentSearchConditions> equipSearch = auctionService.GetEquipSearchConditions(client);
-            List<AuctionItemSearchConditions> itemSearch = itemService.GetItemSearchConditions();
+            List<AuctionSearchConditions> equipSearch = auctionService.GetEquipSearchConditions(client);
+            List<AuctionSearchConditions> itemSearch = auctionService.GetItemSearchConditions(client);
             const byte IS_IN_MAINTENANCE_MODE = 0x0;
             const int MAX_LOTS = 15;
 
@@ -832,13 +832,13 @@ namespace Necromancy.Server.Packet.Area
             }
 
             res.WriteInt32(equipSearch.Count); //Less than or equal to 0x8
-            foreach (AuctionEquipmentSearchConditions equipCond in equipSearch)
+            foreach (AuctionSearchConditions equipCond in equipSearch)
             {
-                res.WriteFixedString(equipCond.searchText, AuctionEquipmentSearchConditions.MAX_TEXT_LENGTH); //V| Search Text
-                res.WriteByte(equipCond.forgePriceMin);         //V| Grade min
-                res.WriteByte(equipCond.forgePriceMax);         //V| Grade max
-                res.WriteByte(equipCond.soulRankMin);           //V| Level min
-                res.WriteByte(equipCond.soulRankMax);           //V| Level max
+                res.WriteFixedString(equipCond.searchText, AuctionSearchConditions.MAX_SEARCH_TEXT_LENGTH); //V| Search Text
+                res.WriteByte(equipCond.gradeMin);         //V| Grade min
+                res.WriteByte(equipCond.gradeMax);         //V| Grade max
+                res.WriteByte(equipCond.levelMin);           //V| Level min
+                res.WriteByte(equipCond.levelMax);           //V| Level max
                 res.WriteInt32(equipCond.classIndex);           //V| Index for Class 
                 res.WriteInt16(equipCond.raceIndex);            //V| Index for Race
                 res.WriteInt16((short)equipCond.qualities);     //V| Qualities
@@ -850,9 +850,9 @@ namespace Necromancy.Server.Packet.Area
                 res.WriteByte((byte)equipCond.gemSlotType2);            //V| Gem slot 2
                 res.WriteByte((byte)equipCond.gemSlotType3);            //V| Gem slot 3
 
-                res.WriteInt64(equipCond.itemTypeSearchMask); //V| Item type mask
-                res.WriteUInt64(equipCond.unknownLong0);
-                res.WriteFixedString(equipCond.description, AuctionEquipmentSearchConditions.MAX_DESCRIPTION_LENGTH); //v| Saved Search Description
+                res.WriteInt64(equipCond.typeSearchMask0); //V| Item type mask
+                res.WriteInt64(equipCond.typeSearchMask1);
+                res.WriteFixedString(equipCond.description, AuctionSearchConditions.MAX_DESCRIPTION_LENGTH); //v| Saved Search Description
                 res.WriteByte(equipCond.unknownByte0); 
                 res.WriteByte(equipCond.unknownByte1); 
             }

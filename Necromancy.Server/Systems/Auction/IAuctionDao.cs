@@ -5,10 +5,9 @@ using Necromancy.Server.Systems.Item;
 
 namespace Necromancy.Server.Systems.Auction
 {
-    public interface IAuctionDao    {
-
-        public void InsertAuctionEquipSearchConditions(int characterId, int index, AuctionEquipmentSearchConditions auctionEquipmentSearchConditions);
-        void DeleteAuctionEquipSearchConditions(int id, byte index);
-        List<AuctionEquipmentSearchConditions> SelectAuctionEquipSearchConditions(int id);
+    public interface IAuctionDao {
+        public void InsertAuctionSearchConditions(int characterId, int index, AuctionSearchConditions auctionSearchConditions);
+        void DeleteAuctionSearchConditions(int characterId, byte index, bool isItemSearchCond);
+        List<AuctionSearchConditions> SelectAuctionSearchConditions(int characterId, bool isItemSearchCond);
     }
 }

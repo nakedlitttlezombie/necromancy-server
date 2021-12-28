@@ -1,8 +1,6 @@
 using System;
 using Arrowgene.Buffers;
-using Arrowgene.Logging;
 using Necromancy.Server.Common;
-using Necromancy.Server.Logging;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
 using Necromancy.Server.Systems.Auction;
@@ -13,36 +11,42 @@ namespace Necromancy.Server.Packet.Area
     public class SendAuctionRegistSearchEquipmentCond : ClientHandler
     {
         public SendAuctionRegistSearchEquipmentCond(NecServer server) : base(server) { }
-        public override ushort id => (ushort)AreaPacketId.send_auction_regist_search_equipment_cond;
+        public override ushort id => (ushort) AreaPacketId.send_auction_regist_search_equipment_cond;
         public override void Handle(NecClient client, NecPacket packet)
         {
-            AuctionEquipmentSearchConditions equipCond = new AuctionEquipmentSearchConditions();
+            AuctionSearchConditions searchCond = new AuctionSearchConditions();
+            searchCond.isItemSearch = false;
             
             byte index = packet.data.ReadByte();
 
-            equipCond.searchText            = packet.data.ReadFixedString(AuctionEquipmentSearchConditions.MAX_TEXT_LENGTH);
-            equipCond.forgePriceMin         = packet.data.ReadByte();
-            equipCond.forgePriceMax         = packet.data.ReadByte();
-            equipCond.soulRankMin           = packet.data.ReadByte();
-            equipCond.soulRankMax           = packet.data.ReadByte();
-            equipCond.classIndex            = packet.data.ReadInt32();
-            equipCond.raceIndex             = packet.data.ReadInt16();
-            equipCond.qualities             = (ItemQualities) packet.data.ReadInt16(); 
-            equipCond.goldCost              = packet.data.ReadUInt64(); 
-            equipCond.isLessThanGoldCost    = Convert.ToBoolean(packet.data.ReadByte());
+            searchCond.searchText           = packet.data.ReadFixedString(AuctionSearchConditions.MAX_SEARCH_TEXT_LENGTH);
 
-            equipCond.hasGemSlot            = Convert.ToBoolean(packet.data.ReadByte()); 
-            equipCond.gemSlotType1          = (GemType) packet.data.ReadByte(); 
-            equipCond.gemSlotType2          = (GemType) packet.data.ReadByte();
-            equipCond.gemSlotType3          = (GemType) packet.data.ReadByte();
+            searchCond.gradeMin             = packet.data.ReadByte();
+            searchCond.gradeMax             = packet.data.ReadByte();
 
-            equipCond.itemTypeSearchMask    = packet.data.ReadInt64();
-            equipCond.unknownLong0          = packet.data.ReadUInt64(); ////required but seems to be 1024?
-            equipCond.description           = packet.data.ReadFixedString(AuctionEquipmentSearchConditions.MAX_DESCRIPTION_LENGTH);
+            searchCond.levelMin             = packet.data.ReadByte();
+            searchCond.levelMax             = packet.data.ReadByte();
+
+            searchCond.classIndex           = packet.data.ReadInt32();
+            searchCond.raceIndex            = packet.data.ReadInt16();
+            searchCond.qualities            = packet.data.ReadInt16();
+
+            searchCond.goldCost             = packet.data.ReadUInt64(); 
+            searchCond.isLessThanGoldCost   = packet.data.ReadByte();
+
+            searchCond.hasGemSlot           = packet.data.ReadByte(); 
+            searchCond.gemSlotType1         = packet.data.ReadByte(); 
+            searchCond.gemSlotType2         = packet.data.ReadByte();
+            searchCond.gemSlotType3         = packet.data.ReadByte();
+
+            searchCond.typeSearchMask0      = packet.data.ReadInt64();
+            searchCond.typeSearchMask1      = packet.data.ReadInt64();
+
+            searchCond.description          = packet.data.ReadFixedString(AuctionSearchConditions.MAX_DESCRIPTION_LENGTH);
 
             //who knows
-            equipCond.unknownByte0          = packet.data.ReadByte(); //required but seems to be 0?
-            equipCond.unknownByte1          = packet.data.ReadByte(); //required but seems to be 99?
+            searchCond.unknownByte0         = packet.data.ReadByte();
+            searchCond.unknownByte1         = packet.data.ReadByte(); 
             
             //TODO missing some stuff here
 
@@ -50,7 +54,7 @@ namespace Necromancy.Server.Packet.Area
             int auctionError = 0;
             try
             {
-                auctionService.RegistSearchEquipmentCond(client, index, equipCond);
+                auctionService.RegistSearchCond(client, index, searchCond);
             }
             catch (AuctionException e)
             {
@@ -59,7 +63,7 @@ namespace Necromancy.Server.Packet.Area
 
             IBuffer res = BufferProvider.Provide();
             res.WriteInt32(auctionError);
-            router.Send(client, (ushort)AreaPacketId.recv_auction_regist_search_equipment_cond_r, res, ServerType.Area);
+            router.Send(client, (ushort) AreaPacketId.recv_auction_regist_search_equipment_cond_r, res, ServerType.Area);
         }
     }
 }

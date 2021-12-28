@@ -1,37 +1,57 @@
+using System;
 using Arrowgene.Buffers;
 using Necromancy.Server.Common;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
+using Necromancy.Server.Systems.Auction;
+using Necromancy.Server.Systems.Item;
 
 namespace Necromancy.Server.Packet.Area
 {
     public class SendAuctionRegistSearchItemCond : ClientHandler
     {
-        public SendAuctionRegistSearchItemCond(NecServer server) : base(server)
-        {
-        }
-
-
-        public override ushort id => (ushort)AreaPacketId.send_auction_regist_search_item_cond;
-
+        public SendAuctionRegistSearchItemCond(NecServer server) : base(server) { }
+        public override ushort id => (ushort) AreaPacketId.send_auction_regist_search_item_cond;
         public override void Handle(NecClient client, NecPacket packet)
         {
-            byte presetNum = packet.data.ReadByte();
-            string keyword = packet.data.ReadFixedString(0x49); //Fixed string of 0x49 or 0x49 bytes.
-            byte option1 = packet.data.ReadByte();
-            byte option2 = packet.data.ReadByte();
-            byte option3 = packet.data.ReadByte();
-            byte option4 = packet.data.ReadByte();
-            long gold = packet.data.ReadInt64(); //Gold??
-            byte option5 = packet.data.ReadByte();
-            long gold2 = packet.data.ReadInt64(); //Gold??
-            long gold3 = packet.data.ReadInt64(); //Gold??
-            string presetName = packet.data.ReadFixedString(0xC1); //Fixed string of 0xC1 or 0xC1 bytes.
-            byte option6 = packet.data.ReadByte();
-            byte option7 = packet.data.ReadByte();
+            AuctionSearchConditions searchCond = new AuctionSearchConditions();
+            searchCond.isItemSearch = true;
+
+            byte index = packet.data.ReadByte();
+
+            searchCond.searchText           = packet.data.ReadFixedString(AuctionSearchConditions.MAX_SEARCH_TEXT_LENGTH);
+
+            searchCond.gradeMin             = packet.data.ReadByte();
+            searchCond.gradeMax             = packet.data.ReadByte();
+
+            searchCond.levelMin             = packet.data.ReadByte();
+            searchCond.levelMax             = packet.data.ReadByte();
+
+            searchCond.goldCost             = packet.data.ReadUInt64();
+            searchCond.isLessThanGoldCost   = packet.data.ReadByte();
+
+            searchCond.typeSearchMask0      = packet.data.ReadInt64(); 
+            searchCond.typeSearchMask1      = packet.data.ReadInt64();
+
+            searchCond.description          = packet.data.ReadFixedString(AuctionSearchConditions.MAX_DESCRIPTION_LENGTH);
+
+            //who knows
+            searchCond.unknownByte0 = packet.data.ReadByte(); //required but seems to be 0?
+            searchCond.unknownByte1 = packet.data.ReadByte(); //required but seems to be 99?
+
+            AuctionService auctionService = new AuctionService();
+            int auctionError = 0;
+            try
+            {
+                auctionService.RegistSearchCond(client, index, searchCond);
+            }
+            catch (AuctionException e)
+            {
+                auctionError = (int) e.type;
+            }
 
             IBuffer res = BufferProvider.Provide();
-            res.WriteInt32(0);
+            res.WriteInt32(auctionError);
             router.Send(client, (ushort)AreaPacketId.recv_auction_regist_search_item_cond_r, res, ServerType.Area);
         }
     }
