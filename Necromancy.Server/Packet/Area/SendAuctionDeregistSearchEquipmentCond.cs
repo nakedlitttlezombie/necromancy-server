@@ -28,7 +28,7 @@ namespace Necromancy.Server.Packet.Area
 
             IBuffer res = BufferProvider.Provide();
             res.WriteInt32(auctionError);
-            router.Send(client, (ushort)AreaPacketId.recv_auction_regist_search_equipment_cond_r, res, ServerType.Area);
+            router.Send(client, (ushort)AreaPacketId.recv_auction_deregist_search_equipment_cond_r, res, ServerType.Area);
         }
     }
 }

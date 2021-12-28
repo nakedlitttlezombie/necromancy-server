@@ -91,7 +91,6 @@ namespace Necromancy.Server.Chat.Command.Commands
                 j++;
             }
 
-            j = 1;
             res.WriteInt32(equipSearch.Count); //Less than or equal to 0x8
             foreach (AuctionEquipmentSearchConditions equipCond in equipSearch)
             {
@@ -101,7 +100,7 @@ namespace Necromancy.Server.Chat.Command.Commands
                 res.WriteByte(equipCond.soulRankMin);           //V| Level min
                 res.WriteByte(equipCond.soulRankMax);           //V| Level max
                 res.WriteInt32(equipCond.classIndex);           //V| Index for Class 
-                res.WriteInt16((short) equipCond.raceIndex);            //V| Index for Race
+                res.WriteInt16(equipCond.raceIndex);            //V| Index for Race
                 res.WriteInt16((short)equipCond.qualities);     //V| Qualities
                 res.WriteUInt64(equipCond.goldCost);            //V| Gold
                 res.WriteByte(Convert.ToByte(equipCond.isLessThanGoldCost));
@@ -112,12 +111,10 @@ namespace Necromancy.Server.Chat.Command.Commands
                 res.WriteByte((byte)equipCond.gemSlotType3);            //V| Gem slot 3
 
                 res.WriteInt64(equipCond.itemTypeSearchMask); //V| Item type mask
-                _Logger.Debug(equipCond.itemTypeSearchMask.ToString());
-                res.WriteUInt64(0);
+                res.WriteUInt64(equipCond.unknownLong0);
                 res.WriteFixedString(equipCond.description, AuctionEquipmentSearchConditions.MAX_DESCRIPTION_LENGTH); //v| Saved Search Description
-                res.WriteByte((byte) Byte.MaxValue); //TODO UNKNOWN
-                res.WriteByte((byte) Byte.MaxValue); //TODO UNKNOWN
-                j++;
+                res.WriteByte(equipCond.unknownByte0); 
+                res.WriteByte(equipCond.unknownByte1); 
             }
 
 
@@ -141,8 +138,8 @@ namespace Necromancy.Server.Chat.Command.Commands
                 res.WriteByte(0);
             }
 
-            res.WriteByte(1); //Bool
-            res.WriteInt32(6);
+            res.WriteByte(0); //Bool
+            res.WriteInt32(Int32.MaxValue);
             router.Send(client, (ushort)AreaPacketId.recv_auction_notify_open, res, ServerType.Area);
 
             //RecvAuctionNotifyOpenItemStart recvAuctionNotifyOpenItemStart = new RecvAuctionNotifyOpenItemStart(client);

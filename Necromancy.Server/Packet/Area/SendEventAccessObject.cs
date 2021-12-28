@@ -851,10 +851,10 @@ namespace Necromancy.Server.Packet.Area
                 res.WriteByte((byte)equipCond.gemSlotType3);            //V| Gem slot 3
 
                 res.WriteInt64(equipCond.itemTypeSearchMask); //V| Item type mask
-                res.WriteUInt64(equipCond.unused0);
+                res.WriteUInt64(equipCond.unknownLong0);
                 res.WriteFixedString(equipCond.description, AuctionEquipmentSearchConditions.MAX_DESCRIPTION_LENGTH); //v| Saved Search Description
-                res.WriteByte(0); //TODO UNKNOWN
-                res.WriteByte(0); //TODO UNKNOWN
+                res.WriteByte(equipCond.unknownByte0); 
+                res.WriteByte(equipCond.unknownByte1); 
             }
 
 

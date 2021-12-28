@@ -12,12 +12,8 @@ namespace Necromancy.Server.Packet.Area
 {
     public class SendAuctionRegistSearchEquipmentCond : ClientHandler
     {
-
-        private static readonly NecLogger _Logger = LogProvider.Logger<NecLogger>(typeof(SendAuctionRegistSearchEquipmentCond));
         public SendAuctionRegistSearchEquipmentCond(NecServer server) : base(server) { }
-
         public override ushort id => (ushort)AreaPacketId.send_auction_regist_search_equipment_cond;
-
         public override void Handle(NecClient client, NecPacket packet)
         {
             AuctionEquipmentSearchConditions equipCond = new AuctionEquipmentSearchConditions();
@@ -41,13 +37,13 @@ namespace Necromancy.Server.Packet.Area
             equipCond.gemSlotType3          = (GemType) packet.data.ReadByte();
 
             equipCond.itemTypeSearchMask    = packet.data.ReadInt64();
-            _Logger.Debug(equipCond.itemTypeSearchMask.ToString());
-            equipCond.unused0               = packet.data.ReadUInt64(); //unknown
+            equipCond.unknownLong0          = packet.data.ReadUInt64(); ////required but seems to be 1024?
             equipCond.description           = packet.data.ReadFixedString(AuctionEquipmentSearchConditions.MAX_DESCRIPTION_LENGTH);
 
-            //TODO who knows
-            byte option9                    = packet.data.ReadByte();
-            byte option10                   = packet.data.ReadByte();
+            //who knows
+            equipCond.unknownByte0          = packet.data.ReadByte(); //required but seems to be 0?
+            equipCond.unknownByte1          = packet.data.ReadByte(); //required but seems to be 99?
+            
             //TODO missing some stuff here
 
             AuctionService auctionService = new AuctionService();

@@ -24,8 +24,10 @@ namespace Necromancy.Server.Systems.Item
         public GemType gemSlotType2 { get; set; }
         public GemType gemSlotType3 { get; set; }
         public long itemTypeSearchMask { get; set; }
-        public ulong unused0 { get; set; }
+        public ulong unknownLong0 { get; set; } //seems to be 1024? I have no idea why its set at that.
         public string description { get; set; } = "";
+        public byte unknownByte0 { get; set; } //seems to be 0?
+        public byte unknownByte1 { get; set; } //seems to be 99?
 
         private bool HasValidText()
         {

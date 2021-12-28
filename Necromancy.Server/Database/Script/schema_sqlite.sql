@@ -720,6 +720,9 @@ CREATE TABLE IF NOT EXISTS "nec_auction_es_conds" (
 	"gem_slot_3"	INTEGER NOT NULL,
 	"item_type_search_mask"	INTEGER NOT NULL,
 	"description"	TEXT,
+    "unknown_long_0"	INTEGER NOT NULL,
+	"unknown_byte_0"	INTEGER NOT NULL,
+	"unknown_byte_1"	INTEGER NOT NULL,
 	PRIMARY KEY("id" AUTOINCREMENT),
 	FOREIGN KEY("character_id") REFERENCES "nec_character"("id")
 )

@@ -136,7 +136,10 @@ namespace Necromancy.Server.Systems.Auction
 	                gem_slot_2,
 	                gem_slot_3,
 	                item_type_search_mask,
-	                description
+	                description,
+                    unknown_long_0,
+                    unknown_byte_0,
+                    unknown_byte_1
                 )
             VALUES
                 (
@@ -157,7 +160,10 @@ namespace Necromancy.Server.Systems.Auction
 	                @gem_slot_2,
 	                @gem_slot_3,
 	                @item_type_search_mask,
-	                @description
+	                @description,
+                    @unknown_long_0,
+                    @unknown_byte_0,
+                    @unknown_byte_1
                 )";
 
         private const string SQL_DELETE_ES_CONDS = @"
@@ -358,6 +364,9 @@ namespace Necromancy.Server.Systems.Auction
                 AddParameter(command, "@gem_slot_3", (int) equipCond.gemSlotType3);
                 AddParameter(command, "@item_type_search_mask", equipCond.itemTypeSearchMask);
                 AddParameter(command, "@description", equipCond.description);
+                AddParameter(command, "@unknown_long_0", equipCond.unknownLong0);
+                AddParameter(command, "@unknown_byte_0", equipCond.unknownByte0);
+                AddParameter(command, "@unknown_byte_1", equipCond.unknownByte1);
             });
         }
 
@@ -396,6 +405,9 @@ namespace Necromancy.Server.Systems.Auction
             equipConds.gemSlotType3         = (GemType)reader.GetInt32("gem_slot_3");
             equipConds.itemTypeSearchMask   = reader.GetInt64("item_type_search_mask");
             equipConds.description          = reader.GetString("description");
+            equipConds.unknownLong0         = (ulong) reader.GetInt64("unknown_long_0");
+            equipConds.unknownByte0         = reader.GetByte("unknown_byte_0");
+            equipConds.unknownByte1         = reader.GetByte("unknown_byte_1");
             return equipConds;
         }
     }
