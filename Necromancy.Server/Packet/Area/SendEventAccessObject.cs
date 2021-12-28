@@ -11,6 +11,7 @@ using Necromancy.Server.Logging;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
 using Necromancy.Server.Packet.Receive.Area;
+using Necromancy.Server.Systems.Auction;
 using Necromancy.Server.Systems.Item;
 
 namespace Necromancy.Server.Packet.Area
@@ -767,9 +768,10 @@ namespace Necromancy.Server.Packet.Area
         private void AuctionHouse(NecClient client, NpcSpawn npcSpawn)
         {
             ItemService itemService = new ItemService(client.character);
+            AuctionService auctionService = new AuctionService();
             List<ItemInstance> lots = itemService.GetLots();
             List<ItemInstance> bids = itemService.GetBids();
-            List<AuctionEquipmentSearchConditions> equipSearch = itemService.GetEquipmentSearchConditions();
+            List<AuctionEquipmentSearchConditions> equipSearch = auctionService.GetEquipSearchConditions(client);
             List<AuctionItemSearchConditions> itemSearch = itemService.GetItemSearchConditions();
             const byte IS_IN_MAINTENANCE_MODE = 0x0;
             const int MAX_LOTS = 15;
@@ -848,7 +850,7 @@ namespace Necromancy.Server.Packet.Area
                 res.WriteByte((byte)equipCond.gemSlotType2);            //V| Gem slot 2
                 res.WriteByte((byte)equipCond.gemSlotType3);            //V| Gem slot 3
 
-                res.WriteUInt64(equipCond.itemTypeSearchMask); //V| Item type mask
+                res.WriteInt64(equipCond.itemTypeSearchMask); //V| Item type mask
                 res.WriteUInt64(equipCond.unused0);
                 res.WriteFixedString(equipCond.description, AuctionEquipmentSearchConditions.MAX_DESCRIPTION_LENGTH); //v| Saved Search Description
                 res.WriteByte(0); //TODO UNKNOWN

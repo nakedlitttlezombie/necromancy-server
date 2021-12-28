@@ -1,6 +1,8 @@
 using System;
 using Arrowgene.Buffers;
+using Arrowgene.Logging;
 using Necromancy.Server.Common;
+using Necromancy.Server.Logging;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
 using Necromancy.Server.Systems.Auction;
@@ -10,6 +12,8 @@ namespace Necromancy.Server.Packet.Area
 {
     public class SendAuctionRegistSearchEquipmentCond : ClientHandler
     {
+
+        private static readonly NecLogger _Logger = LogProvider.Logger<NecLogger>(typeof(SendAuctionRegistSearchEquipmentCond));
         public SendAuctionRegistSearchEquipmentCond(NecServer server) : base(server) { }
 
         public override ushort id => (ushort)AreaPacketId.send_auction_regist_search_equipment_cond;
@@ -36,7 +40,8 @@ namespace Necromancy.Server.Packet.Area
             equipCond.gemSlotType2          = (GemType) packet.data.ReadByte();
             equipCond.gemSlotType3          = (GemType) packet.data.ReadByte();
 
-            equipCond.itemTypeSearchMask    = packet.data.ReadUInt64();
+            equipCond.itemTypeSearchMask    = packet.data.ReadInt64();
+            _Logger.Debug(equipCond.itemTypeSearchMask.ToString());
             equipCond.unused0               = packet.data.ReadUInt64(); //unknown
             equipCond.description           = packet.data.ReadFixedString(AuctionEquipmentSearchConditions.MAX_DESCRIPTION_LENGTH);
 

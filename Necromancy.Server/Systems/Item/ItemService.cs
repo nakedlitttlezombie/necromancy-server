@@ -837,12 +837,7 @@ namespace Necromancy.Server.Systems.Item
         public List<AuctionItemSearchConditions> GetItemSearchConditions()
         {
             return new List<AuctionItemSearchConditions>(); //TODO
-        }
-
-        public List<AuctionEquipmentSearchConditions> GetEquipmentSearchConditions()
-        {
-            return new List<AuctionEquipmentSearchConditions>(); //TODO
-        }
+        }       
 
         public void PutItemSearchConditions(AuctionItemSearchConditions auctionItemSearchConditions)
         {

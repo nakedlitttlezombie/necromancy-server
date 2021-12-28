@@ -23,7 +23,7 @@ namespace Necromancy.Server.Systems.Item
         public GemType gemSlotType1 { get; set; }
         public GemType gemSlotType2 { get; set; }
         public GemType gemSlotType3 { get; set; }
-        public ulong itemTypeSearchMask { get; set; }
+        public long itemTypeSearchMask { get; set; }
         public ulong unused0 { get; set; }
         public string description { get; set; } = "";
 

@@ -139,6 +139,16 @@ namespace Necromancy.Server.Systems
             AddParameter(command, name, value, DbType.Double);
         }
 
+        protected void AddParameter(DbCommand command, string name, long value)
+        {
+            AddParameter(command, name, value, DbType.Int64);
+        }
+
+        protected void AddParameter(DbCommand command, string name, ulong value)
+        {
+            AddParameter(command, name, value, DbType.UInt64);
+        }
+
         protected void AddParameter(DbCommand command, string name, byte value)
         {
             AddParameter(command, name, value, DbType.Byte);

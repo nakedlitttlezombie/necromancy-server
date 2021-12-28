@@ -701,26 +701,26 @@ namespace Necromancy.Server.Systems.Item
             itemInstance.quality = (ItemQualities)Enum.Parse(typeof(ItemQualities), reader.GetString("quality"), true);
             itemInstance.maxStackSize = reader.GetByte("max_stack_size");
 
-            if (reader.GetBoolean("es_hand_r")) itemInstance.equipAllowedSlots |= ItemEquipSlots.RightHand;
-            if (reader.GetBoolean("es_hand_l")) itemInstance.equipAllowedSlots |= ItemEquipSlots.LeftHand;
-            if (reader.GetBoolean("es_quiver")) itemInstance.equipAllowedSlots |= ItemEquipSlots.Quiver;
-            if (reader.GetBoolean("es_head")) itemInstance.equipAllowedSlots |= ItemEquipSlots.Head;
-            if (reader.GetBoolean("es_body")) itemInstance.equipAllowedSlots |= ItemEquipSlots.Torso;
-            if (reader.GetBoolean("es_legs")) itemInstance.equipAllowedSlots |= ItemEquipSlots.Legs;
-            if (reader.GetBoolean("es_arms")) itemInstance.equipAllowedSlots |= ItemEquipSlots.Arms;
-            if (reader.GetBoolean("es_feet")) itemInstance.equipAllowedSlots |= ItemEquipSlots.Feet;
-            if (reader.GetBoolean("es_mantle")) itemInstance.equipAllowedSlots |= ItemEquipSlots.Cloak;
-            if (reader.GetBoolean("es_ring")) itemInstance.equipAllowedSlots |= ItemEquipSlots.Ring;
-            if (reader.GetBoolean("es_earring")) itemInstance.equipAllowedSlots |= ItemEquipSlots.Earring;
-            if (reader.GetBoolean("es_necklace")) itemInstance.equipAllowedSlots |= ItemEquipSlots.Necklace;
-            if (reader.GetBoolean("es_belt")) itemInstance.equipAllowedSlots |= ItemEquipSlots.Belt;
-            if (reader.GetBoolean("es_talkring")) itemInstance.equipAllowedSlots |= ItemEquipSlots.Talkring;
-            if (reader.GetBoolean("es_avatar_head")) itemInstance.equipAllowedSlots |= ItemEquipSlots.AvatarHead;
-            if (reader.GetBoolean("es_avatar_body")) itemInstance.equipAllowedSlots |= ItemEquipSlots.AvatarTorso;
-            if (reader.GetBoolean("es_avatar_legs")) itemInstance.equipAllowedSlots |= ItemEquipSlots.AvatarLegs;
-            if (reader.GetBoolean("es_avatar_arms")) itemInstance.equipAllowedSlots |= ItemEquipSlots.AvatarArms;
-            if (reader.GetBoolean("es_avatar_feet")) itemInstance.equipAllowedSlots |= ItemEquipSlots.AvatarFeet;
-            if (reader.GetBoolean("es_avatar_feet")) itemInstance.equipAllowedSlots |= ItemEquipSlots.AvatarCloak;
+            if (reader.GetBoolean("es_hand_r"))         itemInstance.equipAllowedSlots |= ItemEquipSlots.RightHand;
+            if (reader.GetBoolean("es_hand_l"))         itemInstance.equipAllowedSlots |= ItemEquipSlots.LeftHand;
+            if (reader.GetBoolean("es_quiver"))         itemInstance.equipAllowedSlots |= ItemEquipSlots.Quiver;
+            if (reader.GetBoolean("es_head"))           itemInstance.equipAllowedSlots |= ItemEquipSlots.Head;
+            if (reader.GetBoolean("es_body"))           itemInstance.equipAllowedSlots |= ItemEquipSlots.Torso;
+            if (reader.GetBoolean("es_legs"))           itemInstance.equipAllowedSlots |= ItemEquipSlots.Legs;
+            if (reader.GetBoolean("es_arms"))           itemInstance.equipAllowedSlots |= ItemEquipSlots.Arms;
+            if (reader.GetBoolean("es_feet"))           itemInstance.equipAllowedSlots |= ItemEquipSlots.Feet;
+            if (reader.GetBoolean("es_mantle"))         itemInstance.equipAllowedSlots |= ItemEquipSlots.Cloak;
+            if (reader.GetBoolean("es_ring"))           itemInstance.equipAllowedSlots |= ItemEquipSlots.Ring;
+            if (reader.GetBoolean("es_earring"))        itemInstance.equipAllowedSlots |= ItemEquipSlots.Earring;
+            if (reader.GetBoolean("es_necklace"))       itemInstance.equipAllowedSlots |= ItemEquipSlots.Necklace;
+            if (reader.GetBoolean("es_belt"))           itemInstance.equipAllowedSlots |= ItemEquipSlots.Belt;
+            if (reader.GetBoolean("es_talkring"))       itemInstance.equipAllowedSlots |= ItemEquipSlots.Talkring;
+            if (reader.GetBoolean("es_avatar_head"))    itemInstance.equipAllowedSlots |= ItemEquipSlots.AvatarHead;
+            if (reader.GetBoolean("es_avatar_body"))    itemInstance.equipAllowedSlots |= ItemEquipSlots.AvatarTorso;
+            if (reader.GetBoolean("es_avatar_legs"))    itemInstance.equipAllowedSlots |= ItemEquipSlots.AvatarLegs;
+            if (reader.GetBoolean("es_avatar_arms"))    itemInstance.equipAllowedSlots |= ItemEquipSlots.AvatarArms;
+            if (reader.GetBoolean("es_avatar_feet"))    itemInstance.equipAllowedSlots |= ItemEquipSlots.AvatarFeet;
+            if (reader.GetBoolean("es_avatar_feet"))    itemInstance.equipAllowedSlots |= ItemEquipSlots.AvatarCloak;
 
             if (reader.GetBoolean("req_hum_m")) itemInstance.requiredRaces |= Races.HumanMale;
             if (reader.GetBoolean("req_hum_f")) itemInstance.requiredRaces |= Races.HumanFemale;
@@ -731,50 +731,50 @@ namespace Necromancy.Server.Systems.Item
             if (reader.GetBoolean("req_por_f")) itemInstance.requiredRaces |= Races.PorkulFemale;
             if (reader.GetBoolean("req_gnm_f")) itemInstance.requiredRaces |= Races.GnomeFemale;
 
-            if (reader.GetBoolean("req_fighter")) itemInstance.requiredClasses |= Classes.Fighter;
-            if (reader.GetBoolean("req_thief")) itemInstance.requiredClasses |= Classes.Thief;
-            if (reader.GetBoolean("req_mage")) itemInstance.requiredClasses |= Classes.Mage;
-            if (reader.GetBoolean("req_priest")) itemInstance.requiredClasses |= Classes.Priest;
-            if (reader.GetBoolean("req_samurai")) itemInstance.requiredClasses |= Classes.Samurai;
-            if (reader.GetBoolean("req_bishop")) itemInstance.requiredClasses |= Classes.Bishop;
-            if (reader.GetBoolean("req_ninja")) itemInstance.requiredClasses |= Classes.Ninja;
-            if (reader.GetBoolean("req_lord")) itemInstance.requiredClasses |= Classes.Lord;
-            if (reader.GetBoolean("req_clown")) itemInstance.requiredClasses |= Classes.Clown;
+            if (reader.GetBoolean("req_fighter"))   itemInstance.requiredClasses |= Classes.Fighter;
+            if (reader.GetBoolean("req_thief"))     itemInstance.requiredClasses |= Classes.Thief;
+            if (reader.GetBoolean("req_mage"))      itemInstance.requiredClasses |= Classes.Mage;
+            if (reader.GetBoolean("req_priest"))    itemInstance.requiredClasses |= Classes.Priest;
+            if (reader.GetBoolean("req_samurai"))   itemInstance.requiredClasses |= Classes.Samurai;
+            if (reader.GetBoolean("req_bishop"))    itemInstance.requiredClasses |= Classes.Bishop;
+            if (reader.GetBoolean("req_ninja"))     itemInstance.requiredClasses |= Classes.Ninja;
+            if (reader.GetBoolean("req_lord"))      itemInstance.requiredClasses |= Classes.Lord;
+            if (reader.GetBoolean("req_clown"))     itemInstance.requiredClasses |= Classes.Clown;
             if (reader.GetBoolean("req_alchemist")) itemInstance.requiredClasses |= Classes.Alchemist;
 
-            if (reader.GetBoolean("req_lawful")) itemInstance.requiredAlignments |= Alignments.Lawful;
-            if (reader.GetBoolean("req_neutral")) itemInstance.requiredAlignments |= Alignments.Neutral;
-            if (reader.GetBoolean("req_chaotic")) itemInstance.requiredAlignments |= Alignments.Chaotic;
+            if (reader.GetBoolean("req_lawful"))    itemInstance.requiredAlignments |= Alignments.Lawful;
+            if (reader.GetBoolean("req_neutral"))   itemInstance.requiredAlignments |= Alignments.Neutral;
+            if (reader.GetBoolean("req_chaotic"))   itemInstance.requiredAlignments |= Alignments.Chaotic;
 
-            itemInstance.requiredStrength = reader.GetByte("req_str");
-            itemInstance.requiredVitality = reader.GetByte("req_vit");
-            itemInstance.requiredDexterity = reader.GetByte("req_dex");
-            itemInstance.requiredAgility = reader.GetByte("req_agi");
-            itemInstance.requiredIntelligence = reader.GetByte("req_int");
-            itemInstance.requiredPiety = reader.GetByte("req_pie");
-            itemInstance.requiredLuck = reader.GetByte("req_luk");
+            itemInstance.requiredStrength       = reader.GetByte("req_str");
+            itemInstance.requiredVitality       = reader.GetByte("req_vit");
+            itemInstance.requiredDexterity      = reader.GetByte("req_dex");
+            itemInstance.requiredAgility        = reader.GetByte("req_agi");
+            itemInstance.requiredIntelligence   = reader.GetByte("req_int");
+            itemInstance.requiredPiety          = reader.GetByte("req_pie");
+            itemInstance.requiredLuck           = reader.GetByte("req_luk");
 
             itemInstance.requiredSoulRank = reader.GetByte("req_soul_rank");
             //todo max soul rank
             itemInstance.requiredLevel = reader.GetByte("req_lvl");
 
-            itemInstance.physicalSlash = reader.GetByte("phys_slash");
+            itemInstance.physicalSlash  = reader.GetByte("phys_slash");
             itemInstance.physicalStrike = reader.GetByte("phys_strike");
             itemInstance.physicalPierce = reader.GetByte("phys_pierce");
 
-            itemInstance.physicalDefenseFire = reader.GetByte("pdef_fire");
-            itemInstance.physicalDefenseWater = reader.GetByte("pdef_water");
-            itemInstance.physicalDefenseWind = reader.GetByte("pdef_wind");
-            itemInstance.physicalDefenseEarth = reader.GetByte("pdef_earth");
-            itemInstance.physicalDefenseLight = reader.GetByte("pdef_light");
-            itemInstance.physicalDefenseDark = reader.GetByte("pdef_dark");
+            itemInstance.physicalDefenseFire    = reader.GetByte("pdef_fire");
+            itemInstance.physicalDefenseWater   = reader.GetByte("pdef_water");
+            itemInstance.physicalDefenseWind    = reader.GetByte("pdef_wind");
+            itemInstance.physicalDefenseEarth   = reader.GetByte("pdef_earth");
+            itemInstance.physicalDefenseLight   = reader.GetByte("pdef_light");
+            itemInstance.physicalDefenseDark    = reader.GetByte("pdef_dark");
 
-            itemInstance.magicalAttackFire = reader.GetByte("matk_fire");
+            itemInstance.magicalAttackFire  = reader.GetByte("matk_fire");
             itemInstance.magicalAttackWater = reader.GetByte("matk_water");
-            itemInstance.magicalAttackWind = reader.GetByte("matk_wind");
+            itemInstance.magicalAttackWind  = reader.GetByte("matk_wind");
             itemInstance.magicalAttackEarth = reader.GetByte("matk_earth");
             itemInstance.magicalAttackLight = reader.GetByte("matk_light");
-            itemInstance.magicalAttackDark = reader.GetByte("matk_dark");
+            itemInstance.magicalAttackDark  = reader.GetByte("matk_dark");
 
             itemInstance.hp = reader.GetByte("seffect_hp");
             itemInstance.mp = reader.GetByte("seffect_mp");

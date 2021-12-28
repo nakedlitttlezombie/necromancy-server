@@ -8,5 +8,7 @@ namespace Necromancy.Server.Systems.Auction
     public interface IAuctionDao    {
 
         public void InsertAuctionEquipSearchConditions(int characterId, int index, AuctionEquipmentSearchConditions auctionEquipmentSearchConditions);
+        void DeleteAuctionEquipSearchConditions(int id, byte index);
+        List<AuctionEquipmentSearchConditions> SelectAuctionEquipSearchConditions(int id);
     }
 }

@@ -7,6 +7,7 @@ using Necromancy.Server.Logging;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
 using Necromancy.Server.Packet.Receive.Area;
+using Necromancy.Server.Systems.Auction;
 using Necromancy.Server.Systems.Item;
 
 namespace Necromancy.Server.Chat.Command.Commands
@@ -27,9 +28,10 @@ namespace Necromancy.Server.Chat.Command.Commands
             List<ChatResponse> responses)
         {
             ItemService itemService = new ItemService(client.character);
+            AuctionService auctionService = new AuctionService();
             List<ItemInstance> lots = itemService.GetLots();
             List<ItemInstance> bids = itemService.GetBids();
-            List<AuctionEquipmentSearchConditions> equipSearch = itemService.GetEquipmentSearchConditions();
+            List<AuctionEquipmentSearchConditions> equipSearch = auctionService.GetEquipSearchConditions(client);
             List<AuctionItemSearchConditions> itemSearch = itemService.GetItemSearchConditions();
             const byte IS_IN_MAINTENANCE_MODE = 0x0;
             const int MAX_LOTS = 15;
@@ -89,6 +91,7 @@ namespace Necromancy.Server.Chat.Command.Commands
                 j++;
             }
 
+            j = 1;
             res.WriteInt32(equipSearch.Count); //Less than or equal to 0x8
             foreach (AuctionEquipmentSearchConditions equipCond in equipSearch)
             {
@@ -98,7 +101,7 @@ namespace Necromancy.Server.Chat.Command.Commands
                 res.WriteByte(equipCond.soulRankMin);           //V| Level min
                 res.WriteByte(equipCond.soulRankMax);           //V| Level max
                 res.WriteInt32(equipCond.classIndex);           //V| Index for Class 
-                res.WriteInt16(equipCond.raceIndex);            //V| Index for Race
+                res.WriteInt16((short) equipCond.raceIndex);            //V| Index for Race
                 res.WriteInt16((short)equipCond.qualities);     //V| Qualities
                 res.WriteUInt64(equipCond.goldCost);            //V| Gold
                 res.WriteByte(Convert.ToByte(equipCond.isLessThanGoldCost));
@@ -108,11 +111,13 @@ namespace Necromancy.Server.Chat.Command.Commands
                 res.WriteByte((byte)equipCond.gemSlotType2);            //V| Gem slot 2
                 res.WriteByte((byte)equipCond.gemSlotType3);            //V| Gem slot 3
 
-                res.WriteUInt64(equipCond.itemTypeSearchMask); //V| Item type mask
-                res.WriteUInt64(equipCond.unused0);
+                res.WriteInt64(equipCond.itemTypeSearchMask); //V| Item type mask
+                _Logger.Debug(equipCond.itemTypeSearchMask.ToString());
+                res.WriteUInt64(0);
                 res.WriteFixedString(equipCond.description, AuctionEquipmentSearchConditions.MAX_DESCRIPTION_LENGTH); //v| Saved Search Description
-                res.WriteByte(0); //TODO UNKNOWN
-                res.WriteByte(0); //TODO UNKNOWN
+                res.WriteByte((byte) Byte.MaxValue); //TODO UNKNOWN
+                res.WriteByte((byte) Byte.MaxValue); //TODO UNKNOWN
+                j++;
             }
 
 
@@ -122,7 +127,7 @@ namespace Necromancy.Server.Chat.Command.Commands
 
             for (int i = 0; i < numEntries; i++)
             {
-                res.WriteFixedString("fs0x49V2", 0x49);
+                res.WriteFixedString("fs0x49V9", 0x49);
                 res.WriteByte(0);
                 res.WriteByte(0);
                 res.WriteByte(0);
@@ -132,42 +137,42 @@ namespace Necromancy.Server.Chat.Command.Commands
                 res.WriteInt64(0);
                 res.WriteInt64(0);
                 res.WriteFixedString("fs0xC1V2", 0xC1); //Fixed string of 0xC1 or 0xC1 bytes.
-                res.WriteByte(0);
+                res.WriteByte(1);
                 res.WriteByte(0);
             }
 
-            res.WriteByte(0); //Bool
-            res.WriteInt32(0);
+            res.WriteByte(1); //Bool
+            res.WriteInt32(6);
             router.Send(client, (ushort)AreaPacketId.recv_auction_notify_open, res, ServerType.Area);
 
-            RecvAuctionNotifyOpenItemStart recvAuctionNotifyOpenItemStart = new RecvAuctionNotifyOpenItemStart(client);
-            RecvAuctionNotifyOpenItemEnd recvAuctionNotifyOpenItemEnd = new RecvAuctionNotifyOpenItemEnd(client);
+            //RecvAuctionNotifyOpenItemStart recvAuctionNotifyOpenItemStart = new RecvAuctionNotifyOpenItemStart(client);
+            //RecvAuctionNotifyOpenItemEnd recvAuctionNotifyOpenItemEnd = new RecvAuctionNotifyOpenItemEnd(client);
 
-            List<ItemInstance> auctionList = itemService.GetItemsUpForAuction();
+            //List<ItemInstance> auctionList = itemService.GetItemsUpForAuction();
 
-            j = 0;
-            client.character.auctionSearchIds = new ulong[auctionList.Count];
-            foreach (ItemInstance auctionItem in auctionList)
-            {
-                client.character.auctionSearchIds[j] = auctionItem.instanceId;
-                RecvItemInstance recvItemInstance = new RecvItemInstance(client, auctionItem);
-                router.Send(recvItemInstance);
-                j++;
-            }
+            //j = 0;
+            //client.character.auctionSearchIds = new ulong[auctionList.Count];
+            //foreach (ItemInstance auctionItem in auctionList)
+            //{
+            //    client.character.auctionSearchIds[j] = auctionItem.instanceId;
+            //    RecvItemInstance recvItemInstance = new RecvItemInstance(client, auctionItem);
+            //    router.Send(recvItemInstance);
+            //    j++;
+            //}
 
-            router.Send(recvAuctionNotifyOpenItemStart);
-            int divideBy100 = auctionList.Count / 100 + (auctionList.Count % 100 == 0 ? 0 : 1); // TOTAL NUMBER OF RECVS TO SEND
-            for (int i = 0; i < divideBy100; i++)
-            {
-                RecvAuctionNotifyOpenItem recvAuctionNotifyOpenItem;
-                if (i == divideBy100 - 1)
-                    recvAuctionNotifyOpenItem = new RecvAuctionNotifyOpenItem(client, auctionList.GetRange(i, auctionList.Count % 100));
-                else
-                    recvAuctionNotifyOpenItem = new RecvAuctionNotifyOpenItem(client, auctionList.GetRange(i, 100));
-                router.Send(recvAuctionNotifyOpenItem);
-            }
+            //router.Send(recvAuctionNotifyOpenItemStart);
+            //int divideBy100 = auctionList.Count / 100 + (auctionList.Count % 100 == 0 ? 0 : 1); // TOTAL NUMBER OF RECVS TO SEND
+            //for (int i = 0; i < divideBy100; i++)
+            //{
+            //    RecvAuctionNotifyOpenItem recvAuctionNotifyOpenItem;
+            //    if (i == divideBy100 - 1)
+            //        recvAuctionNotifyOpenItem = new RecvAuctionNotifyOpenItem(client, auctionList.GetRange(i, auctionList.Count % 100));
+            //    else
+            //        recvAuctionNotifyOpenItem = new RecvAuctionNotifyOpenItem(client, auctionList.GetRange(i, 100));
+            //    router.Send(recvAuctionNotifyOpenItem);
+            //}
 
-            router.Send(recvAuctionNotifyOpenItemEnd);
+            //router.Send(recvAuctionNotifyOpenItemEnd);
         }
     }
 }

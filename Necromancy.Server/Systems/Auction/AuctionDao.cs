@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
 using Necromancy.Server.Model;
 using Necromancy.Server.Systems.Item;
 
@@ -104,6 +107,13 @@ namespace Necromancy.Server.Systems.Auction
                 items_up_for_auction
             WHERE
                 id = @id";
+        private const string SQL_SELECT_ES_CONDS = @"
+            SELECT
+                *
+            FROM
+                nec_auction_es_conds
+            WHERE
+                character_id = @character_id";
 
         private const string SQL_INSERT_ES_CONDS = @"
             INSERT INTO
@@ -150,6 +160,23 @@ namespace Necromancy.Server.Systems.Auction
 	                @description
                 )";
 
+        private const string SQL_DELETE_ES_CONDS = @"
+                DELETE FROM
+                    nec_auction_es_conds
+                WHERE
+                    character_id = @character_id
+                AND
+                    es_index = @es_index";
+
+        private const string SQL_UPDATE_ES_CONDS_INDEX = @"
+                UPDATE
+                    nec_auction_es_conds
+                SET
+                    es_index = es_index - 1
+                WHERE
+                    character_id = @character_id
+                AND
+                    es_index > @es_index";
 
 
         public AuctionDao()
@@ -293,6 +320,22 @@ namespace Necromancy.Server.Systems.Auction
             throw new NotImplementedException();
         }
 
+        public List<AuctionEquipmentSearchConditions> SelectAuctionEquipSearchConditions(int characterId)
+        {
+            List<AuctionEquipmentSearchConditions> equipSearch = new List<AuctionEquipmentSearchConditions>();
+            int i = 0;
+            ExecuteReader(SQL_SELECT_ES_CONDS,
+                command => { AddParameter(command, "@character_id", characterId); }, reader =>
+                {
+                    while (reader.Read())
+                    {
+                        AuctionEquipmentSearchConditions equipConds = MakeAuctionEquipmentSearchConditions(reader);
+                        equipSearch.Add(equipConds);
+                    }
+                });
+            return equipSearch;
+        }
+
         public void InsertAuctionEquipSearchConditions(int characterId, int index, AuctionEquipmentSearchConditions equipCond)
         {
             int rowsAffected = ExecuteNonQuery(SQL_INSERT_ES_CONDS, command =>
@@ -318,20 +361,42 @@ namespace Necromancy.Server.Systems.Auction
             });
         }
 
-        //public AuctionLot[] SelectItemsByCriteria(SearchCriteria searchCriteria)
-        //{
-        //    AuctionLot[] results = new AuctionLot[1];
-        //    ExecuteReader(SqlSelectItemsByCriteria,
-        //        command =>
-        //        {
+        public void DeleteAuctionEquipSearchConditions(int characterId, byte index)
+        {
 
-        //        }, reader =>
-        //        {
-        //            while (reader.Read()) {
-        //            //TODO do something
-        //            }
-        //        });
-        //    throw new NotImplementedException();
-        //}
+            ExecuteNonQuery(SQL_DELETE_ES_CONDS, command =>
+            {
+                AddParameter(command, "@character_id", characterId);
+                AddParameter(command, "@es_index", index);
+            });
+
+            ExecuteNonQuery(SQL_UPDATE_ES_CONDS_INDEX, command =>
+            {
+                AddParameter(command, "@character_id", characterId);
+                AddParameter(command, "@es_index", index);
+            });
+        }
+
+        private AuctionEquipmentSearchConditions MakeAuctionEquipmentSearchConditions(DbDataReader reader)
+        {
+            AuctionEquipmentSearchConditions equipConds = new AuctionEquipmentSearchConditions();
+            equipConds.searchText           = reader.GetString("search_text");
+            equipConds.soulRankMin          = reader.GetByte("soul_rank_min");
+            equipConds.soulRankMax          = reader.GetByte("soul_rank_max");
+            equipConds.forgePriceMin        = reader.GetByte("forge_price_min");
+            equipConds.forgePriceMax        = reader.GetByte("forge_price_max");
+            equipConds.qualities            = (ItemQualities) reader.GetInt32("qualities");
+            equipConds.classIndex           = reader.GetInt32("class_index");
+            equipConds.raceIndex            = reader.GetInt16("race_index");
+            equipConds.goldCost             = (ulong) reader.GetInt64("gold_cost");
+            equipConds.isLessThanGoldCost   = reader.GetBoolean("is_less_than_gold_cost");
+            equipConds.hasGemSlot           = reader.GetBoolean("has_gem_slot");
+            equipConds.gemSlotType1         = (GemType)reader.GetInt32("gem_slot_1");
+            equipConds.gemSlotType2         = (GemType)reader.GetInt32("gem_slot_2");
+            equipConds.gemSlotType3         = (GemType)reader.GetInt32("gem_slot_3");
+            equipConds.itemTypeSearchMask   = reader.GetInt64("item_type_search_mask");
+            equipConds.description          = reader.GetString("description");
+            return equipConds;
+        }
     }
 }

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Necromancy.Server.Model;
 using Necromancy.Server.Systems.Item;
 
@@ -26,12 +28,21 @@ namespace Necromancy.Server.Systems.Auction
         {
             _auctionDao = auctionDao;
         }
+        public List<AuctionEquipmentSearchConditions> GetEquipSearchConditions(NecClient client)
+        {
+            return _auctionDao.SelectAuctionEquipSearchConditions(client.character.id);
+        }
 
-        public void RegistSearchEquipmentCond(NecClient necClient,  int index, AuctionEquipmentSearchConditions equipCond)
+        public void RegistSearchEquipmentCond(NecClient client,  int index, AuctionEquipmentSearchConditions equipCond)
         {
             if (!equipCond.IsValid()) throw new AuctionException(AuctionExceptionType.Generic);
 
-            _auctionDao.InsertAuctionEquipSearchConditions(necClient.character.id, index, equipCond);
+            _auctionDao.InsertAuctionEquipSearchConditions(client.character.id, index, equipCond);
+        }
+
+        internal void DeregistSearchEquipmentCond(NecClient client, byte index)
+        {
+            _auctionDao.DeleteAuctionEquipSearchConditions(client.character.id, index);
         }
 
         //public void Bid(AuctionLot auctionItem, int bid)
