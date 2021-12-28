@@ -38,9 +38,9 @@ namespace Necromancy.Server.Systems.Auction
             _auctionDao.InsertAuctionSearchConditions(client.character.id, index, searchCond);
         }
 
-        public void DeregistSearchEquipmentCond(NecClient client, byte index)
+        public void DeregistSearchCond(NecClient client, byte index, bool isItemSearch)
         {
-            _auctionDao.DeleteAuctionSearchConditions(client.character.id, index, false);
+            _auctionDao.DeleteAuctionSearchConditions(client.character.id, index, isItemSearch);
         }
 
         internal List<AuctionSearchConditions> GetItemSearchConditions(NecClient client)

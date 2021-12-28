@@ -19,7 +19,7 @@ namespace Necromancy.Server.Packet.Area
             int auctionError = 0;
             try
             {
-                auctionService.DeregistSearchEquipmentCond(client, index);
+                auctionService.DeregistSearchCond(client, index, false);
             }
             catch (AuctionException e)
             {
