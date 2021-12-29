@@ -30,13 +30,15 @@ namespace Necromancy.Server.Packet.Area
             string comment      = packet.data.ReadCString();
 
             ItemLocation fromLoc = new ItemLocation(zone, bag, slot);
+            ItemLocation exhibitLocation = new ItemLocation(ItemZoneType.ProbablyAuctionLots, 0, exhibitSlot);
+            AuctionService auctionService = new AuctionService(client.character);
             ItemService itemService = new ItemService(client.character);
-            ulong instanceId = 0;
             int auctionError = 0;
             try
             {
-                MoveResult moveResult = itemService.Exhibit(fromLoc, exhibitSlot, quantity, time, minBid, buyoutPrice, comment);
-                instanceId = moveResult.destItem.instanceId;
+                auctionService.ValidateExhibit(fromLoc, exhibitLocation, quantity, time, minBid, buyoutPrice);
+                auctionService.Exhibit(fromLoc, exhibitLocation, quantity, time, minBid, buyoutPrice, comment);
+                MoveResult moveResult = itemService.Move(fromLoc, exhibitLocation, quantity);
                 List<PacketResponse> responses = itemService.GetMoveResponses(client, moveResult);
                 router.Send(client, responses);
             }
@@ -48,8 +50,8 @@ namespace Necromancy.Server.Packet.Area
 
             IBuffer res = BufferProvider.Provide();
             res.WriteInt32(auctionError); //error check.
-            res.WriteInt32((int)buyoutPrice); //unknown
-            res.WriteUInt64(instanceId); //unknown
+            res.WriteInt32(0); //unknown
+            res.WriteUInt64(0); //unknown
             router.Send(client.map, (ushort)AreaPacketId.recv_auction_exhibit_r, res, ServerType.Area);
         }
     }

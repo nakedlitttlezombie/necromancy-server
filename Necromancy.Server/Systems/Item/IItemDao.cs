@@ -41,8 +41,6 @@ namespace Necromancy.Server.Systems.Item
 
         //Auction Methods
         public List<ItemInstance> SelectAuctions(uint ownerSoulId);
-        public void UpdateAuctionExhibit(ItemInstance itemInstance);
-        public void UpdateAuctionCancelExhibit(ulong instanceId);
         public List<ItemInstance> SelectBids(int characterId);
         public List<ItemInstance> SelectLots(int characterId);
         public ulong SelectBuyoutPrice(ulong instanceId);

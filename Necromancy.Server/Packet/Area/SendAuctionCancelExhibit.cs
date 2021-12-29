@@ -3,6 +3,7 @@ using Arrowgene.Buffers;
 using Necromancy.Server.Common;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
+using Necromancy.Server.Systems.Auction;
 using Necromancy.Server.Systems.Item;
 using static Necromancy.Server.Systems.Item.ItemService;
 
@@ -19,18 +20,25 @@ namespace Necromancy.Server.Packet.Area
         public override void Handle(NecClient client, NecPacket packet)
         {
             byte slot = packet.data.ReadByte();
+
+            AuctionService auctionService = new AuctionService(client.character);
             ItemService itemService = new ItemService(client.character);
+            ItemLocation exhibitLocation = new ItemLocation(ItemZoneType.ProbablyAuctionLots, 0, slot);
+            ItemLocation nextOpenLocation = client.character.itemLocationVerifier.NextOpenSlotInInventory();
+            byte quantity = client.character.itemLocationVerifier.GetItem(exhibitLocation).quantity;
 
             int auctionError = 0;
             try
             {
-                MoveResult moveResult = itemService.CancelExhibit(slot);
+                auctionService.ValidateCancelExhibit(exhibitLocation);
+                auctionService.CancelExhibit(exhibitLocation);
+                MoveResult moveResult = itemService.Move(exhibitLocation, nextOpenLocation, quantity);
                 List<PacketResponse> responses = itemService.GetMoveResponses(client, moveResult);
                 router.Send(client, responses); //TODO figure out if you can get a popup for this and the winning auction
             }
             catch (AuctionException e)
             {
-                auctionError = (int)e.type;
+                auctionError = (int) e.type;
             }
 
             IBuffer res = BufferProvider.Provide();

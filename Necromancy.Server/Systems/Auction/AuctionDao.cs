@@ -192,8 +192,16 @@ namespace Necromancy.Server.Systems.Auction
                 AND
                     s_index > @s_index";
 
-        private const string SQL_INSERT_EXHIBIT = @"
-            INSERT INTO
+        private const string SQL_UPDATE_EXHIBIT = @"
+            UPDATE
+                nec_item_instance
+            SET
+                consigner_soul_name = @consigner_soul_name, expiry_datetime = @expiry_datetime, min_bid = @min_bid, buyout_price = @buyout_price, comment = @comment
+            WHERE
+                id = @id";
+
+        private const string SQL_UPDATE_CANCEL_EXHIBIT = @"
+            UPDATE
                 nec_item_instance
             SET
                 consigner_soul_name = @consigner_soul_name, expiry_datetime = @expiry_datetime, min_bid = @min_bid, buyout_price = @buyout_price, comment = @comment
@@ -327,21 +335,7 @@ namespace Necromancy.Server.Systems.Auction
             return dOffsetNow.ToUnixTimeSeconds() + secondsToExpiry;
         }
 
-        public int SelectGold(Character character)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddGold(Character character, int amount)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SubtractGold(Character character, int amount)
-        {
-            throw new NotImplementedException();
-        }
-        public List<AuctionSearchConditions> SelectAuctionSearchConditions(int characterId, bool isItemSearchCond)
+        public List<AuctionSearchConditions> SelectSearchConditions(int characterId, bool isItemSearchCond)
         {
             List<AuctionSearchConditions> equipSearch = new List<AuctionSearchConditions>();
             ExecuteReader(SQL_SELECT_S_CONDS,
@@ -360,7 +354,7 @@ namespace Necromancy.Server.Systems.Auction
             return equipSearch;
         }
 
-        public void InsertAuctionSearchConditions(int characterId, int index, AuctionSearchConditions searchCond)
+        public void InsertSearchConditions(int characterId, int index, AuctionSearchConditions searchCond)
         {
             int rowsAffected = ExecuteNonQuery(SQL_INSERT_S_CONDS, command =>
             {
@@ -415,7 +409,7 @@ namespace Necromancy.Server.Systems.Auction
             return equipConds;
         }
 
-        public void DeleteAuctionSearchConditions(int characterId, byte index, bool isItemSearchCond)
+        public void DeleteSearchConditions(int characterId, byte index, bool isItemSearchCond)
         {
             ExecuteNonQuery(SQL_DELETE_S_CONDS, command =>
             {
@@ -430,6 +424,33 @@ namespace Necromancy.Server.Systems.Auction
                 AddParameter(command, "@is_item_search", isItemSearchCond);
                 AddParameter(command, "@s_index", index);
             });
-        }        
+        }
+
+        public void UpdateExhibit(ItemInstance itemInstance)
+        {
+            ExecuteNonQuery(SQL_UPDATE_EXHIBIT, command =>
+            {
+                AddParameter(command, "@id", itemInstance.instanceId);
+                AddParameter(command, "@consigner_soul_name", itemInstance.consignerSoulName);
+                AddParameter(command, "@expiry_datetime", CalcExpiryTime(itemInstance.secondsUntilExpiryTime));
+                AddParameter(command, "@min_bid", itemInstance.minimumBid);
+                AddParameter(command, "@buyout_price", itemInstance.buyoutPrice);
+                AddParameter(command, "@comment", itemInstance.comment);
+            });
+        }
+
+        public void UpdateCancelExhibit(ItemInstance itemInstance)
+        {
+            ExecuteNonQuery(SQL_UPDATE_CANCEL_EXHIBIT, command =>
+            {
+                AddParameter(command, "@id", itemInstance.instanceId);
+                AddParameterNull(command, "@consigner_soul_name");
+                AddParameterNull(command, "@expiry_datetime");
+                AddParameterNull(command, "@min_bid");
+                AddParameterNull(command, "@buyout_price");
+                AddParameterNull(command, "@comment");
+                AddParameterNull(command, "@bidder_soul_id");
+            });
+        }
     }
 }

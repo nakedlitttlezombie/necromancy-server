@@ -190,23 +190,7 @@ namespace Necromancy.Server.Systems.Item
             WHERE
                 zone = 82
             AND
-                owner_soul_id != @owner_soul_id";
-
-        private const string SQL_UPDATE_EXHIBIT = @"
-            UPDATE
-                nec_item_instance
-            SET
-                consigner_soul_name = @consigner_soul_name, expiry_datetime = @expiry_datetime, min_bid = @min_bid, buyout_price = @buyout_price, comment = @comment
-            WHERE
-                id = @id";
-
-        private const string SQL_UPDATE_CANCEL_EXHIBIT = @"
-            UPDATE
-                nec_item_instance
-            SET
-                consigner_soul_name = @consigner_soul_name, expiry_datetime = @expiry_datetime, min_bid = @min_bid, buyout_price = @buyout_price, comment = @comment
-            WHERE
-                id = @id";
+                owner_soul_id != @owner_soul_id";        
 
         private const string SQL_SELECT_BIDS = @"
             SELECT
@@ -534,34 +518,7 @@ namespace Necromancy.Server.Systems.Item
                     }
                 });
             return auctions;
-        }
-
-        public void UpdateAuctionExhibit(ItemInstance itemInstance)
-        {
-            ExecuteNonQuery(SQL_UPDATE_EXHIBIT, command =>
-            {
-                AddParameter(command, "@id", itemInstance.instanceId);
-                AddParameter(command, "@consigner_soul_name", itemInstance.consignerSoulName);
-                AddParameter(command, "@expiry_datetime", CalcExpiryTime(itemInstance.secondsUntilExpiryTime));
-                AddParameter(command, "@min_bid", itemInstance.minimumBid);
-                AddParameter(command, "@buyout_price", itemInstance.buyoutPrice);
-                AddParameter(command, "@comment", itemInstance.comment);
-            });
-        }
-
-        public void UpdateAuctionCancelExhibit(ulong instanceId)
-        {
-            ExecuteNonQuery(SQL_UPDATE_CANCEL_EXHIBIT, command =>
-            {
-                AddParameter(command, "@id", instanceId);
-                AddParameterNull(command, "@consigner_soul_name");
-                AddParameterNull(command, "@expiry_datetime");
-                AddParameterNull(command, "@min_bid");
-                AddParameterNull(command, "@buyout_price");
-                AddParameterNull(command, "@comment");
-                AddParameterNull(command, "@bidder_soul_id");
-            });
-        }
+        }        
 
         public List<ItemInstance> SelectBids(int bidderSoulId)
         {
