@@ -192,6 +192,11 @@ namespace Necromancy.Server.Model
         /// </summary>
         public ulong[] auctionSearchIds { get; set; } = new ulong[0];
 
+        /// <summary>
+        /// Used to prevent auction method calls outside of being in the auction window.
+        /// </summary>
+        public bool isAuctionWindowOpen { get; set; } = false;
+
         public ItemLocation lootNotify { get; set; }
         public ulong adventureBagGold { get; set; }
         public ulong[] tradeWindowSlot { get; set; }

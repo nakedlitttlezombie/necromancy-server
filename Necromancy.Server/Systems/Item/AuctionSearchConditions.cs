@@ -4,7 +4,7 @@ namespace Necromancy.Server.Systems.Item
     {
         public const int MAX_SEARCH_TEXT_LENGTH = 73;
         public const int MAX_DESCRIPTION_LENGTH = 193;
-        public bool isItemSearch       { get; set; } = false;
+        public bool isItemSearch        { get; set; } = false;
         public string searchText        { get; set; } = "";
         public byte levelMin            { get; set; } = 0;
         public byte levelMax            { get; set; } = 99;
@@ -22,7 +22,7 @@ namespace Necromancy.Server.Systems.Item
         public long typeSearchMask0     { get; set; } = 0;
         public long typeSearchMask1     { get; set; } = 1;
         public string description       { get; set; } = "";
-        public byte unknownByte0        { get; set; } = 0;//seems to be 0?
+        public byte unknownByte0        { get; set; } = 0; //seems to be 0?
         public byte unknownByte1        { get; set; } = 99; //seems to be 99?
     }
 }

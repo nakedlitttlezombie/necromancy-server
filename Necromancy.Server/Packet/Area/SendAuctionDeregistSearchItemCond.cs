@@ -9,31 +9,26 @@ namespace Necromancy.Server.Packet.Area
 {
     public class SendAuctionDeregistSearchItemCond : ClientHandler
     {
-        public SendAuctionDeregistSearchItemCond(NecServer server) : base(server)
-        {
-        }
-
-
-        public override ushort id => (ushort)AreaPacketId.send_auction_deregist_search_item_cond;
-
+        public SendAuctionDeregistSearchItemCond(NecServer server) : base(server) { }
+        public override ushort id => (ushort) AreaPacketId.send_auction_deregist_search_item_cond;
         public override void Handle(NecClient client, NecPacket packet)
         {
             byte index = packet.data.ReadByte(); //index to delete
 
-            AuctionService auctionService = new AuctionService();
+            AuctionService auctionService = new AuctionService(client.character);
             int auctionError = 0;
             try
             {
-                auctionService.DeregistSearchCond(client, index, true);
+                auctionService.DeregistSearchCond(index, true);
             }
             catch (AuctionException e)
             {
-                auctionError = (int)e.type;
+                auctionError = (int) e.type;
             }
 
             IBuffer res = BufferProvider.Provide();
             res.WriteInt32(auctionError);
-            router.Send(client, (ushort)AreaPacketId.recv_auction_deregist_search_item_cond_r, res, ServerType.Area);
+            router.Send(client, (ushort) AreaPacketId.recv_auction_deregist_search_item_cond_r, res, ServerType.Area);
         }
     }
 }

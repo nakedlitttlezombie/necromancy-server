@@ -192,6 +192,14 @@ namespace Necromancy.Server.Systems.Auction
                 AND
                     s_index > @s_index";
 
+        private const string SQL_INSERT_EXHIBIT = @"
+            INSERT INTO
+                nec_item_instance
+            SET
+                consigner_soul_name = @consigner_soul_name, expiry_datetime = @expiry_datetime, min_bid = @min_bid, buyout_price = @buyout_price, comment = @comment
+            WHERE
+                id = @id";
+
 
         public AuctionDao()
         {
@@ -422,6 +430,6 @@ namespace Necromancy.Server.Systems.Auction
                 AddParameter(command, "@is_item_search", isItemSearchCond);
                 AddParameter(command, "@s_index", index);
             });
-        }
+        }        
     }
 }

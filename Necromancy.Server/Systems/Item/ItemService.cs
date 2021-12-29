@@ -745,26 +745,65 @@ namespace Necromancy.Server.Systems.Item
         //auction functions
         public MoveResult Exhibit(ItemLocation itemLocation, byte exhibitSlot, byte quantity, int auctionTimeSelector, ulong minBid, ulong buyoutPrice, string comment)
         {
-            const int MAX_LOTS = 10; //TODO update with dimento?
+            const int MAX_LOTS = 15; //this is with dimento TODO update
+            const double LISTING_FEE_PERCENT = .05;
+
             ItemInstance fromItem = _character.itemLocationVerifier.GetItem(itemLocation);
             ItemLocation exhibitLocation = new ItemLocation(ItemZoneType.ProbablyAuctionLots, 0, exhibitSlot);
             bool hasToItem = _character.itemLocationVerifier.HasItem(exhibitLocation);
+            ulong listingFee = (ulong) Math.Ceiling(buyoutPrice * LISTING_FEE_PERCENT);
+
+            //check possible errors. these should only occur if client is compromised or players are attempting to cheat
+            //TODO probably log some of these errors 
+
+            //verify the function is not called outside of the auction window open
+            if (_character.isAuctionWindowOpen == false)
+                throw new AuctionException("Auction window is not open.", AuctionExceptionType.Generic);
+
+            //verify there is an item to auction
+            if (fromItem is null || quantity == 0)
+                throw new AuctionException("No item to auction.", AuctionExceptionType.Generic);
+
+            //verify the items are in the players inventory and owned by the player
+            if (fromItem.location.zoneType != ItemZoneType.AdventureBag
+                && fromItem.location.zoneType != ItemZoneType.EquippedBags
+                && fromItem.location.zoneType != ItemZoneType.PremiumBag
+                && fromItem.location.zoneType != ItemZoneType.AvatarInventory
+                || fromItem.ownerId != _character.id)
+                throw new AuctionException("Not an owned item.", AuctionExceptionType.InvalidListing);
+
+            //verify the character has enough gold to list the item
+            if (_character.adventureBagGold < listingFee)
+                throw new AuctionException("Not enough gold to list.", AuctionExceptionType.Generic);
+
+            //verify there is no item already in that slot
+            if (hasToItem)
+                throw new AuctionException("There is already an item in that slot.", AuctionExceptionType.SlotUnavailable);
+
+            //verify that the exhibit slot is valid
+            if (exhibitSlot < 0 || exhibitSlot >= MAX_LOTS)
+                throw new AuctionException("Outside the bounds of exhibit slots.", AuctionExceptionType.SlotUnavailable);
+
+            //verify the item is not equipped
+            if (_character.equippedItems.ContainsValue(fromItem))
+                throw new AuctionException("Equipped items cannot be listed.", AuctionExceptionType.EquipListing);
+
+            //verify the item is valid to list
+            if (!fromItem.isIdentified || !fromItem.isSellable || !fromItem.isTradeable)
+                throw new AuctionException("Invalid listing.", AuctionExceptionType.InvalidListing);
+
+            //verify that the item has enough quantity
+            if (quantity > fromItem.quantity)
+                throw new AuctionException("Invalid Quantity ", AuctionExceptionType.IllegalItemAmount);
+
+            //verify valid duration
+            if (auctionTimeSelector < 0 || auctionTimeSelector > 3)
+                throw new AuctionException("Invalid duration.", AuctionExceptionType.Generic);
+
+            //subtract gold and update
+            _character.adventureBagGold -= listingFee;
+
             MoveResult moveResult = new MoveResult();
-
-            //check possible errors. these should only occur if client is compromised
-            if (hasToItem) throw new AuctionException(AuctionExceptionType.InvalidListing);
-            //if (currentNumLots >= MAX_LOTS) throw new AuctionException(AuctionExceptionType.LotSlotsFull); //TODO check later if too many slots
-            if (_character.equippedItems.ContainsValue(fromItem)) throw new AuctionException(AuctionExceptionType.EquipListing); //TODO Might not work because equipment hasn't been fleshed out
-            //if (false) throw new AuctionException(AuctionExceptionType.InvalidListing); //TODO CHECK IF INVALID ITEM like protect or no trade
-            //if (false) throw new AuctionException(AuctionExceptionType.LotDimentoMedalExpired); //TODO CHECK DIMETO MEDAL ROYAL ACCOUNT STATUS
-            //if (false) throw new AuctionException(AuctionExceptionType.ItemAlreadyListed); //TODO CHECK ITEM ALREADY_LISTED items must have a unique instance ID!
-            if (fromItem is null || quantity == 0) throw new AuctionException(AuctionExceptionType.Generic);
-            if (quantity > fromItem.quantity) throw new AuctionException(AuctionExceptionType.IllegalItemAmount);
-
-            //int gold = _auctionDao.SelectGold(_client.Character); //TODO CHECK GOLD AMOUNT AND SUBTRACT, WAIT FOR UTIL FUNCTION
-            //InventoryService iManager = new InventoryService(_client); //remove this
-            //iManager.SubtractGold((int) Math.Ceiling(auctionItem.BuyoutPrice * LISTING_FEE_PERCENT));
-
             if (quantity == fromItem.quantity)
                 moveResult = MoveItemPlace(exhibitLocation, fromItem);
             else if (quantity < fromItem.quantity) moveResult = MoveItemPlaceQuantity(exhibitLocation, fromItem, quantity);
@@ -824,14 +863,14 @@ namespace Necromancy.Server.Systems.Item
         public List<ItemInstance> GetBids()
         {
             //TODO modify their location to be bids
-            return _itemDao.SelectBids(_character.soulId);
+            return _itemDao.SelectBids(_character.id);
         }
 
         public List<ItemInstance> GetLots()
         {
             List<ItemInstance> itemInstances = _itemDao.SelectLots(_character.id);
             foreach (ItemInstance item in itemInstances) _character.itemLocationVerifier.PutItem(item.location, item);
-            return _itemDao.SelectLots(_character.soulId);
+            return _itemDao.SelectLots(_character.id);
         } 
 
         public void PutEquipmentSearchConditions(AuctionSearchConditions auctionEquipmentSearchConditions)

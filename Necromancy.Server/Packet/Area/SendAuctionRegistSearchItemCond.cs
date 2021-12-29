@@ -36,14 +36,14 @@ namespace Necromancy.Server.Packet.Area
             searchCond.description          = packet.data.ReadFixedString(AuctionSearchConditions.MAX_DESCRIPTION_LENGTH);
 
             //who knows
-            searchCond.unknownByte0 = packet.data.ReadByte(); //required but seems to be 0?
-            searchCond.unknownByte1 = packet.data.ReadByte(); //required but seems to be 99?
+            searchCond.unknownByte0 = packet.data.ReadByte(); 
+            searchCond.unknownByte1 = packet.data.ReadByte(); 
 
-            AuctionService auctionService = new AuctionService();
+            AuctionService auctionService = new AuctionService(client.character);
             int auctionError = 0;
             try
             {
-                auctionService.RegistSearchCond(client, index, searchCond);
+                auctionService.RegistSearchCond(index, searchCond);
             }
             catch (AuctionException e)
             {
@@ -52,7 +52,7 @@ namespace Necromancy.Server.Packet.Area
 
             IBuffer res = BufferProvider.Provide();
             res.WriteInt32(auctionError);
-            router.Send(client, (ushort)AreaPacketId.recv_auction_regist_search_item_cond_r, res, ServerType.Area);
+            router.Send(client, (ushort) AreaPacketId.recv_auction_regist_search_item_cond_r, res, ServerType.Area);
         }
     }
 }

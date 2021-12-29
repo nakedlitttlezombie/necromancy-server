@@ -50,15 +50,15 @@ namespace Necromancy.Server.Packet.Area
             
             //TODO missing some stuff here
 
-            AuctionService auctionService = new AuctionService();
+            AuctionService auctionService = new AuctionService(client.character);
             int auctionError = 0;
             try
             {
-                auctionService.RegistSearchCond(client, index, searchCond);
+                auctionService.RegistSearchCond(index, searchCond);
             }
             catch (AuctionException e)
             {
-                auctionError = (int)e.type;
+                auctionError = (int) e.type;
             }
 
             IBuffer res = BufferProvider.Provide();

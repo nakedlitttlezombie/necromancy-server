@@ -28,11 +28,11 @@ namespace Necromancy.Server.Chat.Command.Commands
             List<ChatResponse> responses)
         {
             ItemService itemService = new ItemService(client.character);
-            AuctionService auctionService = new AuctionService();
+            AuctionService auctionService = new AuctionService(client.character);
             List<ItemInstance> lots = itemService.GetLots();
             List<ItemInstance> bids = itemService.GetBids();
-            List<AuctionSearchConditions> equipSearchConds = auctionService.GetEquipSearchConditions(client);
-            List<AuctionSearchConditions> itemSearchConds = auctionService.GetItemSearchConditions(client);
+            List<AuctionSearchConditions> equipSearchConds = auctionService.GetEquipSearchConditions();
+            List<AuctionSearchConditions> itemSearchConds = auctionService.GetItemSearchConditions();
             const byte IS_IN_MAINTENANCE_MODE = 0x0;
             const int MAX_LOTS = 15;
 
@@ -140,34 +140,36 @@ namespace Necromancy.Server.Chat.Command.Commands
             res.WriteInt32(Int32.MaxValue);
             router.Send(client, (ushort)AreaPacketId.recv_auction_notify_open, res, ServerType.Area);
 
-            //RecvAuctionNotifyOpenItemStart recvAuctionNotifyOpenItemStart = new RecvAuctionNotifyOpenItemStart(client);
-            //RecvAuctionNotifyOpenItemEnd recvAuctionNotifyOpenItemEnd = new RecvAuctionNotifyOpenItemEnd(client);
+            client.character.isAuctionWindowOpen = true;
 
-            //List<ItemInstance> auctionList = itemService.GetItemsUpForAuction();
+            RecvAuctionNotifyOpenItemStart recvAuctionNotifyOpenItemStart = new RecvAuctionNotifyOpenItemStart(client);
+            RecvAuctionNotifyOpenItemEnd recvAuctionNotifyOpenItemEnd = new RecvAuctionNotifyOpenItemEnd(client);
 
-            //j = 0;
-            //client.character.auctionSearchIds = new ulong[auctionList.Count];
-            //foreach (ItemInstance auctionItem in auctionList)
-            //{
-            //    client.character.auctionSearchIds[j] = auctionItem.instanceId;
-            //    RecvItemInstance recvItemInstance = new RecvItemInstance(client, auctionItem);
-            //    router.Send(recvItemInstance);
-            //    j++;
-            //}
+            List<ItemInstance> auctionList = itemService.GetItemsUpForAuction();
 
-            //router.Send(recvAuctionNotifyOpenItemStart);
-            //int divideBy100 = auctionList.Count / 100 + (auctionList.Count % 100 == 0 ? 0 : 1); // TOTAL NUMBER OF RECVS TO SEND
-            //for (int i = 0; i < divideBy100; i++)
-            //{
-            //    RecvAuctionNotifyOpenItem recvAuctionNotifyOpenItem;
-            //    if (i == divideBy100 - 1)
-            //        recvAuctionNotifyOpenItem = new RecvAuctionNotifyOpenItem(client, auctionList.GetRange(i, auctionList.Count % 100));
-            //    else
-            //        recvAuctionNotifyOpenItem = new RecvAuctionNotifyOpenItem(client, auctionList.GetRange(i, 100));
-            //    router.Send(recvAuctionNotifyOpenItem);
-            //}
+            j = 0;
+            client.character.auctionSearchIds = new ulong[auctionList.Count];
+            foreach (ItemInstance auctionItem in auctionList)
+            {
+                client.character.auctionSearchIds[j] = auctionItem.instanceId;
+                RecvItemInstance recvItemInstance = new RecvItemInstance(client, auctionItem);
+                router.Send(recvItemInstance);
+                j++;
+            }
 
-            //router.Send(recvAuctionNotifyOpenItemEnd);
+            router.Send(recvAuctionNotifyOpenItemStart);
+            int divideBy100 = auctionList.Count / 100 + (auctionList.Count % 100 == 0 ? 0 : 1); // TOTAL NUMBER OF RECVS TO SEND
+            for (int i = 0; i < divideBy100; i++)
+            {
+                RecvAuctionNotifyOpenItem recvAuctionNotifyOpenItem;
+                if (i == divideBy100 - 1)
+                    recvAuctionNotifyOpenItem = new RecvAuctionNotifyOpenItem(client, auctionList.GetRange(i, auctionList.Count % 100));
+                else
+                    recvAuctionNotifyOpenItem = new RecvAuctionNotifyOpenItem(client, auctionList.GetRange(i, 100));
+                router.Send(recvAuctionNotifyOpenItem);
+            }
+
+            router.Send(recvAuctionNotifyOpenItemEnd);
         }
     }
 }

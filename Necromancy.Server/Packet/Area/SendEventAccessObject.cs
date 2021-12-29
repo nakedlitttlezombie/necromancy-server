@@ -768,11 +768,11 @@ namespace Necromancy.Server.Packet.Area
         private void AuctionHouse(NecClient client, NpcSpawn npcSpawn)
         {
             ItemService itemService = new ItemService(client.character);
-            AuctionService auctionService = new AuctionService();
+            AuctionService auctionService = new AuctionService(client.character);
             List<ItemInstance> lots = itemService.GetLots();
             List<ItemInstance> bids = itemService.GetBids();
-            List<AuctionSearchConditions> equipSearch = auctionService.GetEquipSearchConditions(client);
-            List<AuctionSearchConditions> itemSearch = auctionService.GetItemSearchConditions(client);
+            List<AuctionSearchConditions> equipSearch = auctionService.GetEquipSearchConditions();
+            List<AuctionSearchConditions> itemSearch = auctionService.GetItemSearchConditions();
             const byte IS_IN_MAINTENANCE_MODE = 0x0;
             const int MAX_LOTS = 15;
 
