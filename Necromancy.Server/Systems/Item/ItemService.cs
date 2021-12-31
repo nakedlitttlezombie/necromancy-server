@@ -723,30 +723,6 @@ namespace Necromancy.Server.Systems.Item
 
             return auctions;
         }
-
-
-        //TODO ADD LOCKS ON ALL AUCTION WHEN THESE ARE NOT ALL RUN IN THE SAME THREAD
-        public void Bid(byte isBuyout, int slot, ulong bid)
-        {
-            ulong instanceId = _character.auctionSearchIds[slot];
-            ulong buyoutPrice = _itemDao.SelectBuyoutPrice(instanceId);
-            bool isAlreadyBought = _itemDao.SelectAuctionWinnerSoulId(instanceId) != 0;
-
-            if (isAlreadyBought) throw new AuctionException(AuctionExceptionType.BiddingCompleted);
-            if (isBuyout == 1 && bid != buyoutPrice) throw new AuctionException(AuctionExceptionType.Generic);
-            if (isBuyout == 0 && bid == buyoutPrice) throw new AuctionException(AuctionExceptionType.Generic);
-            if (bid > buyoutPrice) throw new AuctionException(AuctionExceptionType.Generic);
-
-
-            _itemDao.InsertAuctionBid(instanceId, _character.soulId, bid);
-            if (isBuyout == 1) _itemDao.UpdateAuctionWinner(instanceId, _character.soulId);
-        }        
-
-        public void CancelBid(byte slot)
-        {
-            //_itemDao.DeleteAuctionBid(_character.SoulId, instanceId);
-        }
-
         public List<ItemInstance> GetBids()
         {
             //TODO modify their location to be bids
@@ -757,19 +733,12 @@ namespace Necromancy.Server.Systems.Item
         {
             List<ItemInstance> itemInstances = _itemDao.SelectLots(_character.id);
             foreach (ItemInstance item in itemInstances) _character.itemLocationVerifier.PutItem(item.location, item);
-            return _itemDao.SelectLots(_character.id);
-        } 
-
-        public void PutEquipmentSearchConditions(AuctionSearchConditions auctionEquipmentSearchConditions)
-        {
-            throw new NotImplementedException();
+            return itemInstances;
         }
 
         public class MoveResult
         {
-            public MoveResult()
-            {
-            }
+            public MoveResult() { }
 
             public MoveResult(MoveType moveType)
             {

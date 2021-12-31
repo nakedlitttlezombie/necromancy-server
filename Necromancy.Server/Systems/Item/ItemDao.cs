@@ -220,45 +220,7 @@ namespace Necromancy.Server.Systems.Item
             WHERE
                 owner_soul_id = @owner_soul_id
             AND
-                zone = 82"; //Probably auction lot zone, may be 83
-
-        private const string SQL_SELECT_BUYOUT_PRICE = @"
-            SELECT
-                buyout_price
-            FROM
-                item_instance
-            WHERE
-                id = @id";
-
-        private const string SQL_INSERT_AUCTION_BID = @"
-            INSERT INTO
-                nec_auction_bids
-                (
-                    item_instance_id,
-                    bidder_soul_id,
-                    current_bid
-                )
-            VALUES
-                (
-                    @instance_id,
-                    @bidder_soul_id,
-                    @current_bid
-                )";
-
-        private const string SQL_UPDATE_AUCTION_WINNER_SOUL_ID = @"
-            UPDATE
-                nec_item_instance
-            SET
-                winner_soul_id = @winner_soul_id
-            WHERE
-                id = @id";
-
-        private const string SQL_SELECT_AUCTION_WINNER_SOUL_ID = @"
-            SELECT
-                winner_soul_id
-            FROM
-                item_instance
-            WHERE id = @id";
+                zone = 82"; //Probably auction lot zone, may be 83   
 
         public ItemInstance InsertItemInstance(int baseId)
         {
@@ -518,7 +480,7 @@ namespace Necromancy.Server.Systems.Item
                     }
                 });
             return auctions;
-        }        
+        }
 
         public List<ItemInstance> SelectBids(int bidderSoulId)
         {
@@ -555,50 +517,6 @@ namespace Necromancy.Server.Systems.Item
                 });
             return lots;
         }
-
-        public ulong SelectBuyoutPrice(ulong instanceId)
-        {
-            ulong buyoutPrice = 0;
-            ExecuteReader(SQL_SELECT_BUYOUT_PRICE,
-                command => { AddParameter(command, "@id", instanceId); }, reader =>
-                {
-                    reader.Read();
-                    buyoutPrice = reader.IsDBNull("buyout_price") ? 0 : (ulong)reader.GetInt64("buyout_price"); //TODO remove cast
-                });
-            return buyoutPrice;
-        }
-
-        public void InsertAuctionBid(ulong instanceId, int bidderSoulId, ulong bid)
-        {
-            ExecuteNonQuery(SQL_INSERT_AUCTION_BID, command =>
-            {
-                AddParameter(command, "@instance_id", instanceId);
-                AddParameter(command, "@bidder_soul_id", bidderSoulId);
-                AddParameter(command, "@current_bid", bid);
-            });
-        }
-
-        public void UpdateAuctionWinner(ulong instanceId, int winnerSoulId)
-        {
-            ExecuteNonQuery(SQL_UPDATE_AUCTION_WINNER_SOUL_ID, command =>
-            {
-                AddParameter(command, "@winner_soul_id", winnerSoulId);
-                AddParameter(command, "@id", instanceId);
-            });
-        }
-
-        public int SelectAuctionWinnerSoulId(ulong instanceId)
-        {
-            int winnerSoulId = 0;
-            ExecuteReader(SQL_SELECT_AUCTION_WINNER_SOUL_ID,
-                command => { AddParameter(command, "@id", instanceId); }, reader =>
-                {
-                    reader.Read();
-                    winnerSoulId = reader.IsDBNull("winner_soul_id") ? 0 : reader.GetInt32("winner_soul_id"); //TODO remove cast
-                });
-            return winnerSoulId;
-        }
-
         public ItemInstance[] SelectItemInstances(long[] instanceIds)
         {
             throw new NotImplementedException();
@@ -625,7 +543,7 @@ namespace Necromancy.Server.Systems.Item
             itemInstance.currentEquipSlot = (ItemEquipSlots)reader.GetInt32("current_equip_slot");
 
             itemInstance.currentDurability = reader.GetInt32("current_durability");
-            itemInstance.maximumDurability = reader.GetInt32("plus_maximum_durability");
+            itemInstance.maximumDurability = reader.GetInt32("plus_maximum_durability"); //this should be extra, where is base durability? this is for plus max durab
             if (itemInstance.maximumDurability == 0) itemInstance.maximumDurability = 10; //toDo  update item library.  items shouldnt have 0 for core stats
 
             itemInstance.enhancementLevel = reader.GetByte("enhancement_level");

@@ -4,6 +4,7 @@ using Necromancy.Server.Common;
 using Necromancy.Server.Logging;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
+using Necromancy.Server.Systems.Auction;
 using Necromancy.Server.Systems.Item;
 
 namespace Necromancy.Server.Packet.Area
@@ -25,14 +26,16 @@ namespace Necromancy.Server.Packet.Area
             ulong bid = packet.data.ReadUInt64();
             _Logger.Debug(isBuyout + " " + slot + " " + bid);
             int auctionError = 0;
-            ItemService itemService = new ItemService(client.character);
+            AuctionService auctionService = new AuctionService(client.character);
             try
             {
-                itemService.Bid(isBuyout, slot, bid);
+                auctionService.ValidateBid(isBuyout, slot, bid);
+                auctionService.Bid(isBuyout, slot, bid);
+                server.database.UpdateCharacter(client.character); // saves gold
             }
             catch (AuctionException e)
             {
-                auctionError = (int)e.type;
+                auctionError = (int) e.type;
                 _Logger.Debug(e.ToString());
             }
 

@@ -11,5 +11,9 @@ namespace Necromancy.Server.Systems.Auction
         List<AuctionSearchConditions> SelectSearchConditions(int characterId, bool isItemSearchCond);
         public void UpdateExhibit(ItemInstance itemInstance);
         public void UpdateCancelExhibit(ItemInstance exhibit);
+        public void InsertBid(ulong instanceId, int bidderSoulId, ulong bid);
+        public ulong SelectBuyoutPrice(ulong instanceId);
+        public int SelectWinnerSoulId(ulong instanceId);
+        public void UpdateWinnerSoulId(ulong instanceId, int winnerSoulId);
     }
 }

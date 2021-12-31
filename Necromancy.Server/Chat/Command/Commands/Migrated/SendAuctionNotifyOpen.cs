@@ -136,8 +136,8 @@ namespace Necromancy.Server.Chat.Command.Commands
                 res.WriteByte(itemCond.unknownByte1);
             }
 
-            res.WriteByte(0); //Bool
-            res.WriteInt32(Int32.MaxValue);
+            res.WriteByte(0); //unknown, probably bool
+            res.WriteInt32(0); //unknown
             router.Send(client, (ushort)AreaPacketId.recv_auction_notify_open, res, ServerType.Area);
 
             client.character.isAuctionWindowOpen = true;

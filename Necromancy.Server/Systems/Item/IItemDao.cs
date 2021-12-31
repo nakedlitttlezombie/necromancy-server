@@ -40,12 +40,8 @@ namespace Necromancy.Server.Systems.Item
         public List<ItemInstance> SelectLootableInventoryItems(uint ownerId);
 
         //Auction Methods
-        public List<ItemInstance> SelectAuctions(uint ownerSoulId);
+        public List<ItemInstance> SelectAuctions(uint ownerSoulId);        
         public List<ItemInstance> SelectBids(int characterId);
         public List<ItemInstance> SelectLots(int characterId);
-        public ulong SelectBuyoutPrice(ulong instanceId);
-        public void InsertAuctionBid(ulong instanceId, int bidderSoulId, ulong bid);
-        public void UpdateAuctionWinner(ulong instanceId, int winnerSoulId);
-        public int SelectAuctionWinnerSoulId(ulong instanceId);
     }
 }

@@ -22,7 +22,7 @@ namespace Necromancy.Server.Packet.Area
             ItemService itemService = new ItemService(client.character);
             try
             {
-                itemService.CancelBid(slot);
+                //itemService.CancelBid(slot);
             }
             catch (AuctionException e)
             {

@@ -104,7 +104,7 @@ namespace Necromancy.Server.Systems.Auction
         public void Exhibit(ItemLocation itemLocation, ItemLocation exhibitLocation, byte quantity, int auctionTimeSelector, ulong minBid, ulong buyoutPrice, string comment)
         {
             //subtract gold and update
-            _character.adventureBagGold -= calcListingFee(buyoutPrice); ;
+            _character.adventureBagGold -= calcListingFee(buyoutPrice);
 
             ItemInstance fromItem = _character.itemLocationVerifier.GetItem(itemLocation);
             fromItem.consignerSoulName = _character.name;
@@ -172,43 +172,58 @@ namespace Necromancy.Server.Systems.Auction
             _auctionDao.UpdateCancelExhibit(exhibit);
         }
 
-        //public void Bid(AuctionLot auctionItem, int bid)
-        //{
-        //    auctionItem.BidderId = _client.Character.Id;
-        //    auctionItem.CurrentBid = bid;
+        public void ValidateBid(byte isBuyout, int slot, ulong bid)
+        {
+            //TODO update more
+            ulong instanceId = _character.auctionSearchIds[slot];
+            ulong buyoutPrice = _auctionDao.SelectBuyoutPrice(instanceId);
+            bool isAlreadyBought = _auctionDao.SelectWinnerSoulId(instanceId) != 0;
 
-        //    AuctionLot currentItem = _auctionDao.SelectItem(auctionItem.Id);
+            //verify the function is not called outside of the auction window open
+            if (_character.isAuctionWindowOpen == false)
+                throw new AuctionException("Auction window is not open.", AuctionExceptionType.Generic);
 
-        //    if (currentItem.Id == ITEM_NOT_FOUND_ID) throw new AuctionException(AuctionExceptionType.Generic);
+            //verify the character has enough gold to list the item
+            if (_character.adventureBagGold < bid)
+                throw new AuctionException("Not enough gold to list.", AuctionExceptionType.Generic);
 
-        //    if (auctionItem.CurrentBid < currentItem.CurrentBid) throw new AuctionException(AuctionExceptionType.NewBidLowerThanPrev);
+            if (isAlreadyBought) throw new AuctionException(AuctionExceptionType.BiddingCompleted);
+            if (isBuyout == 1 && bid != buyoutPrice) throw new AuctionException(AuctionExceptionType.Generic);
+            if (isBuyout == 0 && bid == buyoutPrice) throw new AuctionException(AuctionExceptionType.Generic);
+            if (bid > buyoutPrice) throw new AuctionException(AuctionExceptionType.Generic);
+            //TODO add errors that are actually listed in auction error
+        }
 
-        //    AuctionLot[] bids = _auctionDao.SelectBids(_client.Character);
-        //    if(bids.Length >= MAX_BIDS) throw new AuctionException(AuctionExceptionType.BidSlotsFull);
+        //TODO ADD LOCKS ON ALL AUCTION WHEN THESE ARE NOT ALL RUN IN THE SAME THREAD maybe not needed since it dosn't matter? most people arent bidding, they are buying
+        public void Bid(byte isBuyout, int slot, ulong bid)
+        {
+            //subtract gold and update
+            _character.adventureBagGold -= bid;
+            ulong instanceId = _character.auctionSearchIds[slot];
+            _auctionDao.InsertBid(instanceId, _character.soulId, bid); // should be soulid?
+            if (isBuyout == 1) _auctionDao.UpdateWinnerSoulId(instanceId, _character.soulId);
+        }
 
-        //    //TODO ADD CHECK FOR DIMENTO MEDAL / ROYAL after 5 bids
-        //    if (false) throw new AuctionException(AuctionExceptionType.BidDimentoMedalExpired);
 
-        //    int currentWealth = _auctionDao.SelectGold(_client.Character);
-        //    if(currentWealth < bid) throw new AuctionException(AuctionExceptionType.Generic);
+        public void ValidateCancelBid(byte isBuyout, int slot, ulong bid)
+        {
+                        
 
-        //    _auctionDao.SubtractGold(_client.Character, bid);
-        //    _auctionDao.UpdateBid(auctionItem);
-        //}
+            //verify the function is not called outside of the auction window open
+            if (_character.isAuctionWindowOpen == false)
+                throw new AuctionException("Auction window is not open.", AuctionExceptionType.Generic);
 
-        //public void CancelBid(AuctionLot auctionItem)
-        //{
-        //    AuctionLot currentItem = _auctionDao.SelectItem(auctionItem.Id);
-        //    if (currentItem.SecondsUntilExpiryTime < SECONDS_IN_AN_HOUR) throw new AuctionException(AuctionExceptionType.NoCancelExpiry);
-        //    if (!currentItem.IsCancellable) throw new AuctionException(AuctionExceptionType.AnotherCharacterAlreadyBid);
+            
+            
+        }
 
-        //    _auctionDao.AddGold(_client.Character, currentItem.CurrentBid);
+        public void CancelBid(byte slot)
+        {
+            //_itemDao.DeleteAuctionBid(_character.SoulId, instanceId);
+        }     
 
-        //    auctionItem.BidderId = 0;
-        //    auctionItem.CurrentBid = 0;
-        //    _auctionDao.UpdateBid(auctionItem);
-        //}
         
+
 
         //public void Close(AuctionLot auctionItem)
         //{

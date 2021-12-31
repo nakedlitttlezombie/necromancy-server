@@ -41,6 +41,7 @@ namespace Necromancy.Server.Packet.Area
                 MoveResult moveResult = itemService.Move(fromLoc, exhibitLocation, quantity);
                 List<PacketResponse> responses = itemService.GetMoveResponses(client, moveResult);
                 router.Send(client, responses);
+                database.UpdateCharacter(client.character); //saves gold
             }
             catch (AuctionException e)
             {
