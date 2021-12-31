@@ -120,8 +120,7 @@ namespace Necromancy.Server.Packet.Area
             {
                 double distanceToObject =
                     Distance(monsterSpawn.x, monsterSpawn.y, client.character.x, client.character.y);
-                _Logger.Debug(
-                    $"target Monster name [{monsterSpawn.name}] distanceToObject [{distanceToObject}] Radius [{monsterSpawn.radius}] {monsterSpawn.name}");
+                //_Logger.Debug($"target Monster name [{monsterSpawn.name}] distanceToObject [{distanceToObject}] Radius [{monsterSpawn.radius}] {monsterSpawn.name}");
                 if (distanceToObject > monsterSpawn.radius * 5
                 ) //increased hitbox for monsters by a factor of 5.  Beetle radius is 40
                     continue;
@@ -155,9 +154,19 @@ namespace Necromancy.Server.Packet.Area
             foreach (NpcSpawn npcSpawn in client.map.npcSpawns.Values)
             {
                 double distanceToObject = Distance(npcSpawn.x, npcSpawn.y, client.character.x, client.character.y);
-                _Logger.Debug(
-                    $"target NPC name [{npcSpawn.name}] distanceToObject [{distanceToObject}] Radius [{npcSpawn.radius}] {npcSpawn.name}");
+               // _Logger.Debug($"target NPC name [{npcSpawn.name}] distanceToObject [{distanceToObject}] Radius [{npcSpawn.radius}] {npcSpawn.name}");
                 if (distanceToObject > npcSpawn.radius) continue;
+
+                //attacking an NPC is a misdimeanor crime for non-criminals.
+                if ((client.character.criminalState == 0))
+                {
+                    client.character.criminalState += 1;
+                    IBuffer res40 = BufferProvider.Provide();
+                    res40.WriteUInt32(client.character.instanceId);
+                    res40.WriteByte(client.character.criminalState);
+
+                    router.Send(client.map, (ushort)AreaPacketId.recv_chara_update_notify_crime_lv, res40, ServerType.Area);
+                }
 
                 DamageTheObject(client, npcSpawn.instanceId, damage, perHp);
             }

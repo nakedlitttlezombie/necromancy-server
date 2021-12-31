@@ -180,8 +180,8 @@ namespace Necromancy.Server.Packet.Area
             {
                 case NpcSpawn npcSpawn:
                     client.map.npcSpawns.TryGetValue(npcSpawn.instanceId, out npcSpawn);
-                    _Logger.Debug(
-                        $"instanceId : {npcSpawn.instanceId} |  npcSpawn.Id: {npcSpawn.id}  |   npcSpawn.NpcId: {npcSpawn.npcId}");
+                    _Logger.Debug($"instanceId : {npcSpawn.instanceId} |  npcSpawn.Id: {npcSpawn.id}  |   npcSpawn.NpcId: {npcSpawn.npcId}");
+
                     IBuffer res = BufferProvider.Provide();
                     res.WriteInt32(0);
                     router.Send(client, (ushort)AreaPacketId.recv_event_access_object_r, res, ServerType.Area);
@@ -230,6 +230,11 @@ namespace Necromancy.Server.Packet.Area
                             x => x == 10000112 || x == 10000316 || x == 10000003 || x == 10000706 || x == 10000911 || x == 10000209,
                             () => PlayerRevive(client, npcSpawn)
                         },
+                        {
+                            x => x == 74005001 || x == 74005002 || x == 74005003 || x == 74005004 || x == 74005005 || x == 74005006 || x == 74005007 || x == 74005008 || x == 74005009 ||
+                                 x == 74005101 || x == 74005102 || x == 74005103 || x == 74005104 || x == 74005105 || x == 74005106 || x == 74005107 || x == 74005108 || x == 74005109 || x == 74005110,
+                            () => TowerToTowerWarp(client, npcSpawn.npcId)
+                        },                        
                         {x => x < 10, () => _Logger.Debug($" Event Object switch for NPC ID {npcSpawn.npcId} reached")},
                         {x => x < 100, () => _Logger.Debug($" Event Object switch for NPC ID {npcSpawn.npcId} reached")},
                         {
@@ -264,9 +269,7 @@ namespace Necromancy.Server.Packet.Area
                     break;
 
                 case GGateSpawn ggateSpawn:
-                    //client.Map.GGateSpawns.TryGetValue(ggateSpawn.InstanceId, out ggateSpawn);
-                    _Logger.Debug(
-                        $"instanceId : {ggateSpawn.instanceId} |  ggateSpawn.Id: {ggateSpawn.id}  |   ggateSpawn.NpcId: {ggateSpawn.serialId}");
+                    _Logger.Debug($"instanceId : {ggateSpawn.instanceId} |  ggateSpawn.Id: {ggateSpawn.id}  |   ggateSpawn.NpcId: {ggateSpawn.serialId}");
                     IBuffer res3 = BufferProvider.Provide();
                     res3.WriteInt32(0);
                     router.Send(client, (ushort)AreaPacketId.recv_event_access_object_r, res3, ServerType.Area);
@@ -1218,7 +1221,7 @@ namespace Necromancy.Server.Packet.Area
         {
             IBuffer res = BufferProvider.Provide();
             RecvEventScriptPlay recvEventScriptPlay = new RecvEventScriptPlay("etc/warp_samemap", client.character.instanceId);
-            router.Send(recvEventScriptPlay, client);
+            router.Send(recvEventScriptPlay, client); //todo  fix script event end timing to prevent black screen bug
             Task.Delay(TimeSpan.FromMilliseconds(1500)).ContinueWith
             (t1 =>
                 {
@@ -1235,6 +1238,107 @@ namespace Necromancy.Server.Packet.Area
             res = BufferProvider.Provide();
             res.WriteByte(0);
             router.Send(client, (ushort)AreaPacketId.recv_event_end, res, ServerType.Area);
+        }
+
+        private void TowerToTowerWarp(NecClient client, int serialId)
+        {
+            float targetX = 0, targetY = 0, targetZ = 0;
+            byte targetHeading = 0;
+            switch (serialId)
+            {
+                case 74005001:
+                    targetX = 770; targetY = 2823; targetZ = 0; targetHeading = 128;
+                    break;
+                case 74005002:
+                    targetX = 451; targetY = 1135; targetZ = 1; targetHeading = 95;
+                    break;
+                case 74005003:
+                    targetX = 1854; targetY = 10399; targetZ = 1; targetHeading = 45;
+                    break;
+                case 74005004:
+                    targetX = 4609; targetY = 5953; targetZ = 3; targetHeading = 45;
+                    break;
+                case 74005005:
+                    targetX = 12721; targetY = 1270; targetZ = -2; targetHeading = 43;
+                    break;
+                case 74005006:
+                    targetX = 8; targetY = -5722; targetZ = 2; targetHeading = 171;
+                    break;
+                case 74005007:
+                    targetX = 14863; targetY = -1605; targetZ = 5; targetHeading = 171;
+                    break;
+                case 74005008:
+                    targetX = 8; targetY = -5722; targetZ = 2; targetHeading = 171;
+                    break;
+                case 74005009:
+                    targetX = 8; targetY = -5722; targetZ = 2; targetHeading = 171;
+                    break;
+
+                case 74005101:
+                    targetX = 10305; targetY = -10097; targetZ = -1; targetHeading = 87;
+                    break;
+                case 74005102:
+                    targetX = -1166; targetY = 3569; targetZ = 4; targetHeading = 72;
+                    break;
+                case 74005103:
+                    targetX = 2437; targetY = -8783; targetZ = 0; targetHeading = 135;
+                    break;
+                case 74005104:
+                    targetX = 10305; targetY = -10097; targetZ = -1; targetHeading = 87;
+                    break;
+                case 74005105:
+                    targetX = -1166; targetY = 3569; targetZ = 4; targetHeading = 72;
+                    break;
+                case 74005106:
+                    targetX = -709; targetY = 888; targetZ = -20; targetHeading = 135;
+                    break;
+                case 74005107:
+                    targetX = 10305; targetY = -10097; targetZ = -1; targetHeading = 87;
+                    break;
+                case 74005108:
+                    targetX = -1166; targetY = 3569; targetZ = 4; targetHeading = 72;
+                    break;
+                case 74005109:
+                    targetX = 10925; targetY = -9042; targetZ = -5; targetHeading = 177;
+                    break;
+                case 74005110:
+                    targetX = -1166; targetY = 3569; targetZ = 4; targetHeading = 72;
+                    break;
+                default:
+                    targetX = client.map.x; targetY = client.map.y; targetZ = client.map.z; targetHeading = client.character.heading;
+                    break;
+
+            }
+
+            IBuffer res = BufferProvider.Provide();
+            RecvEventScriptPlay recvEventScriptPlay = new RecvEventScriptPlay("etc/warp_samemap", client.character.instanceId);
+            //router.Send(recvEventScriptPlay, client);
+
+            Task.Delay(TimeSpan.FromMilliseconds(1100)).ContinueWith
+            (t1 =>
+            {
+                res = BufferProvider.Provide();
+                res.WriteUInt32(client.character.instanceId);
+                res.WriteFloat(targetX + Util.GetRandomNumber(50, 100));
+                res.WriteFloat(targetY + Util.GetRandomNumber(50, 100)); // random So they dont spawn exactly on the tower.  or on other players.
+                res.WriteFloat(targetZ);
+                res.WriteByte(targetHeading);
+                res.WriteByte(client.character.movementAnim);
+                router.Send(client.map, (ushort)AreaPacketId.recv_object_point_move_notify, res, ServerType.Area);
+            }
+            );
+
+            Task.Delay(TimeSpan.FromMilliseconds(1800)).ContinueWith
+            (t1 =>
+            {
+                res = BufferProvider.Provide();
+                res.WriteByte(0);
+                router.Send(client, (ushort)AreaPacketId.recv_event_end, res, ServerType.Area);
+                router.Send(client, (ushort)AreaPacketId.recv_event_end, res, ServerType.Area);
+                router.Send(client, (ushort)AreaPacketId.recv_event_end, res, ServerType.Area);
+            }
+            );
+
         }
 
         private void PlayerRevive(NecClient client, NpcSpawn npcSpawn)

@@ -19,7 +19,7 @@ namespace Necromancy.Server.Tasks
 
     {
         private static readonly NecLogger _Logger = LogProvider.Logger<NecLogger>(typeof(CharacterTask));
-        private readonly NecClient _client;
+        private NecClient _client;
 
         private readonly object _logoutLock = new object();
         private readonly NecServer _server;
@@ -50,6 +50,9 @@ namespace Necromancy.Server.Tasks
             if (_client == null) Stop(); //crash/disconnect handling
             while (_client.character.characterActive)
             {
+                _tickCounter++;
+                //_Logger.Debug($"Character {_client.character.name} is on task tick : {_tickCounter}");
+
                 if (_logoutTime != DateTime.MinValue)
                     if (DateTime.Now >= _logoutTime)
                         LogOutRequest();
@@ -61,14 +64,13 @@ namespace Necromancy.Server.Tasks
 
                 StatRegen();
 
-                if (_tickCounter == 600)
+                if (_tickCounter >= 60) //set to 600 or 1200 for 5 minutes or 10 minutes. true to game is 10 minutes. 
                 {
+                    _tickCounter = 0;
                     CriminalRepent();
                     SoulMaterialIncrease();
-                    _tickCounter = 0;
                 }
 
-                _tickCounter++;
                 Thread.Sleep(_tickTime);
             }
 
@@ -77,10 +79,22 @@ namespace Necromancy.Server.Tasks
 
         private void CriminalRepent()
         {
-            _client.soul.criminalLevel--;
-            if (_client.soul.criminalLevel <= 0) _client.soul.criminalLevel = 0;
+            //_Logger.Debug($"Character {_client.character.name} criminal state is : {_client.character.criminalState}");
 
-            _client.character.criminalState = _client.soul.criminalLevel;
+            if (_client.character.criminalState > 0)
+            {
+                if (_client.soul.criminalLevel > 0) _client.soul.criminalLevel--;
+                if (_client.soul.criminalLevel < 0) _client.soul.criminalLevel = 0;
+                _client.character.criminalState = _client.soul.criminalLevel;
+                if ((_client.character.criminalState < 3))
+                {
+                    IBuffer res40 = BufferProvider.Provide();
+                    res40.WriteUInt32(_client.character.instanceId);
+                    res40.WriteByte(_client.character.criminalState);
+                    _server.router.Send(_client.map, (ushort)AreaPacketId.recv_chara_update_notify_crime_lv, res40, ServerType.Area);
+                }
+            }
+            //_Logger.Debug($"Character {_client.character.name} criminal new state is : {_client.character.criminalState}");
         }
 
         private void SoulMaterialIncrease()
@@ -107,7 +121,7 @@ namespace Necromancy.Server.Tasks
                 RecvCharaUpdateAp recvCharaUpdateAp = new RecvCharaUpdateAp(_client.character.od.current);
                 _server.router.Send(recvCharaUpdateAp, _client);
             }
-            else if (_client.character.od.current < _client.character.od.max)
+            else if (_client.character.od.current < 100 /*_client.character.od.max*/)
             {
                 _client.character.od.SetCurrent(_client.character.od.current + _client.character.odRecoveryRate / 2);
                 RecvCharaUpdateAp recvCharaUpdateAp = new RecvCharaUpdateAp(_client.character.od.current);
