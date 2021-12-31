@@ -34,7 +34,6 @@ namespace Necromancy.Server.Chat.Command.Commands
             List<ChatResponse> responses)
         {
             MonsterSpawn monsterSpawn = new MonsterSpawn();
-            server.instances.AssignInstance(monsterSpawn);
             if (!int.TryParse(command[0], out int monsterId))
             {
                 responses.Add(ChatResponse.CommandError(client, $"Invalid Number: {command[0]}"));
@@ -85,18 +84,20 @@ namespace Necromancy.Server.Chat.Command.Commands
                 responses.Add(ChatResponse.CommandError(client, "MonsterSpawn could not be saved to database"));
                 return;
             }
+            server.instances.AssignInstance(monsterSpawn);
+
 
             RecvDataNotifyMonsterData monsterData = new RecvDataNotifyMonsterData(monsterSpawn);
             router.Send(client.map, monsterData);
 
-            IBuffer res = BufferProvider.Provide();
+            //IBuffer res = BufferProvider.Provide();
 
-            res.WriteUInt32((uint)monsterSetting.id);
-            //Toggles state between Alive(attackable),  Dead(lootable), or Inactive(nothing).
-            res.WriteInt32(_i);
-            _i++;
+            //res.WriteUInt32((uint)monsterSetting.id);
+            ////Toggles state between Alive(attackable),  Dead(lootable), or Inactive(nothing).
+            //res.WriteInt32(_i);
+            //_i++;
 
-            router.Send(client, (ushort)AreaPacketId.recv_monster_state_update_notify, res, ServerType.Area);
+            //router.Send(client, (ushort)AreaPacketId.recv_monster_state_update_notify, res, ServerType.Area);
         }
     }
 }
