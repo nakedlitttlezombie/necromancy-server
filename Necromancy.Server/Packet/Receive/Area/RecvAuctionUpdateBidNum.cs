@@ -14,10 +14,10 @@ namespace Necromancy.Server.Packet.Receive.Area
 
         protected override IBuffer ToBuffer()
         {
+            // only works while auction is open
             IBuffer res = BufferProvider.Provide();
-            res.WriteInt32(0); // auction id
-
-            res.WriteInt32(0); // "bidnumber"?
+            res.WriteInt32(0); // auction lot slot
+            res.WriteInt32(0); // highest bid
             return res;
         }
     }

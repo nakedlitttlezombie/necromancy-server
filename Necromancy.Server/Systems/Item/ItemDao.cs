@@ -180,14 +180,14 @@ namespace Necromancy.Server.Systems.Item
         private const string SQL_SELECT_AUCTIONS = @"
             SELECT
                 item_instance.*,
-				nec_soul.id AS owner_soul_id,
+				nec_character.soul_id AS owner_soul_id,
                 (SELECT MAX(current_bid) FROM nec_auction_bids WHERE item_instance_id = item_instance.id) AS max_bid
             FROM
                 item_instance
 			JOIN
-				nec_soul
+				nec_character
 			ON
-				item_instance.owner_id = nec_soul.id            
+				item_instance.owner_id = nec_character.id           
             WHERE
                 zone = 82
             AND 
@@ -213,13 +213,13 @@ namespace Necromancy.Server.Systems.Item
         private const string SQL_SELECT_LOTS = @"
             SELECT
                 item_instance.*,
-				nec_soul.id AS owner_soul_id
+				nec_character.soul_id AS owner_soul_id
             FROM
                 item_instance
 			JOIN
-				nec_soul
+				nec_character
 			ON
-				item_instance.owner_id = nec_soul.id
+				item_instance.owner_id = nec_character.id
             WHERE
                 owner_soul_id = @owner_soul_id
             AND

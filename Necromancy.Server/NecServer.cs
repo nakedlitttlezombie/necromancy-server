@@ -27,6 +27,7 @@ using Arrowgene.Logging;
 using Arrowgene.Networking.Tcp.Server.AsyncEvent;
 using Necromancy.Server.Chat;
 using Necromancy.Server.Chat.Command.Commands;
+using Necromancy.Server.Chat.Command.Commands.Migrated;
 using Necromancy.Server.Common.Instance;
 using Necromancy.Server.Data.Setting;
 using Necromancy.Server.Database;
@@ -282,6 +283,7 @@ namespace Necromancy.Server
             chat.commandHandler.AddCommand(new OnHit(this));
             chat.commandHandler.AddCommand(new QuestStarted(this));
             chat.commandHandler.AddCommand(new Revive(this));
+            chat.commandHandler.AddCommand(new RecvAuctionNotifyUpdates(this));
             chat.commandHandler.AddCommand(new SendAuctionNotifyOpen(this));
             chat.commandHandler.AddCommand(new SendCharacterSave(this));
             chat.commandHandler.AddCommand(new SendDataNotifyItemObjectData(this));

@@ -61,9 +61,7 @@ namespace Necromancy.Server.Chat.Command.Commands
                 RecvItemInstance recvItemInstance = new RecvItemInstance(client, auctionItem);
                 router.Send(recvItemInstance);
                 j++;
-            }
-
-            
+            }            
 
             j = 0;
             res.WriteInt32(lots.Count); //Less than or equal to 15
