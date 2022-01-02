@@ -4,6 +4,7 @@ using Necromancy.Server.Common;
 using Necromancy.Server.Logging;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
+using Necromancy.Server.Packet.Receive.Area;
 using Necromancy.Server.Systems.Auction;
 using Necromancy.Server.Systems.Item;
 
@@ -32,6 +33,7 @@ namespace Necromancy.Server.Packet.Area
                 auctionService.ValidateBid(isBuyout, slot, bid);
                 auctionService.Bid(isBuyout, slot, bid);
                 server.database.UpdateCharacter(client.character); // saves gold
+                router.Send(new RecvSelfMoneyNotify(client, client.character.adventureBagGold));
             }
             catch (AuctionException e)
             {

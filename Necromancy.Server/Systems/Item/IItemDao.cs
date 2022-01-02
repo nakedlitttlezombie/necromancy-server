@@ -41,7 +41,7 @@ namespace Necromancy.Server.Systems.Item
 
         //Auction Methods
         public List<ItemInstance> SelectAuctions(uint ownerSoulId);        
-        public List<ItemInstance> SelectBids(int characterId);
-        public List<ItemInstance> SelectLots(int characterId);
+        public List<ItemInstance> SelectBids(int soulId);
+        public List<ItemInstance> SelectLots(int soulId);
     }
 }

@@ -725,13 +725,13 @@ namespace Necromancy.Server.Systems.Item
         }
         public List<ItemInstance> GetBids()
         {
-            //TODO modify their location to be bids
-            return _itemDao.SelectBids(_character.id);
+            _Logger.Debug("SoulId: " + _character.soulId);
+            return _itemDao.SelectBids(_character.soulId);
         }
 
         public List<ItemInstance> GetLots()
         {
-            List<ItemInstance> itemInstances = _itemDao.SelectLots(_character.id);
+            List<ItemInstance> itemInstances = _itemDao.SelectLots(_character.soulId);
             foreach (ItemInstance item in itemInstances) _character.itemLocationVerifier.PutItem(item.location, item);
             return itemInstances;
         }

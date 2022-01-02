@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Arrowgene.Logging;
+using Necromancy.Server.Logging;
 using Necromancy.Server.Model;
 using Necromancy.Server.Systems.Item;
 
@@ -7,6 +9,8 @@ namespace Necromancy.Server.Systems.Auction
 {
     public class AuctionService
     {
+        private static readonly NecLogger _Logger = LogProvider.Logger<NecLogger>(typeof(AuctionService));
+
         private const int SECONDS_PER_FOUR_HOURS = 60 * 60 * 4;
         private const int MAX_LOTS = 15; //this is with dimento TODO update
         private const double LISTING_FEE_PERCENT = .05;
@@ -178,6 +182,8 @@ namespace Necromancy.Server.Systems.Auction
             ulong instanceId = _character.auctionSearchIds[slot];
             ulong buyoutPrice = _auctionDao.SelectBuyoutPrice(instanceId);
             bool isAlreadyBought = _auctionDao.SelectWinnerSoulId(instanceId) != 0;
+
+            _Logger.Debug(instanceId.ToString());
 
             //verify the function is not called outside of the auction window open
             if (_character.isAuctionWindowOpen == false)

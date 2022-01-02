@@ -124,13 +124,13 @@ namespace Necromancy.Server.Systems.Auction
                 (
                     item_instance_id,
 	                bidder_soul_id,
-	                bid
+	                current_bid
                 )
             VALUES
                 (
                     @item_instance_id,
 	                @bidder_soul_id,
-	                @bid
+	                @current_bid
                 )";
 
 
@@ -138,7 +138,7 @@ namespace Necromancy.Server.Systems.Auction
             SELECT
                 buyout_price
             FROM
-                item_instance
+                nec_item_instance
             WHERE
                 id = @id";
 
@@ -154,7 +154,7 @@ namespace Necromancy.Server.Systems.Auction
             SELECT
                 winner_soul_id
             FROM
-                item_instance
+                nec_item_instance
             WHERE id = @id
             LIMIT 1";
 
@@ -298,7 +298,7 @@ namespace Necromancy.Server.Systems.Auction
             {
                 AddParameter(command, "@item_instance_id", instanceId);
                 AddParameter(command, "@bidder_soul_id", bidderSoulId);
-                AddParameter(command, "@bid", bid);
+                AddParameter(command, "@current_bid", bid);
             });
         }
 
@@ -323,7 +323,8 @@ namespace Necromancy.Server.Systems.Auction
                     AddParameter(command, "@id", instanceId);
                 }, reader =>
                 {
-                    soulId = reader.GetInt32("winner_soul_id");
+                    reader.Read();
+                    soulId = reader.IsDBNull("winner_soul_id") ? 0 : reader.GetInt32("winner_soul_id");
                 });
 
             return soulId;

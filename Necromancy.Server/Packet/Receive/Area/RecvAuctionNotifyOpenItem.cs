@@ -34,7 +34,7 @@ namespace Necromancy.Server.Packet.Receive.Area
                 res.WriteFixedString(auctionItem.consignerSoulName, 49);
                 res.WriteByte(0); // appears to be boolean if owner criminal it is 1
                 res.WriteFixedString(auctionItem.comment, 385);
-                res.WriteInt16((short)auctionItem.currentBid);
+                res.WriteInt16((short)auctionItem.maxBid);
                 res.WriteInt32(auctionItem.secondsUntilExpiryTime);
                 i++;
             }

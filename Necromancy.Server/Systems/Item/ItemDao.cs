@@ -180,15 +180,18 @@ namespace Necromancy.Server.Systems.Item
         private const string SQL_SELECT_AUCTIONS = @"
             SELECT
                 item_instance.*,
-				nec_soul.id AS owner_soul_id
+				nec_soul.id AS owner_soul_id,
+                (SELECT MAX(current_bid) FROM nec_auction_bids WHERE item_instance_id = item_instance.id) AS max_bid
             FROM
                 item_instance
 			JOIN
 				nec_soul
 			ON
-				item_instance.owner_id = nec_soul.id
+				item_instance.owner_id = nec_soul.id            
             WHERE
                 zone = 82
+            AND 
+				expiry_datetime > strftime('%s','now')
             AND
                 owner_soul_id != @owner_soul_id";        
 
@@ -476,6 +479,7 @@ namespace Necromancy.Server.Systems.Item
                     while (reader.Read())
                     {
                         ItemInstance itemInstance = MakeItemInstance(reader);
+                        itemInstance.maxBid = reader.IsDBNull("max_bid") ? 0 : reader.GetInt32("max_bid");
                         auctions.Add(itemInstance);
                     }
                 });
@@ -495,7 +499,7 @@ namespace Necromancy.Server.Systems.Item
                         itemInstance.currentBid = reader.IsDBNull("current_bid") ? 0 : reader.GetInt32("current_bid");
                         itemInstance.bidderSoulId = reader.IsDBNull("bidder_soul_id") ? 0 : reader.GetInt32("bidder_soul_id");
                         itemInstance.maxBid = reader.IsDBNull("max_bid") ? 0 : reader.GetInt32("max_bid");
-                        itemInstance.isBidCancelled = reader.GetBoolean("is_cancelled");
+                        itemInstance.isBidCancelled = itemInstance.consignerSoulName.Equals("");
                         bids.Add(itemInstance);
                     }
                 });

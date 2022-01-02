@@ -35,6 +35,7 @@ namespace Necromancy.Server.Chat.Command.Commands
             List<AuctionSearchConditions> itemSearchConds = auctionService.GetItemSearchConditions();
             const byte IS_IN_MAINTENANCE_MODE = 0x0;
             const int MAX_LOTS = 15;
+            int j = 0;
 
             IBuffer res = BufferProvider.Provide();
 
@@ -44,7 +45,27 @@ namespace Necromancy.Server.Chat.Command.Commands
                 router.Send(recvItemInstance);
             }
 
-            int j = 0;
+            RecvAuctionNotifyOpenItemStart recvAuctionNotifyOpenItemStart = new RecvAuctionNotifyOpenItemStart(client);
+            RecvAuctionNotifyOpenItemEnd recvAuctionNotifyOpenItemEnd = new RecvAuctionNotifyOpenItemEnd(client);
+
+            List<ItemInstance> auctionList = itemService.GetItemsUpForAuction();
+
+            j = 0;
+            client.character.auctionSearchIds = new ulong[auctionList.Count];
+            Dictionary<ulong, int> tempBidLookup = new Dictionary<ulong, int>();
+            foreach (ItemInstance auctionItem in auctionList)
+            {
+                client.character.auctionSearchIds[j] = auctionItem.instanceId;
+                tempBidLookup.Add(auctionItem.instanceId, j);
+                _Logger.Debug(j.ToString() + " " + auctionItem.instanceId);
+                RecvItemInstance recvItemInstance = new RecvItemInstance(client, auctionItem);
+                router.Send(recvItemInstance);
+                j++;
+            }
+
+            
+
+            j = 0;
             res.WriteInt32(lots.Count); //Less than or equal to 15
             foreach (ItemInstance lotItem in lots)
             {
@@ -72,11 +93,12 @@ namespace Necromancy.Server.Chat.Command.Commands
             }
 
             j = 0;
+            _Logger.Debug(bids.Count.ToString());
             res.WriteInt32(bids.Count); //Less than or equal to 0xE
             foreach (ItemInstance bidItem in bids)
             {
-                res.WriteByte((byte)j); // row number?
-                res.WriteInt32(j); // row number ??
+                res.WriteByte((byte) j); // row number?
+                res.WriteInt32(tempBidLookup[bidItem.instanceId]); //corresponding item slot in search window
                 res.WriteUInt64(bidItem.instanceId);
                 res.WriteUInt64(bidItem.minimumBid);
                 res.WriteUInt64(bidItem.buyoutPrice);
@@ -141,21 +163,6 @@ namespace Necromancy.Server.Chat.Command.Commands
             router.Send(client, (ushort)AreaPacketId.recv_auction_notify_open, res, ServerType.Area);
 
             client.character.isAuctionWindowOpen = true;
-
-            RecvAuctionNotifyOpenItemStart recvAuctionNotifyOpenItemStart = new RecvAuctionNotifyOpenItemStart(client);
-            RecvAuctionNotifyOpenItemEnd recvAuctionNotifyOpenItemEnd = new RecvAuctionNotifyOpenItemEnd(client);
-
-            List<ItemInstance> auctionList = itemService.GetItemsUpForAuction();
-
-            j = 0;
-            client.character.auctionSearchIds = new ulong[auctionList.Count];
-            foreach (ItemInstance auctionItem in auctionList)
-            {
-                client.character.auctionSearchIds[j] = auctionItem.instanceId;
-                RecvItemInstance recvItemInstance = new RecvItemInstance(client, auctionItem);
-                router.Send(recvItemInstance);
-                j++;
-            }
 
             router.Send(recvAuctionNotifyOpenItemStart);
             int divideBy100 = auctionList.Count / 100 + (auctionList.Count % 100 == 0 ? 0 : 1); // TOTAL NUMBER OF RECVS TO SEND
