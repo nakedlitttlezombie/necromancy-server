@@ -28,11 +28,13 @@ namespace Necromancy.Server.Chat.Command.Commands
             List<ChatResponse> responses)
         {
             ItemService itemService = new ItemService(client.character);
-            AuctionService auctionService = new AuctionService(client.character);
+            AuctionService auctionService = AuctionService.Instance;
+            auctionService.AddClientInAuction(client);
+
             List<ItemInstance> lots = itemService.GetLots();
             List<ItemInstance> bids = itemService.GetBids();
-            List<AuctionSearchConditions> equipSearchConds = auctionService.GetEquipSearchConditions();
-            List<AuctionSearchConditions> itemSearchConds = auctionService.GetItemSearchConditions();
+            List<AuctionSearchConditions> equipSearchConds = auctionService.GetEquipSearchConditions(client);
+            List<AuctionSearchConditions> itemSearchConds = auctionService.GetItemSearchConditions(client);
             const byte IS_IN_MAINTENANCE_MODE = 0x0;
             const int MAX_LOTS = 15;
             int j = 0;

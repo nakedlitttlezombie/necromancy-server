@@ -7,100 +7,98 @@ using Necromancy.Server.Systems.Item;
 
 namespace Necromancy.Server.Systems.Auction
 {
-    public class AuctionService
+    public sealed class AuctionService
     {
-        private static readonly NecLogger _Logger = LogProvider.Logger<NecLogger>(typeof(AuctionService));
-
         private const int SECONDS_PER_FOUR_HOURS = 60 * 60 * 4;
         private const int MAX_LOTS = 15; //this is with dimento TODO update
         private const double LISTING_FEE_PERCENT = .05;
 
-        private readonly Character _character;
         private readonly IAuctionDao _auctionDao;
+        private readonly List<NecClient> _clientsInAuction = new List<NecClient>();
 
-        public AuctionService(Character character) {
+#pragma warning disable IDE1006 // Naming Styles
+        private static readonly NecLogger _logger = LogProvider.Logger<NecLogger>(typeof(AuctionService));
+        public static AuctionService Instance { get; } = new AuctionService();
+#pragma warning restore IDE1006 // Naming Styles
+        static AuctionService() { }
+        private AuctionService()
+        {
             _auctionDao = new AuctionDao();
-            _character = character;
         }
 
-        public AuctionService(Character character, IAuctionDao auctionDao)
+        public void AddClientInAuction(NecClient client)
         {
-            _auctionDao = auctionDao;
-            _character = character;
-        }
-        public List<AuctionSearchConditions> GetEquipSearchConditions()
-        {
-            return _auctionDao.SelectSearchConditions(_character.id, false);
+            lock (this) {
+                _clientsInAuction.Add(client);
+            }            
         }
 
-        public void RegistSearchCond(int index, AuctionSearchConditions searchCond)
+        public void RemoveClientInAuction(NecClient client)
         {
-            _auctionDao.InsertSearchConditions(_character.id, index, searchCond);
+            lock (this)
+            {
+                _clientsInAuction.Remove(client);
+            }
         }
 
-        public void DeregistSearchCond(byte index, bool isItemSearch)
+        public List<AuctionSearchConditions> GetEquipSearchConditions(NecClient client)
         {
-            _auctionDao.DeleteSearchConditions(_character.id, index, isItemSearch);
+            lock (this) {
+                ValidateClientInAuction(client);
+                return _auctionDao.SelectSearchConditions(client.soul.id, false);
+            }
         }
 
-        public List<AuctionSearchConditions> GetItemSearchConditions()
+        public void RegistSearchCond(NecClient client, int index, AuctionSearchConditions searchCond)
         {
-            return _auctionDao.SelectSearchConditions(_character.id, true);
+            lock (this)
+            {
+                ValidateClientInAuction(client);
+                _auctionDao.InsertSearchConditions(client.soul.id, index, searchCond);
+            }
         }
 
-        public void ValidateExhibit(ItemLocation itemLocation, ItemLocation exhibitLocation, byte quantity, int auctionTimeSelector, ulong minBid, ulong buyoutPrice)
+        public void DeregistSearchCond(NecClient client, byte index, bool isItemSearch)
         {
-            ItemInstance fromItem = _character.itemLocationVerifier.GetItem(itemLocation);
-            bool hasToItem = _character.itemLocationVerifier.HasItem(exhibitLocation);
+            lock (this)
+            {
+                ValidateClientInAuction(client);
+                _auctionDao.DeleteSearchConditions(client.soul.id, index, isItemSearch);
+            }
+        }
 
+        public List<AuctionSearchConditions> GetItemSearchConditions(NecClient client)
+        {
+            lock (this)
+            {
+                ValidateClientInAuction(client);
+                return _auctionDao.SelectSearchConditions(client.soul.id, true);
+            }
+        }
+
+        public void ValidateExhibit(NecClient client, ItemLocation itemLocation, ItemLocation exhibitLocation, byte quantity, int auctionTimeSelector, ulong minBid, ulong buyoutPrice)
+        {
             //check possible errors. these should only occur if client is compromised or players are attempting to cheat
 
-            //verify the function is not called outside of the auction window open
-            if (_character.isAuctionWindowOpen == false)
-                throw new AuctionException("Auction window is not open.", AuctionExceptionType.Generic);
-
-            //verify there is an item to auction
-            if (fromItem is null || quantity == 0)
-                throw new AuctionException("No item to auction.", AuctionExceptionType.Generic);
-
-            //verify the items are in the players inventory and owned by the player
-            if (fromItem.location.zoneType != ItemZoneType.AdventureBag
-                && fromItem.location.zoneType != ItemZoneType.EquippedBags
-                && fromItem.location.zoneType != ItemZoneType.PremiumBag
-                || fromItem.ownerId != _character.id)
-                throw new AuctionException("Not an owned item.", AuctionExceptionType.InvalidListing);
-
-            //verify the character has enough gold to list the item
-            if (_character.adventureBagGold < calcListingFee(buyoutPrice))
-                throw new AuctionException("Not enough gold to list.", AuctionExceptionType.Generic);
+            ValidateClientInAuction(client);
+            ValidateItemExists(client, itemLocation);
+            ValidateQuantity(client, itemLocation, quantity);
+            ValidateExhibitSlotRange(exhibitLocation);
+            ValidateItemAuctionable(client, itemLocation);
+            ValidateMinBidAndBuyout(minBid, buyoutPrice);
+            ValidateItemOwnedByCharacter(client, itemLocation);
+            ValidateEnoughGold(client, calcListingFee(buyoutPrice));
+            ValidateTimeSelector(auctionTimeSelector);
 
             //verify there is no item already in that slot
             if (hasToItem)
                 throw new AuctionException("There is already an item in that slot.", AuctionExceptionType.SlotUnavailable);
 
-            //verify that the exhibit slot is valid
-            if (exhibitLocation.slot < 0 || exhibitLocation.slot >= MAX_LOTS)
-                throw new AuctionException("Outside the bounds of exhibit slots.", AuctionExceptionType.SlotUnavailable);
-
             //verify the item is not equipped
             if (_character.equippedItems.ContainsValue(fromItem))
                 throw new AuctionException("Equipped items cannot be listed.", AuctionExceptionType.EquipListing);
 
-            //verify the item is valid to list
-            if (!fromItem.isIdentified || !fromItem.isSellable || !fromItem.isTradeable)
-                throw new AuctionException("Invalid listing.", AuctionExceptionType.InvalidListing);
-
-            //verify that the item has enough quantity
-            if (quantity > fromItem.quantity)
-                throw new AuctionException("Invalid Quantity ", AuctionExceptionType.IllegalItemAmount);
-
-            //verify valid duration
-            if (auctionTimeSelector < 0 || auctionTimeSelector > 3)
-                throw new AuctionException("Invalid duration.", AuctionExceptionType.Generic);
-
-            //verify minimum bid is less than buyout
-            if (minBid > buyoutPrice)
-                throw new AuctionException("Minimum bid is higher than buyout price.", AuctionExceptionType.Generic);
+            
 
             //TODO CHECK DIMENTO
         }
@@ -144,7 +142,7 @@ namespace Necromancy.Server.Systems.Auction
             return (ulong) Math.Ceiling(buyoutPrice * LISTING_FEE_PERCENT);
         }
 
-        public void ValidateCancelExhibit(ItemLocation exhibitLocation)
+        public void ValidateCancelExhibit(NecClient client, ItemLocation exhibitLocation)
         {
             ItemInstance fromItem = _character.itemLocationVerifier.GetItem(exhibitLocation);
             ItemLocation nextOpenLocation = _character.itemLocationVerifier.NextOpenSlotInInventory();
@@ -152,13 +150,8 @@ namespace Necromancy.Server.Systems.Auction
 
             //check possible errors. these should only occur if client is compromised or players are attempting to cheat
 
-            //verify the function is not called outside of the auction window open
-            if (_character.isAuctionWindowOpen == false)
-                throw new AuctionException("Auction window is not open.", AuctionExceptionType.Generic);
-
-            //verify there is an item to auction
-            if (fromItem is null || fromItem.quantity == 0)
-                throw new AuctionException("No item to auction.", AuctionExceptionType.Generic);
+            ValidateClientInAuction(client);
+            ValidateItemExists(client, exhibitLocation);
 
             //verify there is space in player's inventory
             if (nextOpenLocation.Equals(ItemLocation.InvalidLocation))
@@ -176,22 +169,17 @@ namespace Necromancy.Server.Systems.Auction
             _auctionDao.UpdateCancelExhibit(exhibit);
         }
 
-        public void ValidateBid(byte isBuyout, int slot, ulong bid)
+        public void ValidateBid(NecClient client, byte isBuyout, int slot, ulong bid)
         {
             //TODO update more
             ulong instanceId = _character.auctionSearchIds[slot];
             ulong buyoutPrice = _auctionDao.SelectBuyoutPrice(instanceId);
             bool isAlreadyBought = _auctionDao.SelectWinnerSoulId(instanceId) != 0;
 
-            _Logger.Debug(instanceId.ToString());
+            _logger.Debug(instanceId.ToString());
 
-            //verify the function is not called outside of the auction window open
-            if (_character.isAuctionWindowOpen == false)
-                throw new AuctionException("Auction window is not open.", AuctionExceptionType.Generic);
-
-            //verify the character has enough gold to list the item
-            if (_character.adventureBagGold < bid)
-                throw new AuctionException("Not enough gold to list.", AuctionExceptionType.Generic);
+            ValidateClientInAuction(client);
+            ValidateEnoughGold(client, bid);
 
             if (isAlreadyBought) throw new AuctionException(AuctionExceptionType.BiddingCompleted);
             if (isBuyout == 1 && bid != buyoutPrice) throw new AuctionException(AuctionExceptionType.Generic);
@@ -211,22 +199,123 @@ namespace Necromancy.Server.Systems.Auction
         }
 
 
-        public void ValidateCancelBid(byte isBuyout, int slot, ulong bid)
+        public void ValidateCancelBid(NecClient client, byte isBuyout, int slot, ulong bid)
         {
-                        
-
-            //verify the function is not called outside of the auction window open
-            if (_character.isAuctionWindowOpen == false)
-                throw new AuctionException("Auction window is not open.", AuctionExceptionType.Generic);
-
-            
+            ValidateClientInAuction(client);
+            //TODO     
             
         }
 
         public void CancelBid(byte slot)
         {
             //_itemDao.DeleteAuctionBid(_character.SoulId, instanceId);
-        }     
+        }
+
+        /// <summary>
+        /// Verify the client has the auction window open.
+        /// </summary>
+        /// <param name="client"></param>
+        private void ValidateClientInAuction(NecClient client)
+        {
+            if (!_clientsInAuction.Contains(client))
+                throw new AuctionException("Auction window is not open.", AuctionExceptionType.Generic);
+        }
+
+        /// <summary>
+        /// Verify there is an item to auction.
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="itemLocation"></param>
+        private void ValidateItemExists(NecClient client, ItemLocation itemLocation)
+        {
+            ItemInstance itemInstance = client.character.itemLocationVerifier.GetItem(itemLocation);
+            if (itemInstance is null || itemInstance.quantity == 0)
+                throw new AuctionException("No item to auction.", AuctionExceptionType.Generic);
+        }
+
+        /// <summary>
+        /// Verify there is enough of the item at the location specified.
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="itemLocation"></param>
+        /// <param name="quantity"></param>
+        private void ValidateQuantity(NecClient client, ItemLocation itemLocation, byte quantity)
+        {
+            ItemInstance itemInstance = client.character.itemLocationVerifier.GetItem(itemLocation);
+            if (quantity > itemInstance.quantity)
+                throw new AuctionException("Invalid Quantity.", AuctionExceptionType.IllegalItemAmount);
+        }
+
+        /// <summary>
+        /// Verify that the exhibit slot is within the valid range.
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="itemLocation"></param>
+        private void ValidateExhibitSlotRange(ItemLocation itemLocation)
+        {
+            if (itemLocation.slot < 0 || itemLocation.slot >= MAX_LOTS) //TODO check dimento
+                throw new AuctionException("Outside the bounds of exhibit slots.", AuctionExceptionType.SlotUnavailable);
+        }
+
+
+        /// <summary>
+        /// Verify the the item can be auctioned.
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="itemLocation"></param>
+        private void ValidateItemAuctionable(NecClient client, ItemLocation itemLocation)
+        {
+            ItemInstance itemInstance = client.character.itemLocationVerifier.GetItem(itemLocation);
+            if (!itemInstance.isIdentified || !itemInstance.isSellable || !itemInstance.isTradeable) //TODO maybe max durability?
+                throw new AuctionException("Invalid listing.", AuctionExceptionType.InvalidListing);
+        }
+
+        /// <summary>
+        /// Verify that the minimum bid is less than the buyout price.
+        /// </summary>
+        /// <param name="minBid"></param>
+        /// <param name="buyoutPrice"></param>
+        private void ValidateMinBidAndBuyout(ulong minBid, ulong buyoutPrice)
+        {
+            if (minBid > buyoutPrice)
+                throw new AuctionException("Minimum bid is higher than buyout price.", AuctionExceptionType.Generic);
+        }
+
+        /// <summary>
+        /// Verify character has enough gold.
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="gold"></param>
+        private void ValidateEnoughGold(NecClient client, ulong gold)
+        {
+            if (client.character.adventureBagGold < gold)
+                throw new AuctionException("Not enough gold.", AuctionExceptionType.Generic);
+        }
+
+        /// <summary>
+        /// Verify the character owns and possesses the item.
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="itemLocation"></param>
+        private void ValidateItemOwnedByCharacter(NecClient client, ItemLocation itemLocation)
+        {
+            ItemInstance itemInstance = client.character.itemLocationVerifier.GetItem(itemLocation);
+            if (itemInstance.location.zoneType != ItemZoneType.AdventureBag
+                && itemInstance.location.zoneType != ItemZoneType.EquippedBags
+                && itemInstance.location.zoneType != ItemZoneType.PremiumBag
+                || itemInstance.ownerId != client.character.id)
+                throw new AuctionException("Not an owned item.", AuctionExceptionType.InvalidListing);
+        }
+
+        /// <summary>
+        /// Verify that the time selector is within reason.
+        /// </summary>
+        /// <param name="auctionTimeSelector"></param>
+        private void ValidateTimeSelector(int auctionTimeSelector)
+        {            
+            if (auctionTimeSelector < 0 || auctionTimeSelector > 3)
+                throw new AuctionException("Invalid duration.", AuctionExceptionType.Generic);
+        }
 
         
 

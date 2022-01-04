@@ -27,7 +27,7 @@ namespace Necromancy.Server.Packet.Area
             ulong bid = packet.data.ReadUInt64();
             _Logger.Debug(isBuyout + " " + slot + " " + bid);
             int auctionError = 0;
-            AuctionService auctionService = new AuctionService(client.character);
+            AuctionService auctionService = AuctionService.Instance;
             try
             {
                 auctionService.ValidateBid(isBuyout, slot, bid);
