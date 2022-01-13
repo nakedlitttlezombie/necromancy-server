@@ -48,6 +48,20 @@ namespace Necromancy.Server.Systems.Item
             AND
                 zone IN (0,1,2,8,12)"; //adventure bag, equipped bags,royal bag, bag slot, avatar inventory
 
+        private const string SQL_SELECT_CLOAKROOM_ITEMS = @"
+            SELECT
+                item_instance.*, nec_character.id, nec_character.soul_id
+            FROM
+                item_instance
+            INNER JOIN
+                nec_character
+            ON
+                nec_character.id = item_instance.owner_id
+            WHERE
+               nec_character.soul_id = @soul_id
+            AND
+                zone = 3"; //Cloakroom
+
         private const string SQL_SELECT_LOOTABLE_INVENTORY_ITEMS = @"
             SELECT
                 *
@@ -402,6 +416,17 @@ namespace Necromancy.Server.Systems.Item
             return ownedItemInstances;
         }
 
+        public List<ItemInstance> SelectCloakRoomItems(int soulId)
+        {
+            List<ItemInstance> ownedItemInstances = new List<ItemInstance>();
+            ExecuteReader(SQL_SELECT_CLOAKROOM_ITEMS,
+                command => { AddParameter(command, "@soul_id", soulId); }, reader =>
+                {
+                    while (reader.Read()) ownedItemInstances.Add(MakeItemInstance(reader));
+                });
+            return ownedItemInstances;
+        }
+
         public List<ItemInstance> InsertItemInstances(int ownerId, ItemLocation[] locs, int[] baseId, ItemSpawnParams[] spawnParams)
         {
             int size = locs.Length;
@@ -644,6 +669,7 @@ namespace Necromancy.Server.Systems.Item
 
             itemInstance.currentDurability = reader.GetInt32("current_durability");
             itemInstance.maximumDurability = reader.GetInt32("plus_maximum_durability");
+            if (itemInstance.maximumDurability == 0) itemInstance.maximumDurability = 10; //toDo  update item library.  items shouldnt have 0 for core stats
 
             itemInstance.enhancementLevel = reader.GetByte("enhancement_level");
 
@@ -852,7 +878,7 @@ namespace Necromancy.Server.Systems.Item
             if (itemInstance.weight < 0) itemInstance.weight = 0;
             return itemInstance;
         }
-
+        //also exists in itemservice. needs to match
         public ForgeMultiplier LoginLoadMultiplier(int level)
         {
             double factor = 1;
@@ -871,47 +897,47 @@ namespace Necromancy.Server.Systems.Item
                     hardness = 0;
                     break;
                 case 2:
-                    factor = 1.15;
+                    factor = 1.16;
                     durability = 1.2;
                     hardness = 0;
                     break;
                 case 3:
-                    factor = 1.27;
+                    factor = 1.29;
                     durability = 1.3;
                     hardness = 0;
                     break;
                 case 4:
-                    factor = 1.39;
+                    factor = 1.45;
                     durability = 1.4;
                     hardness = 0;
                     break;
                 case 5:
-                    factor = 1.54;
+                    factor = 1.67;
                     durability = 1.5;
                     hardness = 1;
                     break;
                 case 6:
-                    factor = 1.69;
+                    factor = 1.92;
                     durability = 1.6;
                     hardness = 0;
                     break;
                 case 7:
-                    factor = 1.84;
+                    factor = 2.20;
                     durability = 1.7;
                     hardness = 0;
                     break;
                 case 8:
-                    factor = 1.99;
+                    factor = 2.54;
                     durability = 1.8;
                     hardness = 0;
                     break;
                 case 9:
-                    factor = 2.14;
+                    factor = 2.91;
                     durability = 1.9;
                     hardness = 0;
                     break;
                 case 10:
-                    factor = 2.29;
+                    factor = 3.35;
                     durability = 2.0;
                     hardness = 2;
                     break;

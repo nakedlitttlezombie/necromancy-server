@@ -180,8 +180,8 @@ namespace Necromancy.Server.Packet.Area
             {
                 case NpcSpawn npcSpawn:
                     client.map.npcSpawns.TryGetValue(npcSpawn.instanceId, out npcSpawn);
-                    _Logger.Debug(
-                        $"instanceId : {npcSpawn.instanceId} |  npcSpawn.Id: {npcSpawn.id}  |   npcSpawn.NpcId: {npcSpawn.npcId}");
+                    _Logger.Debug($"instanceId : {npcSpawn.instanceId} |  npcSpawn.Id: {npcSpawn.id}  |   npcSpawn.NpcId: {npcSpawn.npcId}");
+
                     IBuffer res = BufferProvider.Provide();
                     res.WriteInt32(0);
                     router.Send(client, (ushort)AreaPacketId.recv_event_access_object_r, res, ServerType.Area);
@@ -195,7 +195,7 @@ namespace Necromancy.Server.Packet.Area
                         {x => x == 10000005, () => SendEventSelectMapAndChannel(client, instanceId)},
                         {x => x == 10000012, () => SendEventSelectMapAndChannel(client, instanceId)},
                         {x => x == 10000912, () => SendEventSelectMapAndChannel(client, instanceId)},
-                        {x => x == 80000018, () => AuctionHouse(client, npcSpawn)},
+                        {x => x == 80000017 || x == 80000018 || x == 80000019, () => AuctionHouse(client, npcSpawn)},
                         {x => x == 10000019, () => Abdul(client, npcSpawn)},
                         {
                             x => x == 74000022 || x == 74000024 || x == 74000023,
@@ -230,6 +230,11 @@ namespace Necromancy.Server.Packet.Area
                             x => x == 10000112 || x == 10000316 || x == 10000003 || x == 10000706 || x == 10000911 || x == 10000209,
                             () => PlayerRevive(client, npcSpawn)
                         },
+                        {
+                            x => x == 74005001 || x == 74005002 || x == 74005003 || x == 74005004 || x == 74005005 || x == 74005006 || x == 74005007 || x == 74005008 || x == 74005009 ||
+                                 x == 74005101 || x == 74005102 || x == 74005103 || x == 74005104 || x == 74005105 || x == 74005106 || x == 74005107 || x == 74005108 || x == 74005109 || x == 74005110,
+                            () => TowerToTowerWarp(client, npcSpawn.npcId)
+                        },                        
                         {x => x < 10, () => _Logger.Debug($" Event Object switch for NPC ID {npcSpawn.npcId} reached")},
                         {x => x < 100, () => _Logger.Debug($" Event Object switch for NPC ID {npcSpawn.npcId} reached")},
                         {
@@ -264,9 +269,7 @@ namespace Necromancy.Server.Packet.Area
                     break;
 
                 case GGateSpawn ggateSpawn:
-                    //client.Map.GGateSpawns.TryGetValue(ggateSpawn.InstanceId, out ggateSpawn);
-                    _Logger.Debug(
-                        $"instanceId : {ggateSpawn.instanceId} |  ggateSpawn.Id: {ggateSpawn.id}  |   ggateSpawn.NpcId: {ggateSpawn.serialId}");
+                    _Logger.Debug($"instanceId : {ggateSpawn.instanceId} |  ggateSpawn.Id: {ggateSpawn.id}  |   ggateSpawn.NpcId: {ggateSpawn.serialId}");
                     IBuffer res3 = BufferProvider.Provide();
                     res3.WriteInt32(0);
                     router.Send(client, (ushort)AreaPacketId.recv_event_access_object_r, res3, ServerType.Area);
@@ -766,50 +769,148 @@ namespace Necromancy.Server.Packet.Area
 
         private void AuctionHouse(NecClient client, NpcSpawn npcSpawn)
         {
+            ItemService itemService = new ItemService(client.character);
+            List<ItemInstance> lots = itemService.GetLots();
+            List<ItemInstance> bids = itemService.GetBids();
+            List<AuctionEquipmentSearchConditions> equipSearch = itemService.GetEquipmentSearchConditions();
+            List<AuctionItemSearchConditions> itemSearch = itemService.GetItemSearchConditions();
+            const byte IS_IN_MAINTENANCE_MODE = 0x0;
+            const int MAX_LOTS = 15;
+
             IBuffer res = BufferProvider.Provide();
-            int numEntries = 0x5;
-            res.WriteInt32(numEntries); // must be <= 5    // item information tab
+
+            foreach (ItemInstance lotItem in lots)
+            {
+                RecvItemInstance recvItemInstance = new RecvItemInstance(client, lotItem);
+                router.Send(recvItemInstance);
+            }
+
+            int j = 0;
+            res.WriteInt32(lots.Count); //Less than or equal to 15
+            foreach (ItemInstance lotItem in lots)
+            {
+                res.WriteByte((byte)j); // row number?
+                res.WriteInt32(j); // row number ??
+                res.WriteUInt64(lotItem.instanceId);
+                res.WriteUInt64(lotItem.minimumBid);
+                res.WriteUInt64(lotItem.buyoutPrice);
+                res.WriteFixedString(lotItem.consignerSoulName, 49);
+                res.WriteByte(0); // criminal status of seller?
+                res.WriteFixedString(lotItem.comment, 385);
+                res.WriteInt16((short)lotItem.currentBid); // Bid why convert to short?
+                res.WriteInt32(lotItem.secondsUntilExpiryTime);
+
+                res.WriteInt64(0); //unknown
+                res.WriteInt32(0); //unknown
+                res.WriteInt32(0); //unknown
+                j++;
+            }
+
+            foreach (ItemInstance bidItem in bids)
+            {
+                RecvItemInstance recvItemInstance = new RecvItemInstance(client, bidItem);
+                router.Send(recvItemInstance);
+            }
+
+            j = 0;
+            res.WriteInt32(bids.Count); //Less than or equal to 0xE
+            foreach (ItemInstance bidItem in bids)
+            {
+                res.WriteByte((byte)j); // row number?
+                res.WriteInt32(j); // row number ??
+                res.WriteUInt64(bidItem.instanceId);
+                res.WriteUInt64(bidItem.minimumBid);
+                res.WriteUInt64(bidItem.buyoutPrice);
+                res.WriteFixedString(bidItem.consignerSoulName, 49);
+                res.WriteByte(0); // criminal status of seller?
+                res.WriteFixedString(bidItem.comment, 385);
+                res.WriteInt16((short)bidItem.maxBid); // The current bid, why convert to short?
+                res.WriteInt32(bidItem.secondsUntilExpiryTime);
+
+                res.WriteInt64(bidItem.currentBid); //Your current bid
+                res.WriteInt32(0); //0: you are the highest bidder, 1: you won the item, 2: you were outbid, 3: seller cancelled
+                j++;
+            }
+
+            res.WriteInt32(equipSearch.Count); //Less than or equal to 0x8
+            foreach (AuctionEquipmentSearchConditions equipCond in equipSearch)
+            {
+                res.WriteFixedString(equipCond.text, AuctionEquipmentSearchConditions.MAX_TEXT_LENGTH); //V| Search Text
+                res.WriteByte(equipCond.forgePriceMin); //V| Grade min
+                res.WriteByte(equipCond.forgePriceMax); //V| Grade max
+                res.WriteByte(equipCond.soulRankMin); //V| Level min
+                res.WriteByte(equipCond.soulRankMax); //V| Level max
+                res.WriteInt32((int)equipCond.@class); // class?
+                res.WriteInt16((short)equipCond.race); // race?
+                res.WriteInt16((short)equipCond.qualities); //V| Qualities
+                res.WriteUInt64(equipCond.goldCost); //V| Gold
+                res.WriteByte(Convert.ToByte(equipCond.isLessThanGoldCost));
+
+                res.WriteByte(Convert.ToByte(equipCond.hasGemSlot)); //V| Effectiveness
+                res.WriteByte((byte)equipCond.gemSlotType1); //V| Gem slot 1
+                res.WriteByte((byte)equipCond.gemSlotType2); //V| Gem slot 2
+                res.WriteByte((byte)equipCond.gemSlotType3); //V| Gem slot 3
+
+                res.WriteInt64(0); //TODO UNKNOWN
+                res.WriteInt64(0);
+                res.WriteFixedString(equipCond.description, AuctionEquipmentSearchConditions.MAX_DESCRIPTION_LENGTH); //v| Saved Search Description
+                res.WriteByte(0); //TODO UNKNOWN
+                res.WriteByte(0); //TODO UNKNOWN
+            }
+
+
+            //item search conditions
+            int numEntries = 1;
+            res.WriteInt32(numEntries); //Less than or equal to 0x8
+
             for (int i = 0; i < numEntries; i++)
             {
-                res.WriteByte((byte)i);
-
-                res.WriteInt32(i);
-                res.WriteInt64(10500501);
-                res.WriteInt32(2);
-                res.WriteInt32(3);
-                res.WriteFixedString($"{client.soul.name}", 49);
-                res.WriteByte(1);
-                res.WriteFixedString("Item Description", 385);
-                res.WriteInt16(4);
-                res.WriteInt32(5);
-
-                res.WriteInt32(6);
-                res.WriteInt32(7);
+                res.WriteFixedString("fs0x49V2", 0x49);
+                res.WriteByte(0);
+                res.WriteByte(0);
+                res.WriteByte(0);
+                res.WriteByte(0);
+                res.WriteInt64(0);
+                res.WriteByte(0);
+                res.WriteInt64(0);
+                res.WriteInt64(0);
+                res.WriteFixedString("fs0xC1V2", 0xC1); //Fixed string of 0xC1 or 0xC1 bytes.
+                res.WriteByte(0);
+                res.WriteByte(0);
             }
 
-            int numEntries2 = 0x8;
-            res.WriteInt32(numEntries2); // must be< = 8   //bid info tab
-
-            for (int i = 0; i < numEntries2; i++)
-            {
-                res.WriteByte((byte)i);
-
-                res.WriteInt32(i);
-                res.WriteInt64(10500501);
-                res.WriteInt32(2);
-                res.WriteInt32(3);
-                res.WriteFixedString("soulname", 49);
-                res.WriteByte(1);
-                res.WriteFixedString("ToBeFound", 385);
-                res.WriteInt16(4);
-                res.WriteInt32(5);
-
-                res.WriteInt32(6);
-                res.WriteInt32(7);
-            }
-
-            res.WriteByte(0); // bool
+            res.WriteByte(0); //Bool
+            res.WriteInt32(0);
             router.Send(client, (ushort)AreaPacketId.recv_auction_notify_open, res, ServerType.Area);
+
+            RecvAuctionNotifyOpenItemStart recvAuctionNotifyOpenItemStart = new RecvAuctionNotifyOpenItemStart(client);
+            RecvAuctionNotifyOpenItemEnd recvAuctionNotifyOpenItemEnd = new RecvAuctionNotifyOpenItemEnd(client);
+
+            List<ItemInstance> auctionList = itemService.GetItemsUpForAuction();
+
+            j = 0;
+            client.character.auctionSearchIds = new ulong[auctionList.Count];
+            foreach (ItemInstance auctionItem in auctionList)
+            {
+                client.character.auctionSearchIds[j] = auctionItem.instanceId;
+                RecvItemInstance recvItemInstance = new RecvItemInstance(client, auctionItem);
+                router.Send(recvItemInstance);
+                j++;
+            }
+
+            router.Send(recvAuctionNotifyOpenItemStart);
+            int divideBy100 = auctionList.Count / 100 + (auctionList.Count % 100 == 0 ? 0 : 1); // TOTAL NUMBER OF RECVS TO SEND
+            for (int i = 0; i < divideBy100; i++)
+            {
+                RecvAuctionNotifyOpenItem recvAuctionNotifyOpenItem;
+                if (i == divideBy100 - 1)
+                    recvAuctionNotifyOpenItem = new RecvAuctionNotifyOpenItem(client, auctionList.GetRange(i, auctionList.Count % 100));
+                else
+                    recvAuctionNotifyOpenItem = new RecvAuctionNotifyOpenItem(client, auctionList.GetRange(i, 100));
+                router.Send(recvAuctionNotifyOpenItem);
+            }
+
+            router.Send(recvAuctionNotifyOpenItemEnd);
         }
 
         private void CloakRoomShopClerk(NecClient client, NpcSpawn npcSpawn)
@@ -1120,7 +1221,7 @@ namespace Necromancy.Server.Packet.Area
         {
             IBuffer res = BufferProvider.Provide();
             RecvEventScriptPlay recvEventScriptPlay = new RecvEventScriptPlay("etc/warp_samemap", client.character.instanceId);
-            router.Send(recvEventScriptPlay, client);
+            router.Send(recvEventScriptPlay, client); //todo  fix script event end timing to prevent black screen bug
             Task.Delay(TimeSpan.FromMilliseconds(1500)).ContinueWith
             (t1 =>
                 {
@@ -1137,6 +1238,107 @@ namespace Necromancy.Server.Packet.Area
             res = BufferProvider.Provide();
             res.WriteByte(0);
             router.Send(client, (ushort)AreaPacketId.recv_event_end, res, ServerType.Area);
+        }
+
+        private void TowerToTowerWarp(NecClient client, int serialId)
+        {
+            float targetX = 0, targetY = 0, targetZ = 0;
+            byte targetHeading = 0;
+            switch (serialId)
+            {
+                case 74005001:
+                    targetX = 770; targetY = 2823; targetZ = 0; targetHeading = 128;
+                    break;
+                case 74005002:
+                    targetX = 451; targetY = 1135; targetZ = 1; targetHeading = 95;
+                    break;
+                case 74005003:
+                    targetX = 1854; targetY = 10399; targetZ = 1; targetHeading = 45;
+                    break;
+                case 74005004:
+                    targetX = 4609; targetY = 5953; targetZ = 3; targetHeading = 45;
+                    break;
+                case 74005005:
+                    targetX = 12721; targetY = 1270; targetZ = -2; targetHeading = 43;
+                    break;
+                case 74005006:
+                    targetX = 8; targetY = -5722; targetZ = 2; targetHeading = 171;
+                    break;
+                case 74005007:
+                    targetX = 14863; targetY = -1605; targetZ = 5; targetHeading = 171;
+                    break;
+                case 74005008:
+                    targetX = 8; targetY = -5722; targetZ = 2; targetHeading = 171;
+                    break;
+                case 74005009:
+                    targetX = 8; targetY = -5722; targetZ = 2; targetHeading = 171;
+                    break;
+
+                case 74005101:
+                    targetX = 10305; targetY = -10097; targetZ = -1; targetHeading = 87;
+                    break;
+                case 74005102:
+                    targetX = -1166; targetY = 3569; targetZ = 4; targetHeading = 72;
+                    break;
+                case 74005103:
+                    targetX = 2437; targetY = -8783; targetZ = 0; targetHeading = 135;
+                    break;
+                case 74005104:
+                    targetX = 10305; targetY = -10097; targetZ = -1; targetHeading = 87;
+                    break;
+                case 74005105:
+                    targetX = -1166; targetY = 3569; targetZ = 4; targetHeading = 72;
+                    break;
+                case 74005106:
+                    targetX = -709; targetY = 888; targetZ = -20; targetHeading = 135;
+                    break;
+                case 74005107:
+                    targetX = 10305; targetY = -10097; targetZ = -1; targetHeading = 87;
+                    break;
+                case 74005108:
+                    targetX = -1166; targetY = 3569; targetZ = 4; targetHeading = 72;
+                    break;
+                case 74005109:
+                    targetX = 10925; targetY = -9042; targetZ = -5; targetHeading = 177;
+                    break;
+                case 74005110:
+                    targetX = -1166; targetY = 3569; targetZ = 4; targetHeading = 72;
+                    break;
+                default:
+                    targetX = client.map.x; targetY = client.map.y; targetZ = client.map.z; targetHeading = client.character.heading;
+                    break;
+
+            }
+
+            IBuffer res = BufferProvider.Provide();
+            RecvEventScriptPlay recvEventScriptPlay = new RecvEventScriptPlay("etc/warp_samemap", client.character.instanceId);
+            //router.Send(recvEventScriptPlay, client);
+
+            Task.Delay(TimeSpan.FromMilliseconds(1100)).ContinueWith
+            (t1 =>
+            {
+                res = BufferProvider.Provide();
+                res.WriteUInt32(client.character.instanceId);
+                res.WriteFloat(targetX + Util.GetRandomNumber(50, 100));
+                res.WriteFloat(targetY + Util.GetRandomNumber(50, 100)); // random So they dont spawn exactly on the tower.  or on other players.
+                res.WriteFloat(targetZ);
+                res.WriteByte(targetHeading);
+                res.WriteByte(client.character.movementAnim);
+                router.Send(client.map, (ushort)AreaPacketId.recv_object_point_move_notify, res, ServerType.Area);
+            }
+            );
+
+            Task.Delay(TimeSpan.FromMilliseconds(1800)).ContinueWith
+            (t1 =>
+            {
+                res = BufferProvider.Provide();
+                res.WriteByte(0);
+                router.Send(client, (ushort)AreaPacketId.recv_event_end, res, ServerType.Area);
+                router.Send(client, (ushort)AreaPacketId.recv_event_end, res, ServerType.Area);
+                router.Send(client, (ushort)AreaPacketId.recv_event_end, res, ServerType.Area);
+            }
+            );
+
         }
 
         private void PlayerRevive(NecClient client, NpcSpawn npcSpawn)

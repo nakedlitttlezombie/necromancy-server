@@ -23,9 +23,13 @@ namespace Necromancy.Server.Packet.Area
             res.WriteInt32(0); // 0 to work
             router.Send(client, (ushort)AreaPacketId.recv_union_storage_deposit_money_r, res, ServerType.Area);
 
-            //To-Do,  make a variable to track union gold
+            //To-Do,  make a variable to track union gold //server.database.UpdateUnionGold(+=depositGold);
             client.character.adventureBagGold -= depositeGold; //Updates your Character.AdventureBagGold
             client.soul.warehouseGold += depositeGold; //Updates your Soul.warehouseGold
+            server.database.UpdateCharacter(client.character);
+            server.database.UpdateSoulGold(client.soul);
+
+
 
             res = BufferProvider.Provide();
             res.WriteUInt64(client.character.adventureBagGold); // Sets your Adventure Bag Gold

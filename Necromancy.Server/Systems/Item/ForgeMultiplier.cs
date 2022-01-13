@@ -1,6 +1,6 @@
 namespace Necromancy.Server.Systems.Item
 {
-    public class ForgeMultiplier //TODO what is this for?
+    public class ForgeMultiplier 
     {
         public double factor { get; set; }
         public double durability { get; set; }

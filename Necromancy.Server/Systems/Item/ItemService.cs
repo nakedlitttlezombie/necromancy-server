@@ -48,6 +48,7 @@ namespace Necromancy.Server.Systems.Item
         {
             ItemInstance item = _character.itemLocationVerifier.GetItem(location);
             if (item.statuses.HasFlag(ItemStatuses.Unidentified)) item.statuses &= ~ItemStatuses.Unidentified;
+            _itemDao.UpdateItemOwnerAndStatus(item.instanceId, _character.id, (int)item.statuses);
             return item;
         }
 
@@ -159,6 +160,43 @@ namespace Necromancy.Server.Systems.Item
                 }
 
                 if (itemInstance.currentEquipSlot != ItemEquipSlots.None) _character.equippedItems.Add(itemInstance.currentEquipSlot, itemInstance);
+            }
+
+            return ownedItems;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns>A list of items in your cloakroom</returns>
+        public List<ItemInstance> LoadCloakRoomItemInstances(NecServer server)
+        {
+            List<ItemInstance> ownedItems = _itemDao.SelectCloakRoomItems(_character.soulId);
+            //load bags first
+            foreach (ItemInstance item in ownedItems)
+                if (item.location.zoneType == ItemZoneType.BagSlot)
+                {
+                    ItemLocation location = item.location; //only needed on load inventory because item's location is already populated and it is not in the manager
+                    item.location = ItemLocation.InvalidLocation; //only needed on load inventory because item's location is already populated and it is not in the manager
+                    _character.itemLocationVerifier.PutItem(location, item);
+                }
+
+            foreach (ItemInstance itemInstance in ownedItems)
+            {
+                if (itemInstance.location.slot < 0) //remove invalid db rows on login.
+                {
+                    _itemDao.DeleteItemInstance(itemInstance.instanceId);
+                    continue;
+                }
+
+                if (itemInstance.location.zoneType != ItemZoneType.BagSlot)
+                {
+                    ItemLocation location = itemInstance.location; //only needed on load inventory because item's location is already populated and it is not in the manager
+                    itemInstance.location = ItemLocation.InvalidLocation; //only needed on load inventory because item's location is already populated and it is not in the manager
+
+                    _character.itemLocationVerifier.PutItem(location, itemInstance);
+                }
+
+                //if (itemInstance.currentEquipSlot != ItemEquipSlots.None) _character.equippedItems.Add(itemInstance.currentEquipSlot, itemInstance);
             }
 
             return ownedItems;
@@ -485,8 +523,7 @@ namespace Necromancy.Server.Systems.Item
             return lootableItems;
         }
 
-
-        //TODO What is this for?
+        //also exists in itemDAO. needs to match.
         public ForgeMultiplier LoginLoadMultiplier(int level)
         {
             double factor = 1;
@@ -505,47 +542,47 @@ namespace Necromancy.Server.Systems.Item
                     hardness = 0;
                     break;
                 case 2:
-                    factor = 1.15;
+                    factor = 1.16;
                     durability = 1.2;
                     hardness = 0;
                     break;
                 case 3:
-                    factor = 1.27;
+                    factor = 1.29;
                     durability = 1.3;
                     hardness = 0;
                     break;
                 case 4:
-                    factor = 1.39;
+                    factor = 1.45;
                     durability = 1.4;
                     hardness = 0;
                     break;
                 case 5:
-                    factor = 1.54;
+                    factor = 1.67;
                     durability = 1.5;
                     hardness = 1;
                     break;
                 case 6:
-                    factor = 1.69;
+                    factor = 1.92;
                     durability = 1.6;
                     hardness = 0;
                     break;
                 case 7:
-                    factor = 1.84;
+                    factor = 2.20;
                     durability = 1.7;
                     hardness = 0;
                     break;
                 case 8:
-                    factor = 1.99;
+                    factor = 2.54;
                     durability = 1.8;
                     hardness = 0;
                     break;
                 case 9:
-                    factor = 2.14;
+                    factor = 2.91;
                     durability = 1.9;
                     hardness = 0;
                     break;
                 case 10:
-                    factor = 2.29;
+                    factor = 3.35;
                     durability = 2.0;
                     hardness = 2;
                     break;
@@ -559,7 +596,6 @@ namespace Necromancy.Server.Systems.Item
             return forgeMultiplier;
         }
 
-        //TODO What is this for?
         public ForgeMultiplier ForgeMultiplier(int level)
         {
             double factor = 1;

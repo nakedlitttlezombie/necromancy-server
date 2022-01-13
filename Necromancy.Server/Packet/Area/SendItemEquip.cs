@@ -47,7 +47,7 @@ namespace Necromancy.Server.Packet.Area
                     if (itemLeft != null)
                     {
                         itemLeft = itemService.Unequip(itemLeft.currentEquipSlot);
-                        itemRight.currentEquipSlot = ItemEquipSlots.None;
+                        itemLeft.currentEquipSlot = ItemEquipSlots.None;
                         RecvItemUpdateEqMask recvItemUpdateEqMaskCurr = new RecvItemUpdateEqMask(client, itemLeft);
                         router.Send(recvItemUpdateEqMaskCurr, client);
                     }
@@ -70,7 +70,7 @@ namespace Necromancy.Server.Packet.Area
 
                 //Tell the client to move the icons to equipment slots
                 RecvItemUpdateEqMask recvItemUpdateEqMask = new RecvItemUpdateEqMask(client, newEquippedItem);
-                router.Send(recvItemUpdateEqMask);
+                router.Send(client, recvItemUpdateEqMask.ToPacket());
 
                 //notify other players of your new look
                 RecvDataNotifyCharaData myCharacterData = new RecvDataNotifyCharaData(client.character, client.soul.name);

@@ -344,7 +344,7 @@ namespace Necromancy.Server.Tasks
 
         private void PlayerDamage()
         {
-            int damage = Util.GetRandomNumber(8, 43);
+            int damage = monster.level * Util.GetRandomNumber(1, 5); //ToDo  make a legitimate damage calculation. 
             Character currentTarget = monster.GetCurrentTarget();
             currentTarget.hp.Modify(-damage, monster.instanceId);
 
@@ -540,6 +540,7 @@ namespace Necromancy.Server.Tasks
 
                     //To-Do,  make a variable to track union gold
                     client.character.adventureBagGold += monster.loot.gold; //Updates your Character.AdventureBagGold
+                    server.database.UpdateCharacter(client.character);
 
                     res = BufferProvider.Provide();
                     res.WriteUInt64(client.character.adventureBagGold); // Sets your Adventure Bag Gold
