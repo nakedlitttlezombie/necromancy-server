@@ -362,7 +362,7 @@ namespace Necromancy.Server.Packet.Area
                         {
                             res9.WriteCString("Our sincerest apologies. That's only for new souls."); // Length 0xC01
                             router.Send(client, (ushort)AreaPacketId.recv_event_system_message, res9, ServerType.Area); // show system message on middle of the screen.
-                            SendEventEnd(client);
+                            RecvEventEnd(client);
                             client.character.eventSelectExtraSelectionCode = 0;
                             client.character.eventSelectExecCode = 0;
                             client.character.eventSelectReadyCode = 0;
@@ -444,7 +444,7 @@ namespace Necromancy.Server.Packet.Area
                             res9 = BufferProvider.Provide();
                             res9.WriteCString("Sorry big guy. That's only for new souls."); // Length 0xC01
                             router.Send(client, (ushort)AreaPacketId.recv_event_system_message, res9, ServerType.Area); // show system message on middle of the screen.
-                            SendEventEnd(client);
+                            RecvEventEnd(client);
                             client.character.eventSelectExtraSelectionCode = 0;
                             client.character.eventSelectExecCode = 0;
                             client.character.eventSelectReadyCode = 0;
