@@ -362,7 +362,7 @@ namespace Necromancy.Server.Packet.Area
                         {
                             res9.WriteCString("Our sincerest apologies. That's only for new souls."); // Length 0xC01
                             router.Send(client, (ushort)AreaPacketId.recv_event_system_message, res9, ServerType.Area); // show system message on middle of the screen.
-                            SendEventEnd(client);
+                            RecvEventEnd(client);
                             client.character.eventSelectExtraSelectionCode = 0;
                             client.character.eventSelectExecCode = 0;
                             client.character.eventSelectReadyCode = 0;
@@ -444,7 +444,7 @@ namespace Necromancy.Server.Packet.Area
                             res9 = BufferProvider.Provide();
                             res9.WriteCString("Sorry big guy. That's only for new souls."); // Length 0xC01
                             router.Send(client, (ushort)AreaPacketId.recv_event_system_message, res9, ServerType.Area); // show system message on middle of the screen.
-                            SendEventEnd(client);
+                            RecvEventEnd(client);
                             client.character.eventSelectExtraSelectionCode = 0;
                             client.character.eventSelectExecCode = 0;
                             client.character.eventSelectReadyCode = 0;
@@ -501,48 +501,58 @@ namespace Necromancy.Server.Packet.Area
                 ulong[] goldCostPerChoice = { 0, 0, 60, 300, 1200, 3000, 100, 0, 60, 300, 10000 };
                 _Logger.Debug($"The selection you have made is {client.character.eventSelectExtraSelectionCode}");
 
-                client.character.hp.SetCurrent((sbyte)hPandMPperChoice[client.character.eventSelectExtraSelectionCode], true);
-                client.character.mp.SetCurrent((sbyte)hPandMPperChoice[client.character.eventSelectExtraSelectionCode], true);
-                client.character.condition.SetCurrent(conditionPerChoice[client.character.eventSelectExtraSelectionCode]);
-                client.character.od.ToMax();
-                client.character.gp.ToMax();
-                client.character.adventureBagGold -= goldCostPerChoice[client.character.eventSelectExtraSelectionCode];
-                if (client.character.hp.current >= client.character.hp.max) client.character.hp.ToMax();
-                if (client.character.mp.current >= client.character.mp.current) client.character.mp.ToMax();
+                if (client.character.adventureBagGold < goldCostPerChoice[client.character.eventSelectExtraSelectionCode])
+                {
+                    IBuffer res = BufferProvider.Provide();
+                    res.WriteCString("You don't have enough gold! This is why I don't like doing business with adventurers.");
+                    router.Send(client, (ushort)AreaPacketId.recv_event_system_message, res, ServerType.Area); // show system message on middle of the screen.
+                    RecvEventEnd(client);
+                }
+                else
+                {
+                    client.character.hp.SetCurrent((sbyte)hPandMPperChoice[client.character.eventSelectExtraSelectionCode], true);
+                    client.character.mp.SetCurrent((sbyte)hPandMPperChoice[client.character.eventSelectExtraSelectionCode], true);
+                    client.character.condition.SetCurrent(conditionPerChoice[client.character.eventSelectExtraSelectionCode]);
+                    client.character.od.ToMax();
+                    client.character.gp.ToMax();
+                    client.character.adventureBagGold -= goldCostPerChoice[client.character.eventSelectExtraSelectionCode];
+                    if (client.character.hp.current >= client.character.hp.max) client.character.hp.ToMax();
+                    if (client.character.mp.current >= client.character.mp.current) client.character.mp.ToMax();
 
-                RecvCharaUpdateHp recvCharaUpdateHp = new RecvCharaUpdateHp(client.character.hp.current);
-                router.Send(recvCharaUpdateHp, client);
-                RecvCharaUpdateMp recvCharaUpdateMp = new RecvCharaUpdateMp(client.character.mp.current);
-                router.Send(recvCharaUpdateMp, client);
-                RecvCharaUpdateCon recvCharaUpdateCon = new RecvCharaUpdateCon(conditionPerChoice[client.character.eventSelectExtraSelectionCode]);
-                router.Send(recvCharaUpdateCon, client);
-                RecvSelfMoneyNotify recvSelfMoneyNotify = new RecvSelfMoneyNotify(client, client.character.adventureBagGold);
-                router.Send(recvSelfMoneyNotify, client);
-                RecvEventScriptPlay recvEventScriptPlay = new RecvEventScriptPlay("inn/fade_bgm", client.character.instanceId);
-                router.Send(recvEventScriptPlay, client);
-                Experience experience = new Experience();
+                    RecvCharaUpdateHp recvCharaUpdateHp = new RecvCharaUpdateHp(client.character.hp.current);
+                    router.Send(recvCharaUpdateHp, client);
+                    RecvCharaUpdateMp recvCharaUpdateMp = new RecvCharaUpdateMp(client.character.mp.current);
+                    router.Send(recvCharaUpdateMp, client);
+                    RecvCharaUpdateCon recvCharaUpdateCon = new RecvCharaUpdateCon(conditionPerChoice[client.character.eventSelectExtraSelectionCode]);
+                    router.Send(recvCharaUpdateCon, client);
+                    RecvSelfMoneyNotify recvSelfMoneyNotify = new RecvSelfMoneyNotify(client, client.character.adventureBagGold);
+                    router.Send(recvSelfMoneyNotify, client);
+                    RecvEventScriptPlay recvEventScriptPlay = new RecvEventScriptPlay("inn/fade_bgm", client.character.instanceId);
+                    router.Send(recvEventScriptPlay, client);
+                    Experience experience = new Experience();
 
-                //Level up stuff after inn cutscene
-                Task.Delay(TimeSpan.FromSeconds(6)).ContinueWith
-                (t1 =>
-                    {
-                        if (client.character.experienceCurrent > experience.CalculateLevelUp((uint)client.character.level + 1).cumulativeExperience)
+                    //Level up stuff after inn cutscene
+                    Task.Delay(TimeSpan.FromSeconds(6)).ContinueWith
+                    (t1 =>
                         {
-                            RecvEventStart recvEventStart = new RecvEventStart(0, 0);
-                            router.Send(recvEventStart, client);
+                            if (client.character.experienceCurrent > experience.CalculateLevelUp((uint)client.character.level + 1).cumulativeExperience)
+                            {
+                                RecvEventStart recvEventStart = new RecvEventStart(0, 0);
+                                router.Send(recvEventStart, client);
 
-                            LevelUpCheck(client);
+                                LevelUpCheck(client);
 
-                            Task.Delay(TimeSpan.FromSeconds(10)).ContinueWith
-                            (t1 =>
-                                {
-                                    RecvEventEnd recvEventEnd = new RecvEventEnd(0);
-                                    router.Send(recvEventEnd, client); //Need a better way to end the event at the right time.
-                                }
-                            );
+                                Task.Delay(TimeSpan.FromSeconds(10)).ContinueWith
+                                (t1 =>
+                                    {
+                                        RecvEventEnd recvEventEnd = new RecvEventEnd(0);
+                                        router.Send(recvEventEnd, client); //Need a better way to end the event at the right time.
+                                    }
+                                );
+                            }
                         }
-                    }
-                );
+                    );
+                }
             }
             else
             {
