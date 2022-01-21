@@ -215,7 +215,11 @@ namespace Necromancy.Server.Model
 
         public void Enter(NecClient client, MapPosition mapPosition = null)
         {
-            if (client.map != null) client.map.Leave(client);
+            if (client.map != null)
+            {
+                if (client.map.deadBodies.ContainsKey(client.character.deadBodyInstanceId)) client.map.deadBodies.Remove(client.character.deadBodyInstanceId);
+                client.map.Leave(client);
+            }
             client.map = this;
 
             _Logger.Info(client, $"Entering Map: {id}:{fullName}");
