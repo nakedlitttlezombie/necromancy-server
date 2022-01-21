@@ -7,15 +7,18 @@ namespace Necromancy.Server.Packet.Receive.Area
 {
     public class RecvRaisescaleRemoveItem : PacketResponse
     {
-        public RecvRaisescaleRemoveItem()
+        private int _bagSlot;
+        public RecvRaisescaleRemoveItem(int bagSlot)
             : base((ushort)AreaPacketId.recv_raisescale_remove_item_r, ServerType.Area)
         {
+            _bagSlot = bagSlot;
         }
 
         protected override IBuffer ToBuffer()
         {
+            //toDo , add error handling.
             IBuffer res = BufferProvider.Provide();
-            res.WriteInt32(0);
+            res.WriteInt32(0); //Result
             return res;
         }
     }

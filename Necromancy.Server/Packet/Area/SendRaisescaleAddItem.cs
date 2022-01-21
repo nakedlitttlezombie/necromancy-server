@@ -2,6 +2,8 @@ using Arrowgene.Buffers;
 using Necromancy.Server.Common;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
+using Necromancy.Server.Systems.Item;
+
 
 namespace Necromancy.Server.Packet.Area
 {
@@ -15,13 +17,15 @@ namespace Necromancy.Server.Packet.Area
 
         public override void Handle(NecClient client, NecPacket packet)
         {
-            byte bag = packet.data.ReadByte();
-            byte unknown = packet.data.ReadByte(); //Type?
-            int bagSlot = packet.data.ReadInt16();
-            byte quantity = packet.data.ReadByte();
+            ItemZoneType fromZone = (ItemZoneType)packet.data.ReadByte();
+            byte fromContainer = packet.data.ReadByte();
+            short fromSlot = packet.data.ReadInt16();
+            byte raiseScaleSlot = packet.data.ReadByte();
+            //ToDo -  Flag the item as on the raiseScale. Not sure why,  but these bytes can't be for nothing.
+
 
             IBuffer res = BufferProvider.Provide();
-            res.WriteInt32(bagSlot);
+            res.WriteInt32(0); //Result
             router.Send(client, (ushort)AreaPacketId.recv_raisescale_add_item_r, res, ServerType.Area);
         }
     }
