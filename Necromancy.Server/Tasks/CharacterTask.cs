@@ -133,7 +133,8 @@ namespace Necromancy.Server.Tasks
         {
             _playerDied = true;
             _client.character.hasDied = true;
-            _client.character.stateFlags = CharacterState.SoulForm;
+            _client.character.ClearStateBit(CharacterState.NormalForm);
+            _client.character.AddStateBit(CharacterState.SoulForm);
             _client.character.deadType = (short)Util.GetRandomNumber(1, 4);
             _Logger.Debug($"Death Animation Number : {_client.character.deadType}");
 
