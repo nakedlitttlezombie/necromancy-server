@@ -48,7 +48,7 @@ namespace Necromancy.Server.Packet.Area
             //send your soul to all the other souls runnin around
             RecvDataNotifyCharaData cData = new RecvDataNotifyCharaData(necClient.character, necClient.soul.name);
             foreach (NecClient soulStateClient in client.map.clientLookup.GetAll())
-                if (soulStateClient.character.state == CharacterState.SoulForm)
+                if (soulStateClient.character.stateFlags == CharacterState.SoulForm)
                     server.router.Send(soulStateClient, cData.ToPacket());
         }
     }

@@ -25,7 +25,7 @@ namespace Necromancy.Server.Packet.Area
             _necClients = client.map.clientLookup.GetAll();
             //if (client.Character.soulFormState == 1)
             {
-                client.character.state = CharacterState.InvulnerableForm;
+                client.character.stateFlags = CharacterState.InvulnerableForm;
                 client.character.hasDied = false;
                 client.character.hp.depleted = false;
                 client.character.deadType = 0;
@@ -91,14 +91,14 @@ namespace Necromancy.Server.Packet.Area
                         router.Send(client, cHpUpdate.ToPacket());
 
                         //if you are not dead, do normal stuff.  else...  do dead person stuff
-                        if (client.character.state != CharacterState.SoulForm)
+                        if (client.character.stateFlags != CharacterState.SoulForm)
                         {
                             foreach (NecClient otherClient in _necClients)
                             {
                                 if (otherClient == client)
                                     // skip myself
                                     continue;
-                                if (otherClient.character.state != CharacterState.SoulForm)
+                                if (otherClient.character.stateFlags != CharacterState.SoulForm)
                                 {
                                     RecvDataNotifyCharaData otherCharacterData = new RecvDataNotifyCharaData(otherClient.character, otherClient.soul.name);
                                     router.Send(otherCharacterData, client);
@@ -137,7 +137,7 @@ namespace Necromancy.Server.Packet.Area
                 (t1 =>
                     {
                         client.character.ClearStateBit(CharacterState.InvulnerableForm);
-                        RecvCharaNotifyStateflag recvCharaNotifyStateflag = new RecvCharaNotifyStateflag(client.character.instanceId, (ulong)client.character.state);
+                        RecvCharaNotifyStateflag recvCharaNotifyStateflag = new RecvCharaNotifyStateflag(client.character.instanceId, (ulong)client.character.stateFlags);
                         router.Send(client.map, recvCharaNotifyStateflag.ToPacket());
                     }
                 );

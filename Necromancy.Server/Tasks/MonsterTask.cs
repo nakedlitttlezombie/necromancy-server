@@ -731,7 +731,7 @@ namespace Necromancy.Server.Tasks
         private bool StealthCheck(NecClient client)
         {
             // Needs to be expanded to consider skill, distance and orientation
-            if (((uint)client.character.state & 0x100) > 0) return true;
+            if (((uint)client.character.stateFlags & 0x100) > 0) return true;
 
             return false;
         }

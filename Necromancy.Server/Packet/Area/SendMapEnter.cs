@@ -38,7 +38,7 @@ namespace Necromancy.Server.Packet.Area
                 RecvCharaBodyNotifySpirit recvCharaBodyNotifySpirit = new RecvCharaBodyNotifySpirit(client.character.deadBodyInstanceId, (byte)RecvCharaBodyNotifySpirit.ValidSpirit.ConnectedClient);
                 router.Send(client.map, recvCharaBodyNotifySpirit.ToPacket());
             }
-            else if (client.character.state.HasFlag(CharacterState.SoulForm))
+            else if (client.character.stateFlags.HasFlag(CharacterState.SoulForm))
             {
                 DeadBody deadBody = server.instances.GetInstance(client.character.deadBodyInstanceId) as DeadBody;
                 deadBody.x = client.character.x;
@@ -78,7 +78,7 @@ namespace Necromancy.Server.Packet.Area
                 {
                     client.character.ClearStateBit(CharacterState.InvulnerableForm);
 
-                    RecvCharaNotifyStateflag recvCharaNotifyStateflag = new RecvCharaNotifyStateflag(client.character.instanceId, (ulong)client.character.state);
+                    RecvCharaNotifyStateflag recvCharaNotifyStateflag = new RecvCharaNotifyStateflag(client.character.instanceId, (ulong)client.character.stateFlags);
                     router.Send(client.map, recvCharaNotifyStateflag.ToPacket());
                 }
             );
