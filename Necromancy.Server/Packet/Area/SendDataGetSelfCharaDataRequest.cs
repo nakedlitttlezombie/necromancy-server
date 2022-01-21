@@ -47,7 +47,7 @@ namespace Necromancy.Server.Packet.Area
             int numEntries = _equippedItems.Length; //Max of 25 Equipment Slots for Character Player. must be 0x19 or less
             int numStatusEffects = client.character.statusEffects.Length; /*_character.Statuses.Length*/ //0x80; //Statuses effects. Max 128
             int i = 0;
-            if (client.character.state.HasFlag(CharacterState.SoulForm)) numEntries = 0; //Dead mean wear no gear
+            if (client.character.stateFlags.HasFlag(CharacterState.SoulForm)) numEntries = 0; //Dead mean wear no gear
 
             IBuffer res = BufferProvider.Provide();
             //sub_4953B0 - characteristics
@@ -206,7 +206,7 @@ namespace Necromancy.Server.Packet.Area
             //sub_read_int32 skill point
             res.WriteUInt32(client.character.skillPoints); // skill point
 
-            res.WriteInt64((long)client.character.state); //Character State
+            res.WriteInt64((long)client.character.stateFlags); //Character State
 
             //sub_494AC0
             res.WriteByte(client.soul.level); // soul level

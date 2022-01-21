@@ -55,7 +55,7 @@ namespace Necromancy.Server.Model
             skillStartCast = 0;
             battleAnim = 0;
             hasDied = false;
-            state = CharacterState.NormalForm;
+            stateFlags = CharacterState.NormalForm;
             helperText = true;
             helperTextBlacksmith = true;
             helperTextDonkey = true;
@@ -134,7 +134,7 @@ namespace Necromancy.Server.Model
         public bool hasDied { get; set; }
         public short deadType { get; set; }
         public uint deadBodyInstanceId { get; set; }
-        public CharacterState state { get; set; }
+        public CharacterState stateFlags { get; set; }
         public byte soulFormState { get; set; }
         public byte criminalState { get; set; }
         public int beginnerProtection { get; set; }
@@ -215,17 +215,17 @@ namespace Necromancy.Server.Model
 
         public void AddStateBit(CharacterState characterState)
         {
-            state |= characterState;
+            stateFlags |= characterState;
         }
 
         public void ClearStateBit(CharacterState characterState)
         {
-            state &= ~characterState;
+            stateFlags &= ~characterState;
         }
 
         public bool IsStealthed()
         {
-            return state.HasFlag(CharacterState.StealthForm);
+            return stateFlags.HasFlag(CharacterState.StealthForm);
         }
 
         public void ConditionBonus()
@@ -242,7 +242,7 @@ namespace Necromancy.Server.Model
             if (hp.current <= 0)
             {
                 hasDied = true;
-                state = CharacterState.SoulForm;
+                stateFlags = CharacterState.SoulForm;
                 deadType = 1;
             }
 

@@ -21,7 +21,7 @@ namespace Necromancy.Server.Chat.Command.Commands
         {
             responses.Add(ChatResponse.CommandError(client, "-----Status-----"));
             responses.Add(ChatResponse.CommandError(client,
-                $"AccountId: {client.account.id} SoulId: {client.soul.id} CharacterId:{client.character.id} InstanceId: {client.character.instanceId} State: {client.character.state}"));
+                $"AccountId: {client.account.id} SoulId: {client.soul.id} CharacterId:{client.character.id} InstanceId: {client.character.instanceId} State: {client.character.stateFlags}"));
             responses.Add(ChatResponse.CommandError(client,
                 $"MapId: {client.character.mapId} X: {client.character.x} Y:{client.character.y} Z:{client.character.z}  H:{client.character.heading}"));
         }

@@ -28,7 +28,7 @@ namespace Necromancy.Server.Packet.Area
         public override void Handle(NecClient client, NecPacket packet)
         {
             //you are dead here.  only getting soul form characters and NPCs.  sorry bro.
-            if (client.character.state.HasFlag(CharacterState.SoulForm))
+            if (client.character.stateFlags.HasFlag(CharacterState.SoulForm))
             {
                 _Logger.Debug("Rendering Dead stuff");
                 foreach (NecClient otherClient in client.map.clientLookup.GetAll())
@@ -37,7 +37,7 @@ namespace Necromancy.Server.Packet.Area
                         // skip myself
                         continue;
                     //Render all the souls if you are in soul form yourself
-                    if (otherClient.character.state.HasFlag(CharacterState.SoulForm))
+                    if (otherClient.character.stateFlags.HasFlag(CharacterState.SoulForm))
                     {
                         RecvDataNotifyCharaData otherCharacterData = new RecvDataNotifyCharaData(otherClient.character, otherClient.soul.name);
                         router.Send(otherCharacterData, client);
@@ -59,11 +59,11 @@ namespace Necromancy.Server.Packet.Area
             }
             else //if you are not dead, do normal stuff.  else...  do dead person stuff
             {
-                _Logger.Debug($"Not dead.  rendering living stuff.  CharacterState:{client.character.state}");
+                _Logger.Debug($"Not dead.  rendering living stuff.  CharacterState:{client.character.stateFlags}");
                 foreach (NecClient otherClient in client.map.clientLookup.GetAll())
                 {
                     if (otherClient == client) continue;
-                    if (!otherClient.character.state.HasFlag(CharacterState.SoulForm))
+                    if (!otherClient.character.stateFlags.HasFlag(CharacterState.SoulForm))
                     {
                         RecvDataNotifyCharaData otherCharacterData = new RecvDataNotifyCharaData(otherClient.character, otherClient.soul.name);
                         router.Send(otherCharacterData, client);

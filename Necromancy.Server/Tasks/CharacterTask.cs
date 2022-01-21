@@ -133,7 +133,7 @@ namespace Necromancy.Server.Tasks
         {
             _playerDied = true;
             _client.character.hasDied = true;
-            _client.character.state = CharacterState.SoulForm;
+            _client.character.stateFlags = CharacterState.SoulForm;
             _client.character.deadType = (short)Util.GetRandomNumber(1, 4);
             _Logger.Debug($"Death Animation Number : {_client.character.deadType}");
 
@@ -204,7 +204,7 @@ namespace Necromancy.Server.Tasks
                     _server.router.Send(_client.map, recvObjectDisappearNotify.ToPacket(), _client);
                     //send your soul to all the other souls runnin around
                     foreach (NecClient client in _clients)
-                        if (client.character.state == CharacterState.SoulForm)
+                        if (client.character.stateFlags == CharacterState.SoulForm)
                             soulStateClients.Add(client);
                     //re-render your soulstate character to your client with out gear on it, and any other soul state clients on map.
                     RecvDataNotifyCharaData cData = new RecvDataNotifyCharaData(_client.character, _client.soul.name);
@@ -221,7 +221,7 @@ namespace Necromancy.Server.Tasks
                             // skip myself
                             continue;
                         //Render all the souls if you are in soul form yourself
-                        if (otherClient.character.state == CharacterState.SoulForm)
+                        if (otherClient.character.stateFlags == CharacterState.SoulForm)
                         {
                             RecvDataNotifyCharaData otherCharacterData = new RecvDataNotifyCharaData(otherClient.character, otherClient.soul.name);
                             _server.router.Send(otherCharacterData, _client);
