@@ -1183,7 +1183,7 @@ namespace Necromancy.Server.Packet.Id
         send_raisescale_add_item = 0xA234,
         send_raisescale_move_money = 0xC94,
         send_raisescale_open_cash_shop = 0xD0B3,
-        send_raisescale_remove_item = 0x158, //opcode not found
+        send_raisescale_remove_item = 0xAD13,
         send_raisescale_request_revive = 0x764A,
         send_raisescale_request_revive_event = 0x9A0D,
         send_raisescale_view_close_request = 0xF08C,
