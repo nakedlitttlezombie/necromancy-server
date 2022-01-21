@@ -25,7 +25,7 @@ namespace Necromancy.Server.Packet.Area
             _necClients = client.map.clientLookup.GetAll();
             //if (client.Character.soulFormState == 1)
             {
-                client.character.stateFlags = CharacterState.InvulnerableForm;
+                client.character.AddStateBit(CharacterState.InvulnerableForm);
                 client.character.hasDied = false;
                 client.character.hp.depleted = false;
                 client.character.deadType = 0;
@@ -137,6 +137,8 @@ namespace Necromancy.Server.Packet.Area
                 (t1 =>
                     {
                         client.character.ClearStateBit(CharacterState.InvulnerableForm);
+                        client.character.ClearStateBit(CharacterState.SoulForm);
+                        client.character.AddStateBit(CharacterState.NormalForm);
                         RecvCharaNotifyStateflag recvCharaNotifyStateflag = new RecvCharaNotifyStateflag(client.character.instanceId, (ulong)client.character.stateFlags);
                         router.Send(client.map, recvCharaNotifyStateflag.ToPacket());
                     }
