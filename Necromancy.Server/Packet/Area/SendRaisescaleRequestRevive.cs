@@ -46,11 +46,6 @@ namespace Necromancy.Server.Packet.Area
                 res3.WriteUInt32(client.character.instanceId);
                 router.Send(client.map, (ushort)AreaPacketId.recv_object_disappear_notify, res3, ServerType.Area, client);
 
-
-                RecvDataNotifyCharaData cData = new RecvDataNotifyCharaData(client.character, client.soul.name);
-                router.Send(client.map, cData.ToPacket());
-
-
                 //Disappear .. all the monsters, NPCs, and characters.  welcome to Life! it's less lonely
                 foreach (NpcSpawn npcSpawn in client.map.npcSpawns.Values)
                 {
@@ -133,12 +128,16 @@ namespace Necromancy.Server.Packet.Area
                         }
                     }
                 );
+
+                client.character.ClearStateBit(CharacterState.InvulnerableForm);
+                client.character.ClearStateBit(CharacterState.SoulForm);
+                client.character.AddStateBit(CharacterState.NormalForm);
+                RecvDataNotifyCharaData cData = new RecvDataNotifyCharaData(client.character, client.soul.name);
+                router.Send(client.map, cData.ToPacket());
+
                 Task.Delay(TimeSpan.FromSeconds(10)).ContinueWith
                 (t1 =>
                     {
-                        client.character.ClearStateBit(CharacterState.InvulnerableForm);
-                        client.character.ClearStateBit(CharacterState.SoulForm);
-                        client.character.AddStateBit(CharacterState.NormalForm);
                         RecvCharaNotifyStateflag recvCharaNotifyStateflag = new RecvCharaNotifyStateflag(client.character.instanceId, (ulong)client.character.stateFlags);
                         router.Send(client.map, recvCharaNotifyStateflag.ToPacket());
                     }
