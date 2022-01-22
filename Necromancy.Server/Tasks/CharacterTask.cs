@@ -205,7 +205,7 @@ namespace Necromancy.Server.Tasks
                     _server.router.Send(_client.map, recvObjectDisappearNotify.ToPacket(), _client);
                     //send your soul to all the other souls runnin around
                     foreach (NecClient client in _clients)
-                        if (client.character.stateFlags == CharacterState.SoulForm)
+                        if (client.character.stateFlags.HasFlag(CharacterState.SoulForm))
                             soulStateClients.Add(client);
                     //re-render your soulstate character to your client with out gear on it, and any other soul state clients on map.
                     RecvDataNotifyCharaData cData = new RecvDataNotifyCharaData(_client.character, _client.soul.name);
