@@ -64,7 +64,7 @@ namespace Necromancy.Server.Tasks
 
                 StatRegen();
 
-                if (_tickCounter >= 60) //set to 600 or 1200 for 5 minutes or 10 minutes. true to game is 10 minutes. 
+                if (_tickCounter >= 600) //set to 600 or 1200 for 5 minutes or 10 minutes. true to game is 10 minutes. 
                 {
                     _tickCounter = 0;
                     CriminalRepent();
