@@ -241,13 +241,13 @@ namespace Necromancy.Server.Model
         {
             if (hp.current <= 0)
             {
-                hasDied = true;
-                stateFlags = CharacterState.SoulForm;
+                hasDied = true; //TODO,  get rid of this redundant bool, and rely on stateBits.
+                AddStateBit(CharacterState.SoulForm);
                 deadType = 1;
             }
 
-            //if (hp.current == -1)     deadType = 4;
-            //else if (hp.current < -1) deadType = 5; //5 = lost
+            if (hp.current == -1)     deadType = 4;
+            else if (hp.current < -1) deadType = 5; //5 = lost
         }
     }
 }
