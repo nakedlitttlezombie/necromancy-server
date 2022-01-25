@@ -108,6 +108,8 @@ namespace Necromancy.Server.Tasks
 
         private void StatRegen()
         {
+            //_Logger.Debug($"Current Gaurd Points : {_client.character.gp.current} / Max Gaurd Points : {_client.character.gp.max}");
+
             if (_client.character.gp.current < _client.character.gp.max)
             {
                 _client.character.gp.SetCurrent(_client.character.gp.current + 5 /*_client.Character.GPRecoveryRate*/);
