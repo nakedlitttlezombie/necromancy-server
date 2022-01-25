@@ -681,7 +681,7 @@ namespace Necromancy.Server.Packet.Area
             res.WriteInt32(2);
             router.Send(client, (ushort)AreaPacketId.recv_situation_start, res, ServerType.Area);
 
-            ItemLocation nextOpenLocation = client.character.itemLocationVerifier.NextOpenSlot(ItemZoneType.AdventureBag);
+            ItemLocation nextOpenLocation = client.character.itemLocationVerifier.NextOpenSlotInInventory();
 
             if (nextOpenLocation.zoneType == ItemZoneType.InvalidZone)
             {
