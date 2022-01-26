@@ -589,6 +589,9 @@ namespace Necromancy.Server
             _areaConsumer.AddHandler(new SendAuctionDeregistSearchItemCond(this));
             _areaConsumer.AddHandler(new SendReviveInit(this));
             _areaConsumer.AddHandler(new SendRaisescaleRemoveItem(this));
+            _areaConsumer.AddHandler(new SendCashShopGetCurrentCash(this));
+            _areaConsumer.AddHandler(new SendCashShopGetUrlCommon(this));
+            _areaConsumer.AddHandler(new SendReviveExecute(this));
         }
     }
 }
