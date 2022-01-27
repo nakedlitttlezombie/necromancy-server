@@ -17,7 +17,7 @@ namespace Necromancy.Server.Packet.Area
         public override void Handle(NecClient client, NecPacket packet)
         {
             client.logoutCancelationCheck = true;
-            //client.character.characterTask.Logout(DateTime.MinValue, 0);
+            client.character.characterTask.Logout(DateTime.MinValue, 0);
             IBuffer res = BufferProvider.Provide();
             router.Send(client, (ushort)AreaPacketId.recv_logout_cancel, res, ServerType.Area);
 
