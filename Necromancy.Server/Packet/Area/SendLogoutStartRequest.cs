@@ -6,6 +6,7 @@ using Necromancy.Server.Common;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
 using Necromancy.Server.Packet.Receive.Area;
+using Necromancy.Server.Packet.Receive.Custom;
 using Necromancy.Server.Packet.Receive.Msg;
 
 namespace Necromancy.Server.Packet.Area
@@ -33,6 +34,8 @@ namespace Necromancy.Server.Packet.Area
             res.WriteInt32(logoutCountDownInSeconds); //time in seconds to display 
             router.Send(client, (ushort)AreaPacketId.recv_logout_start, res, ServerType.Area);
 
+            //todo   if in town  use logout_start.  if in dungeun use escape_start
+
             Task.Delay(TimeSpan.FromSeconds(logoutCountDownInSeconds)).ContinueWith
             (t1 =>
                 {
@@ -40,20 +43,23 @@ namespace Necromancy.Server.Packet.Area
                     {
                         if (returnToCharacterSelect == 1) //return to character select.
                         {
-                            RecvCharaSelectBack recvCharaSelectBack = new RecvCharaSelectBack(1);
-                            router.Send(client, recvCharaSelectBack.ToPacket());   //crashes if int32 = 0.  _________maybe check assembly to see why_______________
+                            RecvCharaSelectBackSoulSelect recvCharaSelectBackSoulSelect = new RecvCharaSelectBackSoulSelect(0);
+                            router.Send(client, recvCharaSelectBackSoulSelect.ToPacket());
 
-                            //Thread.Sleep(3000); //needed to delay firing of Disappear.  change to Task.Delay after core logic is established
+                            Thread.Sleep(4000);
+
                             RecvObjectDisappearNotify recvObjectDisappearNotify = new RecvObjectDisappearNotify(client.character.instanceId);
-                            //router.Send(client, recvObjectDisappearNotify.ToPacket());
-                              
-                            RecvBaseExit recvBaseExit = new RecvBaseExit();
-                            router.Send(client, recvBaseExit.ToPacket());
+                            router.Send(client, recvObjectDisappearNotify.ToPacket());
+
+                            res = BufferProvider.Provide();
+                            res.WriteInt32(0);
+                            res.WriteByte(0);
+                            router.Send(client, (ushort)MsgPacketId.recv_soul_authenticate_passwd_r, res, ServerType.Msg);
                         }
                         else if (returnToSoulSelecct == 1) // Return to soul Select
                         {
-                            RecvBaseExit recvBaseExit = new RecvBaseExit();
-                            router.Send(client, recvBaseExit.ToPacket());
+                            //NecPacket response = new NecPacket((ushort)CustomPacketId.RecvDisconnect, BufferProvider.Provide(), ServerType.Area, PacketType.Disconnect);
+                            //router.Send(client, response);
 
                             RecvCharaSelectBackSoulSelect recvCharaSelectBackSoulSelect = new RecvCharaSelectBackSoulSelect(0);
                             router.Send(client, recvCharaSelectBackSoulSelect.ToPacket());
@@ -64,10 +70,8 @@ namespace Necromancy.Server.Packet.Area
                         }
                         else  // Return to Title   also   Exit Game
                         {
-                            RecvEscapeStart recvEscapeStart = new RecvEscapeStart(15);
-                            router.Send(client, recvEscapeStart.ToPacket());
-                            RecvEscapeExec recvEscapeExec = new RecvEscapeExec(15);
-                            //router.Send(client, recvEscapeExec.ToPacket());
+                            InvalidStructure invalidStructure = new InvalidStructure(15);
+                            router.Send(client, invalidStructure.ToPacket());
                         }
                     }
 
@@ -82,7 +86,7 @@ namespace Necromancy.Server.Packet.Area
              *                             
             
                         res = BufferProvider.Provide();
-                        server.router.Send(client, (ushort)AreaPacketId.recv_base_exit_r, res, ServerType.Area); //does nothing
+                        server.router.Send(client, (ushort)AreaPacketId.recv_base_exit_r, res, ServerType.Area); //does nothing but it should close area connection
 
                         RecvObjectDisappearNotify recvObjectDisappearNotify = new RecvObjectDisappearNotify(npcSpawn.instanceId);
                         router.Send(client, recvObjectDisappearNotify.ToPacket());
@@ -90,6 +94,12 @@ namespace Necromancy.Server.Packet.Area
                         res = BufferProvider.Provide();
                         res.WriteInt32(0);
                         server.router.Send(client, (ushort)AreaPacketId.recv_escape_start, res, ServerType.Area); //Escape is an in dungeun logout that can be interupted
+
+                        RecvCharaSelectBack recvCharaSelectBack = new RecvCharaSelectBack(1);
+                        router.Send(client, recvCharaSelectBack.ToPacket());   //crashes if int32 = 0.  _________maybe check assembly to see why_____
+
+                        RecvBaseExit recvBaseExit = new RecvBaseExit();
+                        router.Send(client, recvBaseExit.ToPacket());
 
 
              * */
