@@ -10,8 +10,8 @@ namespace Necromancy.Server.Database.Sql.Core
     {
         private const string SQL_INSERT_SOUL = @"
             INSERT INTO
-                nec_soul(account_id,name,level,created,password,experience_current,warehouse_gold,points_lawful,points_neutral,points_chaos,criminal_level,points_current,material_life,material_reincarnation,material_lawful,material_chaos)
-            VALUES(@account_id,@name,@level,@created,@password,@experience_current,@warehouse_gold,@points_lawful,@points_neutral,@points_chaos,@criminal_level,@points_current,@material_life,@material_reincarnation,@material_lawful,@material_chaos)";
+                nec_soul(account_id,name,level,created,password,experience_current,warehouse_gold,criminal_level,points_current,material_life,material_reincarnation,material_lawful,material_chaos)
+            VALUES(@account_id,@name,@level,@created,@password,@experience_current,@warehouse_gold,@criminal_level,@points_current,@material_life,@material_reincarnation,@material_lawful,@material_chaos)";
 
         private const string SQL_SELECT_SOUL_BY_ID = @"
             SELECT * FROM nec_soul WHERE id=@id";
@@ -23,7 +23,7 @@ namespace Necromancy.Server.Database.Sql.Core
             SELECT * FROM nec_soul WHERE account_id=@account_id";
 
         private const string SQL_UPDATE_SOUL =
-            "UPDATE `nec_soul` SET `account_id`=@account_id, `name`=@name, `level`=@level, `created`=@created, `password`=@password, `experience_current`=@experience_current,`warehouse_gold`=@warehouse_gold, `points_lawful`=@points_lawful, `points_neutral`=@points_neutral, `points_chaos`=@points_chaos, `criminal_level`=@criminal_level, `points_current`=@points_current, `material_life`=@material_life, `material_reincarnation`=@material_reincarnation, `material_lawful`=@material_lawful, `material_chaos`=@material_chaos WHERE `id`=@id;";
+            "UPDATE `nec_soul` SET `account_id`=@account_id, `name`=@name, `level`=@level, `created`=@created, `password`=@password, `experience_current`=@experience_current, `warehouse_gold`=@warehouse_gold, `criminal_level`=@criminal_level, `points_current`=@points_current, `material_life`=@material_life, `material_reincarnation`=@material_reincarnation, `material_lawful`=@material_lawful, `material_chaos`=@material_chaos WHERE `id`=@id;";
 
         private const string SQL_UPDATE_SOUL_GOLD =
             "UPDATE `nec_soul` SET `warehouse_gold`=@warehouse_gold WHERE `id`=@id;";
@@ -43,9 +43,6 @@ namespace Necromancy.Server.Database.Sql.Core
                 AddParameter(command, "@password", soul.password);
                 AddParameter(command, "@experience_current", soul.experienceCurrent);
                 AddParameter(command, "@warehouse_gold", soul.warehouseGold);
-                AddParameter(command, "@points_lawful", soul.pointsLawful);
-                AddParameter(command, "@points_neutral", soul.pointsNeutral);
-                AddParameter(command, "@points_chaos", soul.pointsChaos);
                 AddParameter(command, "@criminal_level", soul.criminalLevel);
                 AddParameter(command, "@points_current", soul.pointsCurrent);
                 AddParameter(command, "@material_life", soul.materialLife);
@@ -108,9 +105,6 @@ namespace Necromancy.Server.Database.Sql.Core
                 AddParameter(command, "@password", soul.password);
                 AddParameter(command, "@experience_current", soul.experienceCurrent);
                 AddParameter(command, "@warehouse_gold", soul.warehouseGold);
-                AddParameter(command, "@points_lawful", soul.pointsLawful);
-                AddParameter(command, "@points_neutral", soul.pointsNeutral);
-                AddParameter(command, "@points_chaos", soul.pointsChaos);
                 AddParameter(command, "@criminal_level", soul.criminalLevel);
                 AddParameter(command, "@points_current", soul.pointsCurrent);
                 AddParameter(command, "@material_life", soul.materialLife);
@@ -149,9 +143,6 @@ namespace Necromancy.Server.Database.Sql.Core
                 soul.password = GetStringNullable(reader, "password");
                 soul.experienceCurrent = GetUInt64(reader, "experience_current");
                 soul.warehouseGold = GetUInt64(reader, "warehouse_gold");
-                soul.pointsLawful = GetInt32(reader, "points_lawful");
-                soul.pointsNeutral = GetInt32(reader, "points_neutral");
-                soul.pointsChaos = GetInt32(reader, "points_chaos");
                 soul.criminalLevel = GetByte(reader, "criminal_level");
                 soul.pointsCurrent = GetInt32(reader, "points_current");
                 soul.materialLife = GetInt32(reader, "material_life");

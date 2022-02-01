@@ -25,7 +25,7 @@ namespace Necromancy.Server.Packet.Area
         {
             ItemService itemService = new ItemService(client.character);
             itemService.LoadEquipmentModels();
-            client.soul.SetSoulAlignment();
+            client.character.SetAlignment();
             client.character.LoginCheckDead();
             client.character.AddStateBit(CharacterState.InvulnerableForm);
             _equippedItems = new ItemInstance[client.character.equippedItems.Count];
@@ -131,10 +131,10 @@ namespace Necromancy.Server.Packet.Area
 
             // gold and alignment?
             res.WriteUInt64(client.character.adventureBagGold); // gold
-            res.WriteUInt32(client.soul.alignmentId); // AlignmentId
-            res.WriteInt32(client.soul.pointsLawful); // lawful
-            res.WriteInt32(client.soul.pointsNeutral); // neutral
-            res.WriteInt32(client.soul.pointsChaos); // chaos
+            res.WriteUInt32((uint)client.character.alignmentId); // AlignmentId
+            res.WriteInt32(client.character.pointsLawful); // lawful
+            res.WriteInt32(client.character.pointsNeutral); // neutral
+            res.WriteInt32(client.character.pointsChaos); // chaos
             res.WriteInt32(Util.GetRandomNumber(90400101, 90400130)); // title from honor.csv
 
             //sub_484980
