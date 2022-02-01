@@ -44,6 +44,10 @@ namespace Necromancy.Server.Model
             adventureBagGold = 0;
             experienceCurrent = 0;
             skillPoints = 0;
+            pointsLawful = 0;
+            pointsNeutral = 0;
+            pointsChaos = 0;
+            alignmentId = 0;
             eventSelectExecCode = -1;
             hp = new BaseStat(10, 10);
             mp = new BaseStat(450, 500);
@@ -122,6 +126,12 @@ namespace Necromancy.Server.Model
         public short hpRecoveryRate { get; set; }
         public short mpRecoveryRate { get; set; }
         public BattleParam battleParam { get; set; }
+
+        //Alignment
+        public int pointsLawful { get; set; }
+        public int pointsNeutral { get; set; }
+        public int pointsChaos { get; set; }
+        public AlignmentType alignmentId { get; set; }
 
         //Progression
         public ulong experienceCurrent { get; set; }
@@ -248,6 +258,15 @@ namespace Necromancy.Server.Model
 
             if (hp.current == -1)     deadType = 4;
             else if (hp.current < -1) deadType = 5; //5 = lost
+        }
+        public void SetAlignment()
+        {
+            AlignmentType alignmentId = 0;
+            int maxAlignment = Math.Max(pointsLawful, Math.Max(pointsNeutral, pointsChaos));
+            if (maxAlignment == pointsLawful) alignmentId = AlignmentType.Lawful;
+            else if (maxAlignment == pointsNeutral) alignmentId = AlignmentType.Neutral;
+            else if (maxAlignment == pointsChaos) alignmentId = AlignmentType.Chaotic;
+            this.alignmentId = alignmentId;
         }
     }
 }

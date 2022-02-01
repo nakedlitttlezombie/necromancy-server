@@ -103,7 +103,6 @@ namespace Necromancy.Server.Tasks
             _client.soul.materialLawful += 10;
             _client.soul.materialLife += 10;
             _client.soul.materialReincarnation += 10;
-            _client.soul.pointsChaos += 10; //temporary. testing
         }
 
         private void StatRegen()

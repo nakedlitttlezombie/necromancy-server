@@ -106,7 +106,7 @@ namespace Necromancy.Server.Data.Setting
         //Soul Level Requirement
         public int requiredSoulLevel { get; set; }
 
-        //Allignment Requirement
+        //Alignment Requirement
         public string requiredAlignment { get; set; }
 
         //Race Requirement
