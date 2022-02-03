@@ -26,9 +26,9 @@ namespace Necromancy.Server.Chat.Command.Commands
             IBuffer res15 = BufferProvider.Provide();
             //recv_raisescale_view_open = 0xC25D, // Parent = 0xC2E5 // Range ID = 01  // was 0xC25D
             res15.WriteInt16(75); //Basic revival rate %
-            res15.WriteInt16(0); //Penalty %
+            res15.WriteInt16(8); //Penalty %
             res15.WriteInt16(2); //Offered item % (this probably changes with recv_raisescale_update_success_per)
-            res15.WriteInt16(0); //Dimento medal addition %
+            res15.WriteInt16(10); //Dimento medal addition %
             router.Send(client, (ushort)AreaPacketId.recv_raisescale_view_open, res15, ServerType.Area);
         }
     }

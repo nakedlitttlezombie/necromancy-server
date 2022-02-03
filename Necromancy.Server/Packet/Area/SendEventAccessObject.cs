@@ -20,7 +20,7 @@ namespace Necromancy.Server.Packet.Area
         private static readonly NecLogger _Logger =
             LogProvider.Logger<NecLogger>(typeof(SendEventAccessObject));
 
-        private readonly short[] _levels = { 1, 3, 5, 7, 9, 11, 12, 12, 14, 16, 16, 17, 18, 19, 20, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 99, 99, 99 };
+        private readonly short[] _levels = { 0, 0, 1, 5, 11, 7, 8, 12, 14, 17, 21, 22, 35, 24, 25, 27, 30, 35, 40, 45, 50, 97, 20, 25, 30, 45, 50, 53, 55, 70, 60, 65, 15, 5, 96, 95, 99, 99 };
 
         private readonly int[] _mapIDs =
         {
@@ -380,7 +380,7 @@ namespace Necromancy.Server.Packet.Area
                     res7.WriteByte(1); //new Bool //must be 1 to render map channel info
                     res7.WriteByte(1); //new //something important. must be 1 to render map channel info
                     res7.WriteInt16(_levels[i]); //Recomended Level part 1
-                    res7.WriteInt16(_levels[i]); //Recomended level part 2.  why does it add these two?
+                    res7.WriteInt16(0); //Recomended level part 2.  why does it add these two? Is it supposed to be a range?
                     res7.WriteInt32(_partySize[i]); //new //party size limit
 
                     for (int j = 0; j < 0x80; j++) //j max 0x80

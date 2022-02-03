@@ -25,11 +25,13 @@ namespace Necromancy.Server.Packet.Area
             _necClients = client.map.clientLookup.GetAll();
             //if (client.Character.soulFormState == 1)
             {
-                client.character.state = CharacterState.InvulnerableForm;
+                client.character.AddStateBit(CharacterState.InvulnerableForm);
                 client.character.hasDied = false;
                 client.character.hp.depleted = false;
                 client.character.deadType = 0;
                 client.character.hp.ToMax();
+
+                if (client.map.deadBodies.ContainsKey(client.character.deadBodyInstanceId)) client.map.deadBodies.Remove(client.character.deadBodyInstanceId); //trying this before the revive to get rid of soul bubbles.
 
 
                 IBuffer res1 = BufferProvider.Provide();
@@ -45,11 +47,6 @@ namespace Necromancy.Server.Packet.Area
                 res3 = BufferProvider.Provide();
                 res3.WriteUInt32(client.character.instanceId);
                 router.Send(client.map, (ushort)AreaPacketId.recv_object_disappear_notify, res3, ServerType.Area, client);
-
-
-                RecvDataNotifyCharaData cData = new RecvDataNotifyCharaData(client.character, client.soul.name);
-                router.Send(client.map, cData.ToPacket());
-
 
                 //Disappear .. all the monsters, NPCs, and characters.  welcome to Life! it's less lonely
                 foreach (NpcSpawn npcSpawn in client.map.npcSpawns.Values)
@@ -71,34 +68,45 @@ namespace Necromancy.Server.Packet.Area
                     router.Send(client, recvObjectDisappearNotify.ToPacket());
                 }
 
-                List<PacketResponse> brList = new List<PacketResponse>();
-                RecvBattleReportStartNotify brStart = new RecvBattleReportStartNotify(client.character.instanceId);
-                RecvBattleReportNotifyRaise recvBattleReportNotifyRaise = new RecvBattleReportNotifyRaise(client.character.instanceId);
-                RecvBattleReportEndNotify brEnd = new RecvBattleReportEndNotify();
 
-                brList.Add(brStart);
-                brList.Add(recvBattleReportNotifyRaise);
-                brList.Add(brEnd);
-                router.Send(client.map, brList);
-                RecvCharaUpdateMaxHp recvCharaUpdateMaxHp1 = new RecvCharaUpdateMaxHp(client.character.hp.max);
-                router.Send(client, recvCharaUpdateMaxHp1.ToPacket());
-
+                Task.Delay(TimeSpan.FromMilliseconds(1150)).ContinueWith
+                (t1 =>
+                    {
+                        IBuffer res = BufferProvider.Provide();
+                        res.WriteInt32(0); // 0 = sucess to revive, 1 = failed to revive
+                        router.Send(client, (ushort)AreaPacketId.recv_raisescale_request_revive_r, res, ServerType.Area); //signals the raisescale request is complete. returns client control to the player
+                    }
+                );
 
                 Task.Delay(TimeSpan.FromSeconds(3)).ContinueWith
                 (t1 =>
                     {
+                        RecvCharaUpdateMaxHp recvCharaUpdateMaxHp1 = new RecvCharaUpdateMaxHp(client.character.hp.max);
+                        router.Send(client, recvCharaUpdateMaxHp1.ToPacket());
                         RecvCharaUpdateHp cHpUpdate = new RecvCharaUpdateHp(client.character.hp.max);
                         router.Send(client, cHpUpdate.ToPacket());
 
+                        //must be after the revive script to make the soul bubbles go away
+                        List<PacketResponse> brList = new List<PacketResponse>();
+                        RecvBattleReportStartNotify brStart = new RecvBattleReportStartNotify(client.character.instanceId);
+                        RecvBattleReportNotifyRaise recvBattleReportNotifyRaise = new RecvBattleReportNotifyRaise(client.character.instanceId);
+                        RecvBattleReportEndNotify brEnd = new RecvBattleReportEndNotify();
+
+                        brList.Add(brStart);
+                        brList.Add(recvBattleReportNotifyRaise);
+                        brList.Add(brEnd);
+                        router.Send(client.map, brList);
+
+
                         //if you are not dead, do normal stuff.  else...  do dead person stuff
-                        if (client.character.state != CharacterState.SoulForm)
+                        if (!client.character.stateFlags.HasFlag(CharacterState.SoulForm))
                         {
                             foreach (NecClient otherClient in _necClients)
                             {
                                 if (otherClient == client)
                                     // skip myself
                                     continue;
-                                if (otherClient.character.state != CharacterState.SoulForm)
+                                if (!otherClient.character.stateFlags.HasFlag(CharacterState.SoulForm))
                                 {
                                     RecvDataNotifyCharaData otherCharacterData = new RecvDataNotifyCharaData(otherClient.character, otherClient.soul.name);
                                     router.Send(otherCharacterData, client);
@@ -130,14 +138,24 @@ namespace Necromancy.Server.Packet.Area
                                     RecvDataNotifyCharaBodyData deadBodyData = new RecvDataNotifyCharaBodyData(deadBody);
                                     router.Send(deadBodyData, client);
                                 }
+
+                            IBuffer res7 = BufferProvider.Provide();
+                            res7.WriteByte(0);
+                            router.Send(client, (ushort)AreaPacketId.recv_event_end, res7, ServerType.Area); 
                         }
                     }
                 );
+
+                client.character.ClearStateBit(CharacterState.SoulForm);
+                client.character.AddStateBit(CharacterState.NormalForm);
+                RecvDataNotifyCharaData cData = new RecvDataNotifyCharaData(client.character, client.soul.name);
+                router.Send(client.map, cData.ToPacket());
+
                 Task.Delay(TimeSpan.FromSeconds(10)).ContinueWith
                 (t1 =>
                     {
                         client.character.ClearStateBit(CharacterState.InvulnerableForm);
-                        RecvCharaNotifyStateflag recvCharaNotifyStateflag = new RecvCharaNotifyStateflag(client.character.instanceId, (ulong)client.character.state);
+                        RecvCharaNotifyStateflag recvCharaNotifyStateflag = new RecvCharaNotifyStateflag(client.character.instanceId, (ulong)client.character.stateFlags);
                         router.Send(client.map, recvCharaNotifyStateflag.ToPacket());
                     }
                 );
@@ -158,15 +176,9 @@ namespace Necromancy.Server.Packet.Area
                 Router.Send(client, (ushort) AreaPacketId.recv_self_lost_notify, res5, ServerType.Area);
             }*/
 
-            if (client.map.deadBodies.ContainsKey(client.character.deadBodyInstanceId)) client.map.deadBodies.Remove(client.character.deadBodyInstanceId);
 
-            IBuffer res = BufferProvider.Provide();
-            res.WriteInt32(0); // 0 = sucess to revive, 1 = failed to revive
-            router.Send(client, (ushort)AreaPacketId.recv_raisescale_request_revive_r, res, ServerType.Area); //responsible for camera movement
 
-            IBuffer res7 = BufferProvider.Provide();
-            res7.WriteByte(0);
-            //router.Send(client, (ushort)AreaPacketId.recv_event_end, res7, ServerType.Area); //why is this needed? the script play ends the event
+
         }
     }
 }

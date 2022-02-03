@@ -34,6 +34,13 @@ namespace Necromancy.Server.Packet.Area
                 //notify other players of your new look
                 RecvDataNotifyCharaData myCharacterData = new RecvDataNotifyCharaData(client.character, client.soul.name);
                 router.Send(client.map, myCharacterData, client);
+
+                //Reduce current Gaurd Points when removing shield to 0.
+                if (unequippedItem.type == ItemType.SHIELD_SMALL | unequippedItem.type == ItemType.SHIELD_MEDIUM |unequippedItem.type == ItemType.SHIELD_LARGE)
+                {
+                    client.character.gp.SetCurrent(0);
+                }
+
             }
             catch (ItemException e)
             {

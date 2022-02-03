@@ -68,7 +68,7 @@ namespace Necromancy.Server.Packet.Area
             {
                 client.character.ClearStateBit(CharacterState.StealthForm);
                 RecvCharaNotifyStateflag charState =
-                    new RecvCharaNotifyStateflag(client.character.instanceId, (uint)client.character.state);
+                    new RecvCharaNotifyStateflag(client.character.instanceId, (uint)client.character.stateFlags);
                 _server.router.Send(client.map, charState);
             }
 

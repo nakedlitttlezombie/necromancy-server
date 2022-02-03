@@ -4,6 +4,7 @@ using Necromancy.Server.Common;
 using Necromancy.Server.Logging;
 using Necromancy.Server.Model;
 using Necromancy.Server.Model.Stats;
+using Necromancy.Server.Model.CharacterModel;
 using Necromancy.Server.Packet.Id;
 using Necromancy.Server.Systems.Item;
 
@@ -101,6 +102,10 @@ namespace Necromancy.Server.Packet.Msg
             character.intelligence = (ushort)(intelligence + attribute.@int);
             character.piety = (ushort)(piety + attribute.pie);
             character.luck = (ushort)(luck + attribute.luck);
+            character.pointsLawful = (alignmentId == (uint)AlignmentType.Lawful) ? 100 : 0;
+            character.pointsNeutral = (alignmentId == (uint)AlignmentType.Neutral) ? 100 : 0;
+            character.pointsChaos = (alignmentId == (uint)AlignmentType.Chaotic) ? 100 : 0;
+            character.alignmentId = (AlignmentType)alignmentId;
             character.classId = classId;
             character.level = 1;
 

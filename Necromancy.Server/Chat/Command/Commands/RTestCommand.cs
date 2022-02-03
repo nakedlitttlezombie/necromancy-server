@@ -59,7 +59,7 @@ namespace Necromancy.Server.Chat.Command.Commands
             res = BufferProvider.Provide();
             res.WriteInt32(0); // 0 = normal 1 = cinematic
             res.WriteByte(0);
-            //Router.Send(client, (ushort)AreaPacketId.recv_event_start, res, ServerType.Area);
+            router.Send(client, (ushort)AreaPacketId.recv_event_start, res, ServerType.Area);
 
             switch (command[0])
             {
@@ -383,6 +383,16 @@ namespace Necromancy.Server.Chat.Command.Commands
                     RecvCharaUpdateMaxHp recvCharaUpdateMaxHp1 = new RecvCharaUpdateMaxHp(client.character.hp.max+100);
                     client.character.hp.SetMax(client.character.hp.max + 100);
                     router.Send(client, recvCharaUpdateMaxHp1.ToPacket());
+                    break;
+
+                case "revex":
+                    RecvReviveExecute recvReviveExecute = new RecvReviveExecute(x);
+                    router.Send(client, recvReviveExecute.ToPacket());
+                    break;
+
+                case "scaleend":
+                    RecvCharaBodySelfRaiseScaleEnd recvCharaBodySelfRaiseScaleEnd = new RecvCharaBodySelfRaiseScaleEnd(x);
+                    router.Send(client, recvCharaBodySelfRaiseScaleEnd.ToPacket());
                     break;
 
 

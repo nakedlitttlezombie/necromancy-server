@@ -25,7 +25,7 @@ namespace Necromancy.Server.Packet.Area
         {
             ItemService itemService = new ItemService(client.character);
             itemService.LoadEquipmentModels();
-            client.soul.SetSoulAlignment();
+            client.character.SetAlignment();
             client.character.LoginCheckDead();
             client.character.AddStateBit(CharacterState.InvulnerableForm);
             _equippedItems = new ItemInstance[client.character.equippedItems.Count];
@@ -47,7 +47,7 @@ namespace Necromancy.Server.Packet.Area
             int numEntries = _equippedItems.Length; //Max of 25 Equipment Slots for Character Player. must be 0x19 or less
             int numStatusEffects = client.character.statusEffects.Length; /*_character.Statuses.Length*/ //0x80; //Statuses effects. Max 128
             int i = 0;
-            if (client.character.state.HasFlag(CharacterState.SoulForm)) numEntries = 0; //Dead mean wear no gear
+            if (client.character.stateFlags.HasFlag(CharacterState.SoulForm)) numEntries = 0; //Dead mean wear no gear
 
             IBuffer res = BufferProvider.Provide();
             //sub_4953B0 - characteristics
@@ -131,10 +131,10 @@ namespace Necromancy.Server.Packet.Area
 
             // gold and alignment?
             res.WriteUInt64(client.character.adventureBagGold); // gold
-            res.WriteUInt32(client.soul.alignmentId); // AlignmentId
-            res.WriteInt32(client.soul.pointsLawful); // lawful
-            res.WriteInt32(client.soul.pointsNeutral); // neutral
-            res.WriteInt32(client.soul.pointsChaos); // chaos
+            res.WriteUInt32((uint)client.character.alignmentId); // AlignmentId
+            res.WriteInt32(client.character.pointsLawful); // lawful
+            res.WriteInt32(client.character.pointsNeutral); // neutral
+            res.WriteInt32(client.character.pointsChaos); // chaos
             res.WriteInt32(Util.GetRandomNumber(90400101, 90400130)); // title from honor.csv
 
             //sub_484980
@@ -206,7 +206,7 @@ namespace Necromancy.Server.Packet.Area
             //sub_read_int32 skill point
             res.WriteUInt32(client.character.skillPoints); // skill point
 
-            res.WriteInt64((long)client.character.state); //Character State
+            res.WriteInt64((long)client.character.stateFlags); //Character State
 
             //sub_494AC0
             res.WriteByte(client.soul.level); // soul level

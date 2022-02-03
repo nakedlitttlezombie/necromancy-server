@@ -68,6 +68,8 @@ namespace Necromancy.Server.Packet.Area
                         if (itemInstance.location.zoneType == ItemZoneType.PremiumBag) itemInstance.location = new ItemLocation(ItemZoneType.CorpsePremiumBag, originalLocation.container, originalLocation.slot); ;
                         RecvItemInstanceUnidentified recvItemInstanceUnidentified = new RecvItemInstanceUnidentified(client, itemInstance);
                         router.Send(client, recvItemInstanceUnidentified.ToPacket());
+                        //_Logger.Debug($"Lootin a {itemInstance.unidentifiedName} container:{itemInstance.location.container} slot:{itemInstance.location.slot} Zone:{itemInstance.location.zoneType}:");
+
                         itemInstance.location = originalLocation;
                     }
 

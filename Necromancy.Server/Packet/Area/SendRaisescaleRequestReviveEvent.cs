@@ -1,5 +1,5 @@
-using Arrowgene.Buffers;
-using Necromancy.Server.Common;
+using System;
+using System.Threading.Tasks;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
 using Necromancy.Server.Packet.Receive.Area;
@@ -16,19 +16,21 @@ namespace Necromancy.Server.Packet.Area
 
         public override void Handle(NecClient client, NecPacket packet)
         {
-            IBuffer res22 = BufferProvider.Provide();
-            res22.WriteInt32(1); // 0 = normal 1 = cinematic
-            res22.WriteByte(0);
-            router.Send(client, (ushort)AreaPacketId.recv_event_start, res22, ServerType.Area);
-            //if success
-            RecvEventScriptPlay recvEventScriptPlay1 = new RecvEventScriptPlay("scale\revive_success", client.character.instanceId);
-            router.Send(recvEventScriptPlay1, client);
-            //if fail
-            RecvEventScriptPlay recvEventScriptPlay2 = new RecvEventScriptPlay("scale\revive_fail", client.character.instanceId);
-            //Router.Send(recvEventScriptPlay2, client);
-            //if fail again. you're lost
-            RecvEventScriptPlay recvEventScriptPlay3 = new RecvEventScriptPlay("scale\revive_lost", client.character.instanceId);
-            //Router.Send(recvEventScriptPlay3, client);
+            Task.Delay(TimeSpan.FromMilliseconds(8150)).ContinueWith
+            (t1 =>
+                {
+                //if success
+                RecvEventScriptPlay recvEventScriptPlay1 = new RecvEventScriptPlay("scale\revive_success", client.character.instanceId); //Plays the little re-annimation raise up and blue flash
+                router.Send(recvEventScriptPlay1, client);
+                //if fail
+                RecvEventScriptPlay recvEventScriptPlay2 = new RecvEventScriptPlay("scale\revive_fail", client.character.instanceId); //moves the camera, but no animation or blue flash
+                //router.Send(recvEventScriptPlay2, client);
+                //if fail again. you're lost
+                RecvEventScriptPlay recvEventScriptPlay3 = new RecvEventScriptPlay("scale\revive_lost", client.character.instanceId);
+                //router.Send(recvEventScriptPlay3, client);
+                }
+            );
+
         }
     }
 }

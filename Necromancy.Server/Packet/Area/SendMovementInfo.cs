@@ -5,6 +5,7 @@ using Arrowgene.Logging;
 using Necromancy.Server.Common;
 using Necromancy.Server.Logging;
 using Necromancy.Server.Model;
+using Necromancy.Server.Model.CharacterModel;
 using Necromancy.Server.Packet.Id;
 using Necromancy.Server.Packet.Receive.Area;
 
@@ -153,8 +154,9 @@ namespace Necromancy.Server.Packet.Area
 
         private void CheckMapChange(NecClient client)
         {
-            Vector3 characterPos = new Vector3(client.character.x, client.character.y, client.character.z);
             if (client.character == null) return;
+            if (client.character.stateFlags.HasFlag(CharacterState.SoulForm)) return; //can't change maps while in soul form
+            Vector3 characterPos = new Vector3(client.character.x, client.character.y, client.character.z);
 
             foreach (MapTransition mapTransition in client.map.mapTransitions.Values)
             {
