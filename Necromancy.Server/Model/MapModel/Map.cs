@@ -215,7 +215,11 @@ namespace Necromancy.Server.Model
 
         public void Enter(NecClient client, MapPosition mapPosition = null)
         {
-            if (client.map != null) client.map.Leave(client);
+            if (client.map != null)
+            {
+                if (client.map.deadBodies.ContainsKey(client.character.deadBodyInstanceId)) client.map.deadBodies.Remove(client.character.deadBodyInstanceId);
+                client.map.Leave(client);
+            }
             client.map = this;
 
             _Logger.Info(client, $"Entering Map: {id}:{fullName}");
@@ -241,7 +245,7 @@ namespace Necromancy.Server.Model
             client.character.mapChange = false;
             clientLookup.Add(client);
             _Logger.Debug($"Client Lookup count is now : {clientLookup.GetAll().Count}  for map  {id} ");
-            _Logger.Debug($"Character State for character {client.character.name} is {client.character.state}");
+            _Logger.Debug($"Character State for character {client.character.name} is {client.character.stateFlags}");
             //Send your character data to the other living or dead players on the map.
 
             //on successful map entry, update the client database position
@@ -253,17 +257,17 @@ namespace Necromancy.Server.Model
 
             //dead
             //you are dead here.  only getting soul form characters. sorry bro.
-            if (client.character.state.HasFlag(CharacterState.SoulForm))
+            if (client.character.stateFlags.HasFlag(CharacterState.SoulForm))
                 foreach (NecClient otherClient in clientLookup.GetAll())
                 {
                     if (otherClient == client) continue;
-                    if (otherClient.character.state.HasFlag(CharacterState.SoulForm)) _server.router.Send(myCharacterData, otherClient);
+                    if (otherClient.character.stateFlags.HasFlag(CharacterState.SoulForm)) _server.router.Send(myCharacterData, otherClient);
                 }
             else //Bro, you alive! You gon see living characters!
                 foreach (NecClient otherClient in clientLookup.GetAll())
                 {
                     if (otherClient == client) continue;
-                    if (otherClient.character.state.HasFlag(CharacterState.SoulForm)) continue;
+                    if (otherClient.character.stateFlags.HasFlag(CharacterState.SoulForm)) continue;
                     _server.router.Send(myCharacterData, otherClient);
                 }
 

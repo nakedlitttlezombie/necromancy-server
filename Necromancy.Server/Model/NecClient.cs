@@ -35,6 +35,7 @@ namespace Necromancy.Server.Model
         public uint heartBeat { get; set; }
 
         public Dictionary<uint, NecClient> bodyCollection { get; set; }
+        public bool logoutCancelationCheck { get; set; }
 
         public void Send(NecPacket packet)
         {

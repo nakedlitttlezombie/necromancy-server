@@ -64,12 +64,12 @@ namespace Necromancy.Server.Model.Skills
                 {
                     //Make it so you can kinda see yourself
                     _client.character.AddStateBit(CharacterState.InvulnerableForm); //todo. fix stealth form
-                    RecvCharaNotifyStateflag myStateFlag = new RecvCharaNotifyStateflag(_client.character.instanceId, (ulong)_client.character.state);
+                    RecvCharaNotifyStateflag myStateFlag = new RecvCharaNotifyStateflag(_client.character.instanceId, (ulong)_client.character.stateFlags);
                     _server.router.Send(_client, myStateFlag.ToPacket());
 
                     //make other players not able to see you
                     _client.character.AddStateBit(CharacterState.InvisibleForm);
-                    RecvCharaNotifyStateflag stateFlag = new RecvCharaNotifyStateflag(_client.character.instanceId, (ulong)_client.character.state);
+                    RecvCharaNotifyStateflag stateFlag = new RecvCharaNotifyStateflag(_client.character.instanceId, (ulong)_client.character.stateFlags);
                     _server.router.Send(_client.map, stateFlag, _client);
                 }
             );
@@ -81,7 +81,7 @@ namespace Necromancy.Server.Model.Skills
                 {
                     _client.character.ClearStateBit(CharacterState.InvisibleForm);
                     _client.character.ClearStateBit(CharacterState.InvulnerableForm);
-                    RecvCharaNotifyStateflag recvCharaNotifyStateflag = new RecvCharaNotifyStateflag(_client.character.instanceId, (ulong)_client.character.state);
+                    RecvCharaNotifyStateflag recvCharaNotifyStateflag = new RecvCharaNotifyStateflag(_client.character.instanceId, (ulong)_client.character.stateFlags);
                     _server.router.Send(_client.map, recvCharaNotifyStateflag.ToPacket());
                 }
             );

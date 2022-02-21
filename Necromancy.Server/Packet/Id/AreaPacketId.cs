@@ -1042,9 +1042,9 @@ namespace Necromancy.Server.Packet.Id
         send_cash_shop_check_billing_zip = 0x47, //opcode not found
         send_cash_shop_fitting_equip = 0x48, //opcode not found
         send_cash_shop_fitting_unequip = 0x49, //opcode not found
-        send_cash_shop_get_current_cash = 0x50, //opcode not found
-        send_cash_shop_get_url_common = 0x51, //opcode not found
-        send_cash_shop_get_url_common_steam = 0x52, //opcode not found
+        send_cash_shop_get_current_cash = 0x5841,
+        send_cash_shop_get_url_common = 0x1DB8,
+        send_cash_shop_get_url_common_steam = 0x52, //opcode not found; might not exist with the client we have
         send_cash_shop_open_by_menu = 0x9945,
         send_cash_shop_regist_billing_zip = 0x53, //opcode not found
         send_character_view_offset = 0xE4AE, //this is not a real send, it is only for getting the view offset for the character movement
@@ -1183,7 +1183,7 @@ namespace Necromancy.Server.Packet.Id
         send_raisescale_add_item = 0xA234,
         send_raisescale_move_money = 0xC94,
         send_raisescale_open_cash_shop = 0xD0B3,
-        send_raisescale_remove_item = 0x158, //opcode not found
+        send_raisescale_remove_item = 0xAD13,
         send_raisescale_request_revive = 0x764A,
         send_raisescale_request_revive_event = 0x9A0D,
         send_raisescale_view_close_request = 0xF08C,
@@ -1195,7 +1195,7 @@ namespace Necromancy.Server.Packet.Id
         send_refusallist_add_user = 0xF1D5,
         send_refusallist_remove_user = 0xCEAC,
         send_return_home_request_exec = 0x09F4,
-        send_revive_execute = 0x170, //opcode not found TODO
+        send_revive_execute = 0xBCA,
         send_revive_init = 0x7350,
         send_select_package_update = 0x2A64,
         send_shop_buy = 0xADB6,
