@@ -1,7 +1,9 @@
+using System;
 using Arrowgene.Buffers;
 using Necromancy.Server.Common;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
+using Necromancy.Server.Packet.Receive.Area;
 
 namespace Necromancy.Server.Packet.Area
 {
@@ -15,6 +17,9 @@ namespace Necromancy.Server.Packet.Area
 
         public override void Handle(NecClient client, NecPacket packet)
         {
+            TimeSpan differenceJoined = DateTime.Today.ToUniversalTime() - DateTime.UnixEpoch;
+            int dateAttackedCalculation = (int)Math.Floor(differenceJoined.TotalSeconds);
+
             IBuffer res = BufferProvider.Provide();
             res.WriteInt32(10);
 
@@ -41,7 +46,7 @@ namespace Necromancy.Server.Packet.Area
 
             //loop x 10
             //Some  sort of ITEM info
-            uint bitShift = 4194304;
+            uint bitShift = 0;
             uint odd = 1;
             for (int i = 0; i < 10; i++)
             {
@@ -76,8 +81,8 @@ namespace Necromancy.Server.Packet.Area
 
 
             res.WriteFixedString("Get some mobs to kill you.", 385); //Quest description
-            res.WriteInt64(2036854775807); //Time left #; maybe unix? Default on screenshots seem to be 6h
-            res.WriteByte(0);
+            res.WriteInt64(dateAttackedCalculation); //Time left #; maybe unix? Default on screenshots seem to be 6h
+            res.WriteByte(1);
             res.WriteFixedString("Go to map 1001902 and have the mobs kill you.", 385); //Brief quest objective
 
             for (int i = 0; i < 5; i++)
@@ -104,9 +109,12 @@ namespace Necromancy.Server.Packet.Area
             res.WriteInt16(0); //new
             res.WriteInt32(0); //new
 
-            router.Send(client, (ushort)AreaPacketId.recv_quest_get_story_quest_works_r, res, ServerType.Area);
+            //router.Send(client, (ushort)AreaPacketId.recv_quest_get_story_quest_works_r, res, ServerType.Area);
 
             //SendQuestDisplay(client);
+
+            RecvQuestGetRogueMissionQuestHistoryR recvQuestGetRogueMissionQuestHistoryR = new RecvQuestGetRogueMissionQuestHistoryR();
+            router.Send(client, recvQuestGetRogueMissionQuestHistoryR.ToPacket());
         }
 
         private void SendQuestDisplay(NecClient client)

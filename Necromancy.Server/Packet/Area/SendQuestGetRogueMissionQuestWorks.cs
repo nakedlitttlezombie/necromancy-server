@@ -6,28 +6,18 @@ using Necromancy.Server.Packet.Receive.Area;
 
 namespace Necromancy.Server.Packet.Area
 {
-    public class SendQuestGetMissionQuestHistory : ClientHandler
+    public class SendQuestGetRogueMissionQuestWorks : ClientHandler
     {
-        public SendQuestGetMissionQuestHistory(NecServer server) : base(server)
+        public SendQuestGetRogueMissionQuestWorks(NecServer server) : base(server)
         {
         }
 
-        public override ushort id => (ushort)AreaPacketId.send_quest_get_mission_quest_history;
+        public override ushort id => (ushort)AreaPacketId.send_quest_get_rogue_mission_quest_works;
 
         public override void Handle(NecClient client, NecPacket packet)
         {
-            IBuffer res = BufferProvider.Provide();
-            res.WriteInt32(0);
-            res.WriteByte(0); //Bool
-
-            //Router.Send(client, (ushort) AreaPacketId.recv_quest_get_mission_quest_history, res, ServerType.Area);
-
-
-
             RecvQuestGetRogueMissionQuestHistoryR recvQuestGetRogueMissionQuestHistoryR = new RecvQuestGetRogueMissionQuestHistoryR();
             router.Send(client, recvQuestGetRogueMissionQuestHistoryR.ToPacket());
-
-
         }
     }
 }

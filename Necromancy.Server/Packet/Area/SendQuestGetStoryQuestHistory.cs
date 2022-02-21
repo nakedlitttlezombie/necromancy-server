@@ -2,6 +2,7 @@ using Arrowgene.Buffers;
 using Necromancy.Server.Common;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
+using Necromancy.Server.Packet.Receive.Area;
 
 namespace Necromancy.Server.Packet.Area
 {
@@ -20,6 +21,10 @@ namespace Necromancy.Server.Packet.Area
             res.WriteByte(0); //Bool
 
             //Router.Send(client, (ushort) AreaPacketId.recv_quest_get_story_quest_history, res, ServerType.Area);
+
+
+            RecvQuestGetRogueMissionQuestHistoryR recvQuestGetRogueMissionQuestHistoryR = new RecvQuestGetRogueMissionQuestHistoryR();
+            router.Send(client, recvQuestGetRogueMissionQuestHistoryR.ToPacket());
         }
     }
 }

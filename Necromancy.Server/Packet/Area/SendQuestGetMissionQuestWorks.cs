@@ -2,6 +2,7 @@ using Arrowgene.Buffers;
 using Necromancy.Server.Common;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
+using Necromancy.Server.Packet.Receive.Area;
 
 namespace Necromancy.Server.Packet.Area
 {
@@ -109,7 +110,10 @@ namespace Necromancy.Server.Packet.Area
             }
 
             //Commented out until further testing. this is called at login
-            router.Send(client, (ushort)AreaPacketId.recv_quest_get_mission_quest_works_r, res, ServerType.Area);
+            //router.Send(client, (ushort)AreaPacketId.recv_quest_get_mission_quest_works_r, res, ServerType.Area);
+
+            RecvQuestGetRogueMissionQuestHistoryR recvQuestGetRogueMissionQuestHistoryR = new RecvQuestGetRogueMissionQuestHistoryR();
+            router.Send(client, recvQuestGetRogueMissionQuestHistoryR.ToPacket());
         }
     }
 }

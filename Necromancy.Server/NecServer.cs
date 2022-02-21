@@ -592,6 +592,9 @@ namespace Necromancy.Server
             _areaConsumer.AddHandler(new SendCashShopGetCurrentCash(this));
             _areaConsumer.AddHandler(new SendCashShopGetUrlCommon(this));
             _areaConsumer.AddHandler(new SendReviveExecute(this));
+            _areaConsumer.AddHandler(new SendQuestGetRogueMissionQuestWorks(this));
+            _areaConsumer.AddHandler(new SendSoulFragmentRequestSkillList(this));
+            
         }
     }
 }

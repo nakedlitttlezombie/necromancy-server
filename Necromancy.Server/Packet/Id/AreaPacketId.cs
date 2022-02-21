@@ -1340,7 +1340,7 @@ namespace Necromancy.Server.Packet.Id
         send_roguemap_entry_ready_new = 0x0,
         send_roguemap_retire_request = 0x0,
         send_roguemap_set_map_fragment_chipicon = 0x0,
-        send_soul_fragment_request_skill_list = 0x0,
+        send_soul_fragment_request_skill_list = 0x34E7, //Address=004F8357 Disassembly = mov word ptr ds:[edi],34E7   : 
         send_soul_fragment_set_skill = 0x0,
         send_soul_fragment_unset_skill = 0x0,
         send_soul_partner_create_partner_close = 0x0,
