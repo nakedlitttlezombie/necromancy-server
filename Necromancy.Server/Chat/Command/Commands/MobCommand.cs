@@ -29,16 +29,21 @@ namespace Necromancy.Server.Chat.Command.Commands
         public override void Execute(string[] command, NecClient client, ChatMessage message,
             List<ChatResponse> responses)
         {
+            int x;
             if (command[0] == null)
             {
                 responses.Add(ChatResponse.CommandError(client, $"Invalid argument: {command[0]}"));
                 return;
             }
 
-            if (!int.TryParse(command[1], out int x))
+            if (command[0] == "stop")
+            {
+                 x = 0;
+            }
+            else if (!int.TryParse(command[1], out x))
             {
                 responses.Add(ChatResponse.CommandError(client, "Please provide a value to test"));
-                return;
+                return;                
             }
 
             IInstance instance = server.instances.GetInstance(client.character.eventSelectReadyCode);
@@ -221,6 +226,34 @@ namespace Necromancy.Server.Chat.Command.Commands
                     resI.WriteInt32(x); //Gimmick number (from gimmick.csv)
                     resI.WriteInt32(0);
                     router.Send(client.map, (ushort)AreaPacketId.recv_data_notify_gimmick_data, resI, ServerType.Area);
+                    break;
+
+                case "stop":
+
+
+                    //Stops all the running monster tasks on the map
+                    //if (monsterSpawn.active == false)
+                    //{
+                    //    monsterSpawn.active = true;
+                    //    monsterSpawn.spawnActive = true;
+                    //    if (!monsterSpawn.taskActive)
+                    //    {
+                    //        MonsterTask monsterTask = new MonsterTask(_server, monsterSpawn);
+                    //        if (monsterSpawn.defaultCoords)
+                    //            monsterTask.monsterHome = monsterSpawn.monsterCoords[0];
+                    //        else
+                    //            monsterTask.monsterHome = monsterSpawn.monsterCoords.Find(x => x.coordIdx == 64);
+                    //        monsterTask.Start();
+                    //    }
+                    //}
+
+                    foreach (MonsterSpawn monsterSpawn3 in client.map.monsterSpawns.Values)
+                    {
+                        monsterSpawn3.currentCoordIndex = 0;
+                        monsterSpawn3.MonsterStop(server, 0, 0, 1);
+                        monsterSpawn3.spawnActive = false;
+                        monsterSpawn3.active = false;                        
+                    }
                     break;
 
                 default:
