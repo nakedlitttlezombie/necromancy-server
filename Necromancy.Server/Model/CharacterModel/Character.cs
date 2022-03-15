@@ -44,6 +44,10 @@ namespace Necromancy.Server.Model
             adventureBagGold = 0;
             experienceCurrent = 0;
             skillPoints = 0;
+            pointsLawful = 0;
+            pointsNeutral = 0;
+            pointsChaos = 0;
+            alignmentId = 0;
             eventSelectExecCode = -1;
             hp = new BaseStat(10, 10);
             mp = new BaseStat(450, 500);
@@ -55,7 +59,7 @@ namespace Necromancy.Server.Model
             skillStartCast = 0;
             battleAnim = 0;
             hasDied = false;
-            state = CharacterState.NormalForm;
+            stateFlags = CharacterState.NormalForm;
             helperText = true;
             helperTextBlacksmith = true;
             helperTextDonkey = true;
@@ -123,6 +127,12 @@ namespace Necromancy.Server.Model
         public short mpRecoveryRate { get; set; }
         public BattleParam battleParam { get; set; }
 
+        //Alignment
+        public int pointsLawful { get; set; }
+        public int pointsNeutral { get; set; }
+        public int pointsChaos { get; set; }
+        public AlignmentType alignmentId { get; set; }
+
         //Progression
         public ulong experienceCurrent { get; set; }
         public uint skillPoints { get; set; }
@@ -134,7 +144,7 @@ namespace Necromancy.Server.Model
         public bool hasDied { get; set; }
         public short deadType { get; set; }
         public uint deadBodyInstanceId { get; set; }
-        public CharacterState state { get; set; }
+        public CharacterState stateFlags { get; set; }
         public byte soulFormState { get; set; }
         public byte criminalState { get; set; }
         public int beginnerProtection { get; set; }
@@ -215,17 +225,17 @@ namespace Necromancy.Server.Model
 
         public void AddStateBit(CharacterState characterState)
         {
-            state |= characterState;
+            stateFlags |= characterState;
         }
 
         public void ClearStateBit(CharacterState characterState)
         {
-            state &= ~characterState;
+            stateFlags &= ~characterState;
         }
 
         public bool IsStealthed()
         {
-            return state.HasFlag(CharacterState.StealthForm);
+            return stateFlags.HasFlag(CharacterState.StealthForm);
         }
 
         public void ConditionBonus()
@@ -241,13 +251,22 @@ namespace Necromancy.Server.Model
         {
             if (hp.current <= 0)
             {
-                hasDied = true;
-                state = CharacterState.SoulForm;
+                hasDied = true; //TODO,  get rid of this redundant bool, and rely on stateBits.
+                AddStateBit(CharacterState.SoulForm);
                 deadType = 1;
             }
 
-            //if (hp.current == -1)     deadType = 4;
-            //else if (hp.current < -1) deadType = 5; //5 = lost
+            if (hp.current == -1)     deadType = 4;
+            else if (hp.current < -1) deadType = 5; //5 = lost
+        }
+        public void SetAlignment()
+        {
+            AlignmentType alignmentId = 0;
+            int maxAlignment = Math.Max(pointsLawful, Math.Max(pointsNeutral, pointsChaos));
+            if (maxAlignment == pointsLawful) alignmentId = AlignmentType.Lawful;
+            else if (maxAlignment == pointsNeutral) alignmentId = AlignmentType.Neutral;
+            else if (maxAlignment == pointsChaos) alignmentId = AlignmentType.Chaotic;
+            this.alignmentId = alignmentId;
         }
     }
 }

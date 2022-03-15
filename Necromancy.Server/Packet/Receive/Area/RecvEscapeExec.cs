@@ -7,15 +7,17 @@ namespace Necromancy.Server.Packet.Receive.Area
 {
     public class RecvEscapeExec : PacketResponse
     {
-        public RecvEscapeExec()
+        private int _result;
+        public RecvEscapeExec(int result)
             : base((ushort)AreaPacketId.recv_escape_exec, ServerType.Area)
         {
+            _result = result;
         }
 
         protected override IBuffer ToBuffer()
         {
             IBuffer res = BufferProvider.Provide();
-            res.WriteInt32(0);
+            res.WriteInt32(_result);
             return res;
         }
     }

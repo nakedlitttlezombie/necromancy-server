@@ -216,7 +216,7 @@ namespace Necromancy.Server
                 //send your soul to all the other souls runnin around
                 RecvDataNotifyCharaData cData = new RecvDataNotifyCharaData(collectedBody.character, collectedBody.soul.name);
                 foreach (NecClient soulStateClient in client.map.clientLookup.GetAll())
-                    if (soulStateClient.character.state == CharacterState.SoulForm)
+                    if (soulStateClient.character.stateFlags == CharacterState.SoulForm)
                         router.Send(soulStateClient, cData.ToPacket());
             }
 
@@ -588,6 +588,10 @@ namespace Necromancy.Server
             _areaConsumer.AddHandler(new SendAuctionRegistSearchItemCond(this));
             _areaConsumer.AddHandler(new SendAuctionDeregistSearchItemCond(this));
             _areaConsumer.AddHandler(new SendReviveInit(this));
+            _areaConsumer.AddHandler(new SendRaisescaleRemoveItem(this));
+            _areaConsumer.AddHandler(new SendCashShopGetCurrentCash(this));
+            _areaConsumer.AddHandler(new SendCashShopGetUrlCommon(this));
+            _areaConsumer.AddHandler(new SendReviveExecute(this));
         }
     }
 }

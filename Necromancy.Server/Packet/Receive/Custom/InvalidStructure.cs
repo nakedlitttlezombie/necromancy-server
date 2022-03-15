@@ -3,13 +3,13 @@ using Necromancy.Server.Common;
 using Necromancy.Server.Model;
 using Necromancy.Server.Packet.Id;
 
-namespace Necromancy.Server.Packet.Receive.Area
+namespace Necromancy.Server.Packet.Receive.Custom
 {
-    public class RecvLogoutStart : PacketResponse
+    public class InvalidStructure : PacketResponse
     {
         private int _result;
-        public RecvLogoutStart(int result)
-            : base((ushort)AreaPacketId.recv_logout_start, ServerType.Area)
+        public InvalidStructure(int result)
+            : base((ushort)AreaPacketId.recv_escape_start, ServerType.Area)
         {
             _result = result;
         }
@@ -17,7 +17,7 @@ namespace Necromancy.Server.Packet.Receive.Area
         protected override IBuffer ToBuffer()
         {
             IBuffer res = BufferProvider.Provide();
-            res.WriteInt32(_result);
+            //res.WriteInt32(_result);   commenting out this makes the structure invalid
             return res;
         }
     }

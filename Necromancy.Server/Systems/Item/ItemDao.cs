@@ -512,7 +512,7 @@ namespace Necromancy.Server.Systems.Item
         public List<ItemInstance> SelectLootableInventoryItems(uint ownerId)
         {
             List<ItemInstance> lootableItemInstances = new List<ItemInstance>();
-            ExecuteReader(SQL_SELECT_OWNED_INVENTORY_ITEMS,
+            ExecuteReader(SQL_SELECT_LOOTABLE_INVENTORY_ITEMS,
                 command => { AddParameter(command, "@owner_id", ownerId); }, reader =>
                 {
                     while (reader.Read()) lootableItemInstances.Add(MakeItemInstance(reader));

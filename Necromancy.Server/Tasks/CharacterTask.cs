@@ -64,7 +64,7 @@ namespace Necromancy.Server.Tasks
 
                 StatRegen();
 
-                if (_tickCounter >= 60) //set to 600 or 1200 for 5 minutes or 10 minutes. true to game is 10 minutes. 
+                if (_tickCounter >= 600) //set to 600 or 1200 for 5 minutes or 10 minutes. true to game is 10 minutes. 
                 {
                     _tickCounter = 0;
                     CriminalRepent();
@@ -103,11 +103,12 @@ namespace Necromancy.Server.Tasks
             _client.soul.materialLawful += 10;
             _client.soul.materialLife += 10;
             _client.soul.materialReincarnation += 10;
-            _client.soul.pointsChaos += 10; //temporary. testing
         }
 
         private void StatRegen()
         {
+            //_Logger.Debug($"Current Gaurd Points : {_client.character.gp.current} / Max Gaurd Points : {_client.character.gp.max}");
+
             if (_client.character.gp.current < _client.character.gp.max)
             {
                 _client.character.gp.SetCurrent(_client.character.gp.current + 5 /*_client.Character.GPRecoveryRate*/);
@@ -133,7 +134,8 @@ namespace Necromancy.Server.Tasks
         {
             _playerDied = true;
             _client.character.hasDied = true;
-            _client.character.state = CharacterState.SoulForm;
+            _client.character.ClearStateBit(CharacterState.NormalForm);
+            _client.character.AddStateBit(CharacterState.SoulForm);
             _client.character.deadType = (short)Util.GetRandomNumber(1, 4);
             _Logger.Debug($"Death Animation Number : {_client.character.deadType}");
 
@@ -204,7 +206,7 @@ namespace Necromancy.Server.Tasks
                     _server.router.Send(_client.map, recvObjectDisappearNotify.ToPacket(), _client);
                     //send your soul to all the other souls runnin around
                     foreach (NecClient client in _clients)
-                        if (client.character.state == CharacterState.SoulForm)
+                        if (client.character.stateFlags.HasFlag(CharacterState.SoulForm))
                             soulStateClients.Add(client);
                     //re-render your soulstate character to your client with out gear on it, and any other soul state clients on map.
                     RecvDataNotifyCharaData cData = new RecvDataNotifyCharaData(_client.character, _client.soul.name);
@@ -221,7 +223,7 @@ namespace Necromancy.Server.Tasks
                             // skip myself
                             continue;
                         //Render all the souls if you are in soul form yourself
-                        if (otherClient.character.state == CharacterState.SoulForm)
+                        if (otherClient.character.stateFlags == CharacterState.SoulForm)
                         {
                             RecvDataNotifyCharaData otherCharacterData = new RecvDataNotifyCharaData(otherClient.character, otherClient.soul.name);
                             _server.router.Send(otherCharacterData, _client);
@@ -262,36 +264,19 @@ namespace Necromancy.Server.Tasks
             _Logger.Debug($"_logoutType [{_logoutType}]");
             if (_logoutType == 0x00) // Return to Title   also   Exit Game
             {
-                res = null;
                 res = BufferProvider.Provide();
-                //res.WriteInt64(1);
-                //res.WriteInt16(1);
+                res.WriteInt32(10);
                 _server.router.Send(_client, (ushort)AreaPacketId.recv_escape_start, res, ServerType.Area);
-
-
-                //IBuffer buffer = BufferProvider.Provide();
-                //buffer.WriteInt32(0);
-                //NecPacket response = new NecPacket((ushort)CustomPacketId.RecvDisconnect,buffer,ServerType.Msg,PacketType.Disconnect);
-
-                //_server.Router.Send(_client, response);
             }
 
-            if (_logoutType == 0x01) // Return to Character Select
+            if (_logoutType == 0x01) // Return to soul Select
             {
                 res.WriteInt32(0);
                 _server.router.Send(_client, (ushort)MsgPacketId.recv_chara_select_back_soul_select_r, res,
                     ServerType.Msg);
-
-                Thread.Sleep(4100);
-
-                res = null;
-                res = BufferProvider.Provide();
-                res.WriteInt32(0);
-                res.WriteByte(0);
-                _server.router.Send(_client, (ushort)MsgPacketId.recv_soul_authenticate_passwd_r, res, ServerType.Msg);
             }
 
-            if (_logoutType == 0x02)
+            if (_logoutType == 0x02) //return to character select
             {
                 res.WriteInt32(0);
                 _server.router.Send(_client, (ushort)MsgPacketId.recv_chara_select_back_r, res, ServerType.Msg);

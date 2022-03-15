@@ -51,12 +51,12 @@ namespace Necromancy.Server.Packet.Area
         {
             if (client.character.hp.current <= 0)
             {
-                client.character.state |= CharacterState.SoulForm;
+                client.character.stateFlags |= CharacterState.SoulForm;
                 client.character.hasDied = true;
             }
 
-            if (client.character.hp.current < -1) client.character.state |= CharacterState.LostState;
-            if ((int)client.account.state == 100) client.character.state |= CharacterState.GameMaster;
+            if (client.character.hp.current < -1) client.character.stateFlags |= CharacterState.LostState;
+            if ((int)client.account.state == 100) client.character.stateFlags |= CharacterState.GameMaster;
         }
 
         public void LoadHonor(NecClient client)

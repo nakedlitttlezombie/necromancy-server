@@ -48,7 +48,7 @@ namespace Necromancy.Server.Packet.Receive.Area
             res.WriteByte(_character.heading);
             res.WriteInt32(_character.activeModel); // Character.ActiveModel  0 = default
             res.WriteInt16(_character.modelScale); //Character.Scale   100 = normal size.
-            res.WriteUInt64((ulong)_character.state); //Character State
+            res.WriteUInt64((ulong)_character.stateFlags); //Character State
             res.WriteInt16(1); // current level ??
 
             //sub_483420

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using Necromancy.Server.Model;
+using Necromancy.Server.Model.CharacterModel;
 
 namespace Necromancy.Server.Database.Sql.Core
 {
@@ -9,8 +10,8 @@ namespace Necromancy.Server.Database.Sql.Core
         where TCom : DbCommand
     {
         private const string SQL_INSERT_CHARACTER = @"
-            INSERT INTO nec_character(account_id,soul_id,slot,map_id,x,y,z,name,race_id,sex_id,hair_id,hair_color_id,face_id,strength,vitality,dexterity,agility,intelligence,piety,luck,class_id,level,created,hp_current,mp_current,gold,condition_current,channel,face_arrange_id,voice_id,experience_current,skill_points)
-            VALUES(@account_id,@soul_id,@slot,@map_id,@x,@y,@z,@name,@race_id,@sex_id,@hair_id,@hair_color_id,@face_id,@strength,@vitality,@dexterity,@agility,@intelligence,@piety,@luck,@class_id,@level,@created,@hp_current,@mp_current,@gold,@condition_current,@channel,@face_arrange_id,@voice_id,@experience_current,@skill_points)";
+            INSERT INTO nec_character(account_id,soul_id,slot,map_id,x,y,z,name,race_id,sex_id,hair_id,hair_color_id,face_id,strength,vitality,dexterity,agility,intelligence,piety,luck,points_lawful,points_neutral,points_chaos,class_id,level,created,hp_current,mp_current,gold,condition_current,channel,face_arrange_id,voice_id,experience_current,skill_points)
+            VALUES(@account_id,@soul_id,@slot,@map_id,@x,@y,@z,@name,@race_id,@sex_id,@hair_id,@hair_color_id,@face_id,@strength,@vitality,@dexterity,@agility,@intelligence,@piety,@luck,@points_lawful,@points_neutral,@points_chaos,@class_id,@level,@created,@hp_current,@mp_current,@gold,@condition_current,@channel,@face_arrange_id,@voice_id,@experience_current,@skill_points)";
 
         private const string SQL_SELECT_CHARACTER_BY_ID = @"
             SELECT * FROM nec_character WHERE id=@id";
@@ -25,7 +26,7 @@ namespace Necromancy.Server.Database.Sql.Core
             SELECT * FROM nec_character WHERE soul_id=@soul_id AND slot=@slot";
 
         private const string SQL_UPDATE_CHARACTER =
-            "UPDATE `nec_character` SET `account_id`=@account_id, `soul_id`=@soul_id, `slot`=@slot, `map_id`=@map_id, `x`=@x, `y`=@y, `z`=@z, `name`=@name, `race_id`=@race_id, `sex_id`=@sex_id, `hair_id`=@hair_id, `hair_color_id`=@hair_color_id, `face_id`=@face_id, `strength`=@strength, `vitality`=@vitality, `dexterity`=@dexterity, `agility`=@agility, `intelligence`=@intelligence, `piety`=@piety, `luck`=@luck, `class_id`=@class_id, `level`=@level, `created`=@created, `hp_current`=@hp_current, `mp_current`=@mp_current, `gold`=@gold, `condition_current`=@condition_current, `channel`=@channel, `face_arrange_id`=@face_arrange_id, `voice_id`=@voice_id, `experience_current`=@experience_current, `skill_points`=@skill_points WHERE `id`=@id;";
+            "UPDATE `nec_character` SET `account_id`=@account_id, `soul_id`=@soul_id, `slot`=@slot, `map_id`=@map_id, `x`=@x, `y`=@y, `z`=@z, `name`=@name, `race_id`=@race_id, `sex_id`=@sex_id, `hair_id`=@hair_id, `hair_color_id`=@hair_color_id, `face_id`=@face_id, `strength`=@strength, `vitality`=@vitality, `dexterity`=@dexterity, `agility`=@agility, `intelligence`=@intelligence, `piety`=@piety, `luck`=@luck, `points_lawful`=@points_lawful, `points_neutral`=@points_neutral, `points_chaos`=@points_chaos, `class_id`=@class_id, `level`=@level, `created`=@created, `hp_current`=@hp_current, `mp_current`=@mp_current, `gold`=@gold, `condition_current`=@condition_current, `channel`=@channel, `face_arrange_id`=@face_arrange_id, `voice_id`=@voice_id, `experience_current`=@experience_current, `skill_points`=@skill_points WHERE `id`=@id;";
 
         private const string SQL_DELETE_CHARACTER =
             "DELETE FROM `nec_character` WHERE `id`=@id;";
@@ -57,6 +58,9 @@ namespace Necromancy.Server.Database.Sql.Core
                 AddParameter(command, "@intelligence", character.intelligence);
                 AddParameter(command, "@piety", character.piety);
                 AddParameter(command, "@luck", character.luck);
+                AddParameter(command, "@points_lawful", character.pointsLawful);
+                AddParameter(command, "@points_neutral", character.pointsNeutral);
+                AddParameter(command, "@points_chaos", character.pointsChaos);
                 AddParameter(command, "@class_id", character.classId);
                 AddParameter(command, "@level", character.level);
                 AddParameter(command, "@created", character.created);
@@ -156,6 +160,9 @@ namespace Necromancy.Server.Database.Sql.Core
                 AddParameter(command, "@intelligence", character.intelligence);
                 AddParameter(command, "@piety", character.piety);
                 AddParameter(command, "@luck", character.luck);
+                AddParameter(command, "@points_lawful", character.pointsLawful);
+                AddParameter(command, "@points_neutral", character.pointsNeutral);
+                AddParameter(command, "@points_chaos", character.pointsChaos);
                 AddParameter(command, "@class_id", character.classId);
                 AddParameter(command, "@level", character.level);
                 AddParameter(command, "@created", character.created);
@@ -220,6 +227,9 @@ namespace Necromancy.Server.Database.Sql.Core
             character.intelligence = GetByte(reader, "intelligence");
             character.piety = GetByte(reader, "piety");
             character.luck = GetByte(reader, "luck");
+            character.pointsLawful = GetByte(reader, "points_lawful");
+            character.pointsNeutral = GetByte(reader, "points_neutral");
+            character.pointsChaos = GetByte(reader, "points_chaos");
             character.classId = GetByte(reader, "class_id");
             character.level = GetByte(reader, "level");
             character.hp.SetMax(GetInt32(reader, "hp_current")); //Temporary until Max HP calc is created

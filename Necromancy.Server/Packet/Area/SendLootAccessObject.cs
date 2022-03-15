@@ -29,7 +29,7 @@ namespace Necromancy.Server.Packet.Area
             int instanceId = packet.data.ReadInt32();
             MonsterSpawn monster = client.map.GetMonsterByInstanceId((uint)instanceId);
             _Logger.Debug($"{client.character.name} is trying to loot object {instanceId}.  Inventory Space {client.character.itemLocationVerifier.GetTotalFreeSpace(ItemZoneType.AdventureBag)}");
-            ItemLocation nextOpenLocation = client.character.itemLocationVerifier.NextOpenSlot(ItemZoneType.AdventureBag);
+            ItemLocation nextOpenLocation = client.character.itemLocationVerifier.NextOpenSlotInInventory();
 
             if (monster == null) result = -10;
             else if (monster.loot.itemCountRng == 0) result = -1;
