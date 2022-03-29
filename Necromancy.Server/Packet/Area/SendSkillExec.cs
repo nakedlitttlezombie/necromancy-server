@@ -83,6 +83,64 @@ namespace Necromancy.Server.Packet.Area
             //Router.Send(client, (ushort)AreaPacketId.recv_object_hp_per_update_notify, res4, ServerType.Area);
         }
 
+        private void newSkillBaseScanTypeEntryPoint(NecClient client, int _skillId, int targetId)
+        {
+            if (!_server.settingRepository.skillBase.TryGetValue(_skillId, out SkillBaseSetting skillBaseSetting))
+            {
+                _Logger.Error($"Could not get SkillBaseSetting for skillId : {_skillId}");
+                return;
+            }
+
+            switch (skillBaseSetting.characteristicEffectType)
+            {
+                case "1":
+
+                    break;
+                case "ATTACK":
+
+                    break;
+                case "Characteristic effect type":
+
+                    break;
+                case "DEFENCE":
+
+                    break;
+                case "DEFENSE":
+
+                    break;
+                case "HEAL":
+
+                    break;
+                case "JAM":
+
+                    break;
+                case "OTHER":
+
+                    break;
+                case "RAISE":
+
+                    break;
+                case "SUPPORT":
+
+                    break;
+                default:
+                    _Logger.Error($" _skillId: {_skillId} does not exist.");
+                    break;
+            }
+                    //Row Labels  Count of Characteristic effect type
+                    //1   13
+                    //ATTACK  1645
+                    //Characteristic effect type  12
+                    //DEFENCE 154
+                    //DEFENSE 1
+                    //HEAL    414
+                    //JAM 242
+                    //OTHER   1
+                    //RAISE   47
+                    //SUPPORT 1089
+                    //(blank)
+        }
+
         private void MageSkill(NecClient client, int skillId, int targetId)
         {
             if (!_server.settingRepository.skillBase.TryGetValue(skillId, out SkillBaseSetting skillBaseSetting))
